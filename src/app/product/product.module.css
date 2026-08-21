@@ -1,0 +1,159 @@
+.container {
+  padding: 4rem 5%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 5rem;
+}
+
+.pricingCard {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.pricingCard:hover {
+  transform: translateY(-10px);
+  border-color: var(--primary-color);
+}
+
+.pricingCard.popular {
+  border-color: var(--primary-color);
+  background: linear-gradient(180deg, rgba(223, 182, 178, 0.1) 0%, var(--bg-card) 100%);
+  position: relative;
+}
+
+.popularBadge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary-color);
+  color: var(--bg-dark);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.cardHeader {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1.5rem;
+}
+
+.cardName {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.cardPrice {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.cardPrice span {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+
+.featuresList {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 2rem;
+  flex: 1;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+}
+
+.featureIcon {
+  color: var(--secondary-color);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.reviewsSection {
+  margin-bottom: 5rem;
+}
+
+.reviewsTitle {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 3rem;
+}
+
+.reviewsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.reviewCard {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reviewAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-color);
+}
+
+.reviewName {
+  font-weight: bold;
+}
+
+.reviewRole {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.stars {
+  color: #FFD700;
+  margin-bottom: 1rem;
+}

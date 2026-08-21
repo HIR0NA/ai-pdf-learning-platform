@@ -1,0 +1,108 @@
+.container {
+  padding: 4rem 5%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 80vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.missionSection {
+  background: var(--bg-card);
+  padding: 3rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.missionTitle {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.missionDesc {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.teamCard {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.teamCard:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.memberName {
+  font-size: 1.5rem;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.memberRole {
+  color: var(--primary-color);
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.socialLinks {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.socialIcon {
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.socialIcon:hover {
+  color: white;
+}

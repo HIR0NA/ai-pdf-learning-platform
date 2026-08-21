@@ -1,0 +1,166 @@
+.container {
+  padding: 4rem 5%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 80vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+.searchBar {
+  margin: 2rem auto;
+  max-width: 600px;
+  position: relative;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+  color: white;
+  font-size: 1rem;
+  outline: none;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+.blogGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.blogCard {
+  background: var(--bg-card);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.blogCard:hover {
+  transform: translateY(-5px);
+  border-color: rgba(223, 182, 178, 0.3);
+}
+
+.imagePlaceholder {
+  height: 200px;
+  background: linear-gradient(135deg, rgba(43,18,76,0.8), rgba(133,79,108,0.3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardContent {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.category {
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+  color: white;
+  text-decoration: none;
+}
+
+.cardTitle:hover {
+  text-decoration: underline;
+}
+
+.excerpt {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  flex: 1;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Post Page Styles */
+.postHeader {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.postTitle {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.postMeta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.postMetaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.postContent {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.9);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.postContent h2 {
+  font-size: 2rem;
+  margin: 3rem 0 1.5rem;
+  color: white;
+}
+
+.postContent p {
+  margin-bottom: 1.5rem;
+}

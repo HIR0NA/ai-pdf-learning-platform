@@ -1,0 +1,36 @@
+name: DevSecOps CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - run: npm ci
+    - run: npx prisma generate
+    - run: npm run build
+    
+    - name: Run ESLint
+      run: npm run lint
+
+  dast-scan:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - name: ZAP Scan
+      uses: zaproxy/action-baseline@v0.10.0
+      with:
+        target: 'http://localhost:3000' # Replace with staging URL in production
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'

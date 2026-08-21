@@ -1,0 +1,195 @@
+.container {
+  padding: 4rem 5%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 80vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.checkoutWrapper {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .checkoutWrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Left Column: Form & Payment */
+.formSection {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 2rem;
+}
+
+.inputGroup {
+  margin-bottom: 1.5rem;
+}
+
+.inputGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: rgba(133, 79, 108, 0.1);
+}
+
+.paymentMethods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.paymentCard {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem 1rem;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.paymentCard:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.paymentCard.active {
+  border-color: var(--primary-color);
+  background: rgba(133, 79, 108, 0.1);
+  color: white;
+}
+
+.paymentIcon {
+  margin-bottom: 0.5rem;
+}
+
+/* Right Column: Order Summary */
+.summarySection {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: sticky;
+  top: 100px;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+}
+
+.summaryRow.total {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.summaryValue {
+  color: white;
+}
+
+.payButton {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.qrContainer {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: #333;
+  margin-top: 1.5rem;
+}
+
+.qrImage {
+  width: 200px;
+  height: 200px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.bankDetails {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bankRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
