@@ -7,8 +7,16 @@ import QuizApp from '@/components/QuizApp';
 import FlashcardApp from '@/components/FlashcardApp';
 import StudySchedule from '@/components/StudySchedule';
 import DocumentSummary from '@/components/DocumentSummary';
-import { ChevronLeft, ChevronRight, FileText, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX, LayoutDashboard } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, FileText, Layers, LayoutDashboard, ListChecks, MessageSquare, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX } from 'lucide-react';
 import Link from 'next/link';
+
+const learningTabs = [
+  { id: 'chat', label: 'Chat', icon: MessageSquare },
+  { id: 'summary', label: 'Summary', icon: FileText },
+  { id: 'quiz', label: 'Quiz', icon: ListChecks },
+  { id: 'flashcard', label: 'Flashcard', icon: Layers },
+  { id: 'schedule', label: 'Schedule', icon: CalendarDays },
+] as const;
 
 export default function Dashboard() {
   const { t } = useLanguage();
@@ -476,25 +484,33 @@ export default function Dashboard() {
           
           {activeFile && (
             <div style={{ display: 'flex', borderBottom: '1px solid rgba(0, 255, 255, 0.2)', background: 'rgba(0,0,0,0.2)' }}>
-              {['chat', 'summary', 'quiz', 'flashcard', 'schedule'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => tab === 'chat' ? setActiveTab('chat') : loadTool(tab as any)}
-                  style={{
-                    flex: 1,
-                    padding: '10px',
-                    background: activeTab === tab ? 'rgba(0, 255, 255, 0.1)' : 'transparent',
-                    border: 'none',
-                    borderBottom: activeTab === tab ? '2px solid var(--primary-color)' : '2px solid transparent',
-                    color: activeTab === tab ? 'var(--primary-color)' : 'var(--text-secondary)',
-                    cursor: 'pointer',
-                    fontWeight: activeTab === tab ? 'bold' : 'normal',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {tab === 'chat' ? '💬 Chat' : tab === 'summary' ? '📄 Summary' : tab === 'quiz' ? '📝 Quiz' : tab === 'flashcard' ? '🃏 Flashcard' : '📅 Schedule'}
-                </button>
-              ))}
+              {learningTabs.map((tab) => {
+                const TabIcon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => tab.id === 'chat' ? setActiveTab('chat') : loadTool(tab.id)}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      background: activeTab === tab.id ? 'rgba(0, 255, 255, 0.1)' : 'transparent',
+                      border: 'none',
+                      borderBottom: activeTab === tab.id ? '2px solid var(--primary-color)' : '2px solid transparent',
+                      color: activeTab === tab.id ? 'var(--primary-color)' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      fontWeight: activeTab === tab.id ? 'bold' : 'normal',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <TabIcon size={16} aria-hidden="true" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
           

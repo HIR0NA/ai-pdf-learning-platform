@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Trophy } from 'lucide-react';
 
 type QuizQuestion = {
   question: string;
@@ -48,7 +49,9 @@ export default function QuizApp({ data }: { data: QuizQuestion[] }) {
   if (showResult) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(0,0,0,0.2)', borderRadius: '12px' }}>
-        <h2 style={{ color: 'var(--primary-color)' }}>🎉 Quiz Completed!</h2>
+        <h2 style={{ color: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <Trophy size={24} aria-hidden="true" /> Quiz Completed!
+        </h2>
         <p style={{ fontSize: '1.5rem', margin: '1rem 0' }}>You scored {score} out of {data.length}</p>
         <button 
           onClick={handleRestart}
