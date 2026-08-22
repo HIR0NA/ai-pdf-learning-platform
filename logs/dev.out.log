@@ -79,3 +79,20 @@
  GET /dashboard 200 in 576ms (next.js: 185ms, proxy.ts: 160ms, application-code: 232ms)
 [ACCESS LOG] 2026-08-22T15:25:28.253Z | IP: ::1 | METHOD: DELETE | URL: /api/files/165c8a23-b466-41a6-8e92-2dbb9565625b.pdf
  DELETE /api/files/165c8a23-b466-41a6-8e92-2dbb9565625b.pdf 200 in 1043ms (next.js: 380ms, proxy.ts: 65ms, application-code: 598ms)
+○ Compiling /dashboard/overview ...
+ GET /dashboard/overview 200 in 11.3s (next.js: 10.7s, proxy.ts: 60ms, application-code: 523ms)
+ GET /dashboard/overview 200 in 420ms (next.js: 59ms, proxy.ts: 114ms, application-code: 248ms)
+ GET /dashboard 200 in 226ms (next.js: 48ms, proxy.ts: 48ms, application-code: 130ms)
+[ACCESS LOG] 2026-08-22T15:27:59.614Z | IP: ::1 | METHOD: GET | URL: /api/files
+ GET /api/files 200 in 701ms (next.js: 187ms, proxy.ts: 68ms, application-code: 446ms)
+[ACCESS LOG] 2026-08-22T15:28:00.363Z | IP: ::1 | METHOD: GET | URL: /api/files
+ GET /api/files 200 in 202ms (next.js: 41ms, proxy.ts: 81ms, application-code: 80ms)
+✓ Compiled in 423ms
+ GET /dashboard 200 in 1236ms (next.js: 365ms, proxy.ts: 406ms, application-code: 465ms)
+ GET /dashboard 200 in 556ms (next.js: 52ms, proxy.ts: 52ms, application-code: 452ms)
+ GET /dashboard 200 in 308ms (next.js: 44ms, proxy.ts: 75ms, application-code: 189ms)
+✓ Compiled in 230ms
+ GET /dashboard 200 in 1401ms (next.js: 447ms, proxy.ts: 155ms, application-code: 799ms)
+ GET /dashboard 200 in 843ms (next.js: 59ms, proxy.ts: 66ms, application-code: 718ms)
+ GET /dashboard 200 in 417ms (next.js: 70ms, proxy.ts: 83ms, application-code: 264ms)
+ GET /login 200 in 1231ms (next.js: 159ms, application-code: 1072ms)
