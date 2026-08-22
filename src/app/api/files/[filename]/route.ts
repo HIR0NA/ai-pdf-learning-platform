@@ -85,6 +85,11 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ filen
       where: { filename, userId }
     });
 
+    // Delete generated summaries and study tools for this document.
+    await prisma.learningTool.deleteMany({
+      where: { filename, userId }
+    });
+
     // Per user request: DO NOT delete physical files from the machine
 
     return NextResponse.json({ message: 'Deleted successfully' });

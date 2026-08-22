@@ -10,14 +10,13 @@ mermaid.initialize({
   securityLevel: 'loose',
 });
 
-let idCounter = 0;
-
 export default function MermaidViewer({ chart }: { chart: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const idRef = useRef(`mermaid-${Date.now()}-${idCounter++}`);
+  const idRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (containerRef.current && chart) {
+      idRef.current ??= `mermaid-${crypto.randomUUID()}`;
       try {
         mermaid.render(idRef.current, chart)
           .then((result) => {
@@ -31,7 +30,7 @@ export default function MermaidViewer({ chart }: { chart: string }) {
               containerRef.current.innerHTML = `<div style="color:#ff003c; padding: 10px; border: 1px dashed #ff003c; font-size: 0.8rem;">ERR: MIND_MAP_RENDER_FAILED<br/>(AI may have generated invalid syntax)</div>`;
             }
           });
-      } catch (e: any) {
+      } catch (e: unknown) {
         console.error("Mermaid rendering sync error", e);
         if (containerRef.current) {
           containerRef.current.innerHTML = `<div style="color:#ff003c; padding: 10px; border: 1px dashed #ff003c; font-size: 0.8rem;">ERR: INVALID_MERMAID_SYNTAX<br/>(AI generated invalid diagram code)</div>`;

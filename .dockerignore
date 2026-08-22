@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.docker-compose-up.log
+.docker-compose-up.err.log
+.env
+uploads
+prisma/dev.db
+npm-debug.log*

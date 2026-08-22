@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:push": "prisma db push",
+    "db:seed": "node seed_admin.js",
+    "db:sync-uploads": "node sync_db.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

@@ -90,7 +90,7 @@ export default function ProductPage() {
                 </div>
               </div>
               <div className={styles.stars}>★★★★★</div>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>"{r.review}"</p>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>&ldquo;{r.review}&rdquo;</p>
             </div>
           ))}
         </div>

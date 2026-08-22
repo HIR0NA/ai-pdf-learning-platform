@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import styles from './Footer.module.css';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -34,10 +35,10 @@ export default function Footer() {
           <div style={{ marginTop: '2rem' }}>
             <h4 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>เมนูลัด</h4>
             <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <li><a href="/product" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>บริการและราคา</a></li>
-              <li><a href="/blog" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>บทความความรู้</a></li>
-              <li><a href="/contact" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>ติดต่อเรา</a></li>
-              <li><a href="/dashboard" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>แดชบอร์ดแชท</a></li>
+              <li><Link href="/product" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>บริการและราคา</Link></li>
+              <li><Link href="/blog" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>บทความความรู้</Link></li>
+              <li><Link href="/contact" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>ติดต่อเรา</Link></li>
+              <li><Link href="/dashboard" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>แดชบอร์ดแชท</Link></li>
             </ul>
           </div>
         </div>

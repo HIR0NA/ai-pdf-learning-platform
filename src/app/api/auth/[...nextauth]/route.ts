@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import type { NextRequest } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -172,53 +173,26 @@ export const authOptions: NextAuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
-export { handler as GET };
 
-export async function POST(req: Request, context: any) {
-  const clonedReq = req.clone();
-  let rememberMe = false;
-  try {
-    const text = await clonedReq.text();
-    const params = new URLSearchParams(text);
-    if (params.has("rememberMe")) {
-      rememberMe = params.get("rememberMe") === "true";
-    } else {
-      try {
-        const json = JSON.parse(text);
-        rememberMe = json.rememberMe === "true";
-      } catch (e) {}
-    }
-  } catch (e) {}
+type AuthRouteContext = {
+  params: Promise<{ nextauth?: string[] }>;
+};
 
-  const customOptions = {
-    ...authOptions,
-    session: {
-      ...authOptions.session,
-      maxAge: rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60, // Token valid for 1 day max if not checked
-    }
+function authContext(request: NextRequest) {
+  const nextauth = request.nextUrl.pathname
+    .split('/')
+    .filter(Boolean)
+    .slice(2);
+
+  return {
+    params: Promise.resolve({ nextauth }),
   };
+}
 
-  const response = await NextAuth(customOptions)(req, context) as Response;
+export async function GET(request: NextRequest, _context: AuthRouteContext) {
+  return handler(request, authContext(request));
+}
 
-  if (!rememberMe) {
-    const newHeaders = new Headers(response.headers);
-    if (newHeaders.has("Set-Cookie")) {
-      const cookies = newHeaders.getSetCookie();
-      newHeaders.delete("Set-Cookie");
-      for (const cookie of cookies) {
-        let modifiedCookie = cookie.replace(/Max-Age=[0-9]+;?\s*/i, '');
-        modifiedCookie = modifiedCookie.replace(/Expires=[^;]+;?\s*/i, '');
-        console.log("Original cookie:", cookie);
-        console.log("Modified cookie:", modifiedCookie);
-        newHeaders.append("Set-Cookie", modifiedCookie);
-      }
-      return new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: newHeaders
-      });
-    }
-  }
-
-  return response;
+export async function POST(request: NextRequest, _context: AuthRouteContext) {
+  return handler(request, authContext(request));
 }

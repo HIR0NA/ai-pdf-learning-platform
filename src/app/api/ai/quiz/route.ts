@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { sanitizeInput } from '@/lib/sanitize';
+import { GEMINI_MODEL, withGeminiRetry } from '@/lib/gemini';
 
 const SYSTEM_INSTRUCTION = "คุณคือ AI Study Companion ผู้ช่วยเรียนรู้ของนักเรียน หน้าที่ของคุณคือสรุปเนื้อหา สร้างข้อสอบ และทำ Flashcard ให้ตอบเฉพาะเรื่องที่เกี่ยวกับการศึกษา ห้ามให้ข้อมูลที่เป็นอันตรายหรือผิดกฎหมาย";
 
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
+      model: GEMINI_MODEL,
       systemInstruction: SYSTEM_INSTRUCTION,
       generationConfig: {
         responseMimeType: "application/json",
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
 
     const prompt = `สร้างคำถามปรนัย (Quiz) จำนวน ${amount} ข้อ ในหัวข้อต่อไปนี้:\n${sanitizedTopic}\n\nให้ตอบกลับมาเป็น JSON array โดยแต่ละข้อมีโครงสร้างดังนี้: { "question": "...", "options": ["...", "...", "...", "..."], "answer": "..." }`;
 
-    const result = await model.generateContent(prompt);
+    const result = await withGeminiRetry(() => model.generateContent(prompt));
     const responseText = result.response.text();
     
     // Parse JSON just to validate format before sending

@@ -8,7 +8,7 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 10; // 10 requests per minute
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Initialize default headers for CORS
@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
   
   // CORS Configuration: Only allow specific domains or localhost in development
   const allowedOrigins = ['http://localhost:3000'];
-  let res = NextResponse.next({
+  const res = NextResponse.next({
     request: { headers }
   });
 
@@ -46,7 +46,8 @@ export async function middleware(request: NextRequest) {
 
   // Phase 4: API Security & Rate Limiting
   if (pathname.startsWith('/api/ai') || pathname.startsWith('/api/upload')) {
-    const ip = request.ip || request.headers.get('x-forwarded-for') || 'anonymous';
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const ip = forwardedFor?.split(',')[0]?.trim() || 'anonymous';
     const now = Date.now();
     const rateLimitData = rateLimitMap.get(ip);
 

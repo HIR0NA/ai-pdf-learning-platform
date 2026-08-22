@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -86,7 +86,7 @@ model Message {
 
 model LearningTool {
   id         String   @id @default(cuid())
-  type       String   // 'quiz', 'flashcard', 'schedule'
+  type       String   // 'summary', 'quiz', 'flashcard', 'schedule'
   data       String   // JSON payload stored as string
   filename   String
   userId     String

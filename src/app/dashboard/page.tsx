@@ -6,6 +6,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import QuizApp from '@/components/QuizApp';
 import FlashcardApp from '@/components/FlashcardApp';
 import StudySchedule from '@/components/StudySchedule';
+import DocumentSummary from '@/components/DocumentSummary';
 import { ChevronLeft, ChevronRight, FileText, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 
@@ -23,7 +24,7 @@ export default function Dashboard() {
   const chatHistoryRef = useRef<HTMLDivElement>(null);
 
   // Tools state
-  const [activeTab, setActiveTab] = useState<'chat' | 'quiz' | 'flashcard' | 'schedule'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'summary' | 'quiz' | 'flashcard' | 'schedule'>('chat');
   const [toolData, setToolData] = useState<any>(null);
   const [isToolLoading, setIsToolLoading] = useState(false);
 
@@ -120,7 +121,8 @@ export default function Dashboard() {
         // Set the new file as active
         const newFile = { filename: data.filename, title: file.name };
         setActiveFile(newFile);
-        setMessages([{ role: 'ai', content: `SYSTEM_MSG: PDF "${file.name}" loaded successfully. You can now ask questions.` }]);
+        setMessages([{ role: 'ai', content: `อ่าน PDF "${file.name}" เรียบร้อยแล้ว คุณสามารถถามข้อมูลจากเอกสารได้` }]);
+        await loadTool('summary', data.filename);
         setTimeout(() => setStatus(''), 3000);
       } else {
         setStatus(`ERR: ${data.error || 'UPLOAD_FAILED'}`);
@@ -165,7 +167,7 @@ export default function Dashboard() {
           const { value, done: doneReading } = await reader.read();
           done = doneReading;
           if (value) {
-            const chunkValue = decoder.decode(value);
+            const chunkValue = decoder.decode(value, { stream: true });
             aiText += chunkValue;
             
             // Update the last message
@@ -175,6 +177,16 @@ export default function Dashboard() {
               return newMessages;
             });
           }
+        }
+
+        const finalText = decoder.decode();
+        if (finalText) {
+          aiText += finalText;
+          setMessages(prev => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1] = { role: 'ai', content: aiText };
+            return newMessages;
+          });
         }
       }
     } catch (error: any) {
@@ -194,8 +206,11 @@ export default function Dashboard() {
     submitQuery(query);
   };
 
-  const loadTool = async (type: 'quiz' | 'flashcard' | 'schedule') => {
-    if (!activeFile) return;
+  const loadTool = async (
+    type: 'summary' | 'quiz' | 'flashcard' | 'schedule',
+    targetFilename = activeFile?.filename,
+  ) => {
+    if (!targetFilename) return;
     setActiveTab(type);
     setIsToolLoading(true);
     setToolData(null);
@@ -203,7 +218,7 @@ export default function Dashboard() {
       const res = await fetch('/api/tools', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, filename: activeFile.filename })
+        body: JSON.stringify({ type, filename: targetFilename })
       });
       const json = await res.json();
       if (res.ok) {
@@ -461,7 +476,7 @@ export default function Dashboard() {
           
           {activeFile && (
             <div style={{ display: 'flex', borderBottom: '1px solid rgba(0, 255, 255, 0.2)', background: 'rgba(0,0,0,0.2)' }}>
-              {['chat', 'quiz', 'flashcard', 'schedule'].map((tab) => (
+              {['chat', 'summary', 'quiz', 'flashcard', 'schedule'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => tab === 'chat' ? setActiveTab('chat') : loadTool(tab as any)}
@@ -477,7 +492,7 @@ export default function Dashboard() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  {tab === 'chat' ? '💬 Chat' : tab === 'quiz' ? '📝 Quiz' : tab === 'flashcard' ? '🃏 Flashcard' : '📅 Schedule'}
+                  {tab === 'chat' ? '💬 Chat' : tab === 'summary' ? '📄 Summary' : tab === 'quiz' ? '📝 Quiz' : tab === 'flashcard' ? '🃏 Flashcard' : '📅 Schedule'}
                 </button>
               ))}
             </div>
@@ -529,7 +544,7 @@ export default function Dashboard() {
               </div>
             ))
           )}
-                  {isTyping && (
+                  {isTyping && messages[messages.length - 1]?.content === '' && (
                     <div className={`${styles.message} ${styles.aiMessage}`}>
                       <span className={styles.role}>{t('dash_system')}</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -566,6 +581,7 @@ export default function Dashboard() {
                     <p style={{ marginTop: '1rem' }}>AI is generating your {activeTab}... This might take a few seconds.</p>
                   </div>
                 ) : toolData ? (
+                  activeTab === 'summary' ? <DocumentSummary data={toolData} /> :
                   activeTab === 'quiz' ? <QuizApp data={toolData} /> :
                   activeTab === 'flashcard' ? <FlashcardApp data={toolData} /> :
                   activeTab === 'schedule' ? <StudySchedule data={toolData} /> : null

@@ -3,9 +3,9 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
-import { writeFile, mkdir, readFile } from 'fs/promises';
+import { writeFile, mkdir, unlink } from 'fs/promises';
 import path from 'path';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { DocumentTextError, extractPdfText } from '@/lib/document-text';
 
 const prisma = new PrismaClient();
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -42,19 +42,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Security alert: Invalid file signature. Fake PDF detected.' }, { status: 400 });
     }
 
-    const fileName = `${uuidv4()}.pdf`;
-    const uploadDir = path.join(process.cwd(), 'uploads');
-    
+    let extractedText: string;
     try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (e) {
-      // Ignore if exists
+      extractedText = await extractPdfText(buffer);
+    } catch (error) {
+      if (error instanceof DocumentTextError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+      }
+      console.error('PDF extraction failed:', error);
+      return NextResponse.json({ error: 'ไม่สามารถอ่านข้อความจาก PDF ได้' }, { status: 422 });
     }
 
-    const filePath = path.join(uploadDir, fileName);
-    await writeFile(filePath, buffer);
+    const fileName = `${uuidv4()}.pdf`;
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    await mkdir(uploadDir, { recursive: true });
 
-    // Save to DB
+    const filePath = path.join(uploadDir, fileName);
+    const textPath = path.join(uploadDir, `${fileName}.txt`);
+    await writeFile(filePath, buffer);
+    await writeFile(textPath, extractedText, 'utf8');
+
     try {
       await prisma.document.create({
         data: {
@@ -63,27 +70,20 @@ export async function POST(req: Request) {
           url: `/api/files/${fileName}`,
           size: file.size,
           mimeType: file.type,
-          userId: (session.user as any).id,
+          userId: (session.user as { id: string }).id,
         }
       });
-    } catch (e) {
-      console.error("Failed to save to DB:", e);
-    }
-
-    // Phase: RAG Vectorization (Background/Sync)
-    try {
-      if (process.env.GEMINI_API_KEY) {
-        const { exec } = require('child_process');
-        exec(`node extract_single.js ${fileName}`, (err: any, stdout: string, stderr: string) => {
-          if (err) console.error("Text extraction failed:", err);
-          else console.log("Text extracted:", stdout);
-        });
-      }
     } catch (error) {
-      console.error('Text extraction failed:', error);
+      await Promise.allSettled([unlink(filePath), unlink(textPath)]);
+      console.error('Failed to save document:', error);
+      return NextResponse.json({ error: 'ไม่สามารถบันทึกข้อมูลเอกสารได้' }, { status: 500 });
     }
 
-    return NextResponse.json({ message: 'File uploaded successfully', filename: fileName }, { status: 201 });
+    return NextResponse.json({
+      message: 'File uploaded and text extracted successfully',
+      filename: fileName,
+      textLength: extractedText.length,
+    }, { status: 201 });
 
   } catch (error) {
     console.error('Upload error:', error);

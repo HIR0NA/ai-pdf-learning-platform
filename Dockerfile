@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:22.13-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm ci --ignore-scripts --no-audit --no-fund
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -19,6 +19,7 @@ COPY . .
 # Next.js telemetry is disabled
 ENV NEXT_TELEMETRY_DISABLED 1
 
+RUN npx prisma generate
 RUN npm run build
 
 # Production image, copy all the files and run next
