@@ -7,8 +7,16 @@ import QuizApp from '@/components/QuizApp';
 import FlashcardApp from '@/components/FlashcardApp';
 import StudySchedule from '@/components/StudySchedule';
 import DocumentSummary from '@/components/DocumentSummary';
-import { CalendarDays, ChevronLeft, ChevronRight, FileText, Layers, LayoutDashboard, ListChecks, MessageSquare, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Cpu, FileText, Layers, LayoutDashboard, ListChecks, MessageSquare, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX } from 'lucide-react';
 import Link from 'next/link';
+
+type ProviderId = 'gemini' | 'openai' | 'grok' | 'groq' | 'bazaarlink';
+type ProviderOption = {
+  id: ProviderId;
+  name: string;
+  model: string;
+  configured: boolean;
+};
 
 const learningTabs = [
   { id: 'chat', label: 'Chat', icon: MessageSquare },
@@ -35,6 +43,8 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<'chat' | 'summary' | 'quiz' | 'flashcard' | 'schedule'>('chat');
   const [toolData, setToolData] = useState<any>(null);
   const [isToolLoading, setIsToolLoading] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<ProviderId>('gemini');
+  const [providerOptions, setProviderOptions] = useState<ProviderOption[]>([]);
 
   // Sidebar state
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -76,6 +86,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDocuments();
+    fetchAIProviders();
   }, []);
 
   useEffect(() => {
@@ -93,6 +104,20 @@ export default function Dashboard() {
       }
     } catch (e) {
       console.error('Failed to fetch documents', e);
+    }
+  };
+
+  const fetchAIProviders = async () => {
+    try {
+      const res = await fetch('/api/ai/providers');
+      if (!res.ok) return;
+      const data = await res.json();
+      const options = data.providers as ProviderOption[];
+      setProviderOptions(options);
+      const fallback = options.find((option) => option.configured)?.id;
+      setSelectedProvider((data.defaultProvider as ProviderId | null) || fallback || 'gemini');
+    } catch (error) {
+      console.error('Failed to fetch AI providers', error);
     }
   };
 
@@ -156,7 +181,11 @@ export default function Dashboard() {
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: userMessage.content, filename: activeFile.filename }),
+        body: JSON.stringify({
+          query: userMessage.content,
+          filename: activeFile.filename,
+          provider: selectedProvider,
+        }),
       });
       
       if (!res.ok) {
@@ -226,7 +255,7 @@ export default function Dashboard() {
       const res = await fetch('/api/tools', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, filename: targetFilename })
+        body: JSON.stringify({ type, filename: targetFilename, provider: selectedProvider })
       });
       const json = await res.json();
       if (res.ok) {
@@ -236,7 +265,7 @@ export default function Dashboard() {
         setActiveTab('chat');
       }
     } catch (e) {
-      alert('Error fetching tool data');
+      alert(e instanceof Error ? e.message : 'Error fetching tool data');
       setActiveTab('chat');
     } finally {
       setIsToolLoading(false);
@@ -478,8 +507,37 @@ export default function Dashboard() {
         </section>
 
         <section className={styles.chatPane}>
-          <div className={styles.paneHeader}>
-            {t('dash_ai_interface')} {activeFile ? `[ ${t('dash_connected')} ${activeFile.filename.substring(0,8)}... ]` : `[ ${t('dash_standby')} ]`}
+          <div className={styles.paneHeader} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+            <span>
+              {t('dash_ai_interface')} {activeFile ? `[ ${t('dash_connected')} ${activeFile.filename.substring(0,8)}... ]` : `[ ${t('dash_standby')} ]`}
+            </span>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '0.8rem' }}>
+              <Cpu size={16} aria-hidden="true" />
+              <select
+                value={selectedProvider}
+                onChange={(event) => {
+                  const provider = event.target.value as ProviderId;
+                  setSelectedProvider(provider);
+                  setToolData(null);
+                  setActiveTab('chat');
+                }}
+                aria-label="เลือกโมเดล AI"
+                style={{
+                  maxWidth: '210px',
+                  padding: '6px 8px',
+                  color: 'var(--text-color)',
+                  background: 'rgba(0,0,0,0.55)',
+                  border: '1px solid rgba(0,255,255,0.35)',
+                  borderRadius: '6px',
+                }}
+              >
+                {providerOptions.map((option) => (
+                  <option key={option.id} value={option.id} disabled={!option.configured}>
+                    {option.name} - {option.model}{option.configured ? '' : ' (ยังไม่มี API key)'}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           
           {activeFile && (

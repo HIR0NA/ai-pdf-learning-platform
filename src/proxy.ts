@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-
-// Basic in-memory rate limiter (For production, use Redis)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+import { consumeRateLimit } from '@/lib/rate-limit';
+import { getClientAddress } from '@/lib/security';
 
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 10; // 10 requests per minute
+
+function getRequestToken(request: NextRequest) {
+  return getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+    secureCookie: process.env.NODE_ENV === 'production',
+  });
+}
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -40,38 +47,48 @@ export async function proxy(request: NextRequest) {
 
   // Phase 6: Access Logging for all API routes
   if (pathname.startsWith('/api/')) {
-    const ip = request.headers.get('x-forwarded-for') || 'anonymous';
+    const ip = getClientAddress(request.headers);
     console.log(`[ACCESS LOG] ${new Date().toISOString()} | IP: ${ip} | METHOD: ${request.method} | URL: ${pathname}`);
   }
 
   // Phase 4: API Security & Rate Limiting
   if (pathname.startsWith('/api/ai') || pathname.startsWith('/api/upload')) {
-    const forwardedFor = request.headers.get('x-forwarded-for');
-    const ip = forwardedFor?.split(',')[0]?.trim() || 'anonymous';
-    const now = Date.now();
-    const rateLimitData = rateLimitMap.get(ip);
+    const token = await getRequestToken(request);
+    const identity = token?.id
+      ? `user:${String(token.id)}`
+      : `network:${getClientAddress(request.headers)}`;
 
-    if (rateLimitData && rateLimitData.resetTime > now) {
-      if (rateLimitData.count >= MAX_REQUESTS) {
+    try {
+      const rateLimit = await consumeRateLimit(
+        `${identity}:${pathname}`,
+        MAX_REQUESTS,
+        RATE_LIMIT_WINDOW_MS / 1000,
+      );
+
+      if (!rateLimit.allowed) {
         return new NextResponse(JSON.stringify({ error: 'Too Many Requests' }), {
           status: 429,
           headers: {
             'Content-Type': 'application/json',
-            'Retry-After': Math.ceil((rateLimitData.resetTime - now) / 1000).toString(),
+            'Retry-After': String(rateLimit.retryAfterSeconds),
+            'X-RateLimit-Remaining': '0',
             'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : '',
           },
         });
       }
-      rateLimitData.count++;
-      rateLimitMap.set(ip, rateLimitData);
-    } else {
-      rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+      res.headers.set('X-RateLimit-Remaining', String(rateLimit.remaining));
+    } catch (error) {
+      console.error('Rate limiter unavailable:', error);
+      return NextResponse.json(
+        { error: 'Rate limiter temporarily unavailable' },
+        { status: 503, headers: { 'Retry-After': '5' } },
+      );
     }
   }
 
   // Dashboard Protection
   if (pathname.startsWith('/dashboard')) {
-    const token = await getToken({ req: request });
+    const token = await getRequestToken(request);
     if (!token) {
       const url = new URL('/login', request.url);
       url.searchParams.set('callbackUrl', encodeURI(pathname));
@@ -81,9 +98,14 @@ export async function proxy(request: NextRequest) {
 
   // Phase 2: RBAC (Role-Based Access Control)
   if (pathname.startsWith('/admin')) {
-    const token = await getToken({ req: request });
-    if (!token || token.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+    const token = await getRequestToken(request);
+    if (!token) {
+      const url = new URL('/login', request.url);
+      url.searchParams.set('callbackUrl', encodeURI(pathname));
+      return NextResponse.redirect(url);
+    }
+    if (token.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
   }
 

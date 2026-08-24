@@ -1,4 +1,5 @@
 FROM node:22.13-alpine AS base
+RUN apk add --no-cache openssl
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -8,7 +9,8 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-RUN npm ci --ignore-scripts --no-audit --no-fund
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --ignore-scripts --no-audit --no-fund --prefer-offline
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -20,7 +22,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN npx prisma generate
-RUN npm run build
+RUN npm run build -- --webpack
 
 # Production image, copy all the files and run next
 FROM base AS runner

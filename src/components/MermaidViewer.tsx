@@ -7,7 +7,7 @@ import mermaid from 'mermaid';
 mermaid.initialize({
   startOnLoad: false,
   theme: 'dark',
-  securityLevel: 'loose',
+  securityLevel: 'strict',
 });
 
 export default function MermaidViewer({ chart }: { chart: string }) {

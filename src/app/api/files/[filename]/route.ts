@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs/promises';
-import path from 'path';
+import { isSafeStoredPdfFilename, resolveStoredDocumentPaths } from '@/lib/security';
 
 const prisma = new PrismaClient();
+
+function sessionIdentity(session: { user?: unknown } | null) {
+  const user = session?.user as { id?: string; role?: string } | undefined;
+  return { userId: user?.id, isAdmin: user?.role === 'ADMIN' };
+}
+
+async function findAuthorizedDocument(filename: string, userId: string, isAdmin: boolean) {
+  return prisma.document.findFirst({
+    where: isAdmin ? { filename } : { filename, userId },
+  });
+}
 
 export async function GET(req: Request, { params }: { params: Promise<{ filename: string }> }) {
   try {
@@ -17,22 +28,22 @@ export async function GET(req: Request, { params }: { params: Promise<{ filename
 
     const { filename } = await params;
 
-    // Check if the user owns this file (or is admin)
-    const userId = (session.user as any).id;
-    if (userId !== 'admin-123') {
-      const doc = await prisma.document.findFirst({
-        where: { filename, userId }
-      });
-      
-      if (!doc) {
-        return new NextResponse('Not Found or Unauthorized', { status: 404 });
-      }
+    if (!isSafeStoredPdfFilename(filename)) {
+      return new NextResponse('Invalid filename', { status: 400 });
     }
 
-    const filePath = path.join(process.cwd(), 'uploads', filename);
+    const { userId, isAdmin } = sessionIdentity(session);
+    if (!userId) return new NextResponse('Unauthorized', { status: 401 });
+
+    const doc = await findAuthorizedDocument(filename, userId, isAdmin);
+    if (!doc) {
+      return new NextResponse('Not Found or Unauthorized', { status: 404 });
+    }
+
+    const { pdfPath } = resolveStoredDocumentPaths(filename);
     
     try {
-      const fileBuffer = await fs.readFile(filePath);
+      const fileBuffer = await fs.readFile(pdfPath);
       
       return new NextResponse(fileBuffer, {
         headers: {
@@ -59,38 +70,39 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ filen
     }
 
     const { filename } = await params;
-    const userId = (session.user as any).id;
+    const { userId, isAdmin } = sessionIdentity(session);
 
-    if (!filename) {
-      return NextResponse.json({ error: 'Filename is required' }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify ownership (or admin)
-    if (userId !== 'admin-123') {
-      const doc = await prisma.document.findFirst({
-        where: { filename, userId }
-      });
-      if (!doc) {
-        return NextResponse.json({ error: 'Not Found or Unauthorized' }, { status: 404 });
+    if (!isSafeStoredPdfFilename(filename)) {
+      return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
+    }
+
+    const doc = await findAuthorizedDocument(filename, userId, isAdmin);
+    if (!doc) {
+      return NextResponse.json({ error: 'Not Found or Unauthorized' }, { status: 404 });
+    }
+
+    const { pdfPath, textPath, indexPath } = resolveStoredDocumentPaths(filename);
+
+    await prisma.$transaction([
+      prisma.message.deleteMany({ where: { filename, userId: doc.userId } }),
+      prisma.learningTool.deleteMany({ where: { filename, userId: doc.userId } }),
+      prisma.document.delete({ where: { id: doc.id } }),
+    ]);
+
+    const cleanupResults = await Promise.allSettled([
+      fs.unlink(pdfPath),
+      fs.unlink(textPath),
+      fs.unlink(indexPath),
+    ]);
+    for (const result of cleanupResults) {
+      if (result.status === 'rejected' && (result.reason as NodeJS.ErrnoException).code !== 'ENOENT') {
+        console.error('Failed to remove a stored document artifact:', result.reason);
       }
     }
-
-    // Delete Document record
-    await prisma.document.deleteMany({
-      where: { filename, userId }
-    });
-
-    // Delete associated Messages
-    await prisma.message.deleteMany({
-      where: { filename, userId }
-    });
-
-    // Delete generated summaries and study tools for this document.
-    await prisma.learningTool.deleteMany({
-      where: { filename, userId }
-    });
-
-    // Per user request: DO NOT delete physical files from the machine
 
     return NextResponse.json({ message: 'Deleted successfully' });
   } catch (error) {
@@ -108,30 +120,34 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ filena
     }
 
     const { filename } = await params;
-    const userId = (session.user as any).id;
+    const { userId, isAdmin } = sessionIdentity(session);
     const body = await req.json();
     const { title } = body;
 
-    if (!filename || !title) {
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!isSafeStoredPdfFilename(filename)) {
+      return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
+    }
+
+    if (typeof title !== 'string' || !title.trim() || title.trim().length > 255) {
       return NextResponse.json({ error: 'Filename and title are required' }, { status: 400 });
     }
 
-    // Verify ownership
-    if (userId !== 'admin-123') {
-      const doc = await prisma.document.findFirst({
-        where: { filename, userId }
-      });
-      if (!doc) {
-        return NextResponse.json({ error: 'Not Found or Unauthorized' }, { status: 404 });
-      }
+    const doc = await findAuthorizedDocument(filename, userId, isAdmin);
+    if (!doc) {
+      return NextResponse.json({ error: 'Not Found or Unauthorized' }, { status: 404 });
     }
 
-    await prisma.document.updateMany({
-      where: { filename, userId: userId !== 'admin-123' ? userId : undefined },
-      data: { title }
+    const normalizedTitle = title.trim();
+    await prisma.document.update({
+      where: { id: doc.id },
+      data: { title: normalizedTitle }
     });
 
-    return NextResponse.json({ message: 'Renamed successfully', title });
+    return NextResponse.json({ message: 'Renamed successfully', title: normalizedTitle });
   } catch (error) {
     console.error('Error renaming file:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

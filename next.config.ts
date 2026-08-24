@@ -16,6 +16,10 @@ const cspHeader = `
 const nextConfig: NextConfig = {
   output: 'standalone',
   serverExternalPackages: ['pdf-parse'],
+  experimental: {
+    // Allows multipart overhead while the route enforces a strict 10MB file limit.
+    proxyClientMaxBodySize: '12mb',
+  },
   async headers() {
     return [
       {

@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { writeFile, mkdir, unlink } from 'fs/promises';
-import path from 'path';
 import { DocumentTextError, extractPdfText } from '@/lib/document-text';
+import {
+  exceedsUploadRequestLimit,
+  MAX_PDF_FILE_SIZE,
+  resolveStoredDocumentPaths,
+} from '@/lib/security';
 
 const prisma = new PrismaClient();
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_MIME_TYPE = 'application/pdf';
 
 export async function POST(req: Request) {
@@ -19,10 +22,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
+    if (exceedsUploadRequestLimit(req.headers)) {
+      return NextResponse.json({ error: 'File size exceeds 10MB limit.' }, { status: 413 });
+    }
 
-    if (!file) {
+    const formData = await req.formData();
+    const file = formData.get('file');
+
+    if (!(file instanceof File)) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
     
@@ -30,8 +37,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid file type. Only PDF is allowed.' }, { status: 400 });
     }
 
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: 'File size exceeds 10MB limit.' }, { status: 400 });
+    if (file.size > MAX_PDF_FILE_SIZE) {
+      return NextResponse.json({ error: 'File size exceeds 10MB limit.' }, { status: 413 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -54,12 +61,10 @@ export async function POST(req: Request) {
     }
 
     const fileName = `${uuidv4()}.pdf`;
-    const uploadDir = path.join(process.cwd(), 'uploads');
+    const { root: uploadDir, pdfPath, textPath } = resolveStoredDocumentPaths(fileName);
     await mkdir(uploadDir, { recursive: true });
 
-    const filePath = path.join(uploadDir, fileName);
-    const textPath = path.join(uploadDir, `${fileName}.txt`);
-    await writeFile(filePath, buffer);
+    await writeFile(pdfPath, buffer);
     await writeFile(textPath, extractedText, 'utf8');
 
     try {
@@ -74,7 +79,7 @@ export async function POST(req: Request) {
         }
       });
     } catch (error) {
-      await Promise.allSettled([unlink(filePath), unlink(textPath)]);
+      await Promise.allSettled([unlink(pdfPath), unlink(textPath)]);
       console.error('Failed to save document:', error);
       return NextResponse.json({ error: 'ไม่สามารถบันทึกข้อมูลเอกสารได้' }, { status: 500 });
     }
@@ -87,6 +92,9 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error('Upload error:', error);
+    if (exceedsUploadRequestLimit(req.headers)) {
+      return NextResponse.json({ error: 'File size exceeds 10MB limit.' }, { status: 413 });
+    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

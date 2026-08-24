@@ -20,6 +20,11 @@
 # production
 /build
 
+# private user documents and generated audit artifacts
+/uploads/
+/outputs/
+/.artifact-runtime/
+
 # misc
 .DS_Store
 *.pem

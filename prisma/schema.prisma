@@ -87,6 +87,7 @@ model Message {
 model LearningTool {
   id         String   @id @default(cuid())
   type       String   // 'summary', 'quiz', 'flashcard', 'schedule'
+  provider   String   @default("legacy")
   data       String   // JSON payload stored as string
   filename   String
   userId     String

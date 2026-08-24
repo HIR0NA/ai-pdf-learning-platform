@@ -1,25 +1,24 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/route';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
-import { GEMINI_MODEL, withGeminiRetry } from '@/lib/gemini';
 import { DocumentTextError, getOwnedDocumentText } from '@/lib/document-text';
+import { generateAIText, getAIProvider } from '@/lib/ai-provider';
 
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { type, filename, forceRegenerate } = await req.json() as {
+    const { type, filename, provider, forceRegenerate } = await req.json() as {
       type?: string;
       filename?: string;
+      provider?: string;
       forceRegenerate?: boolean;
     };
 
@@ -31,11 +30,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid tool type' }, { status: 400 });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: 'API Key missing' }, { status: 500 });
-    }
-
     const userId = (session.user as { id: string }).id;
+    const selectedProvider = getAIProvider(provider);
 
     let contextText: string;
     try {
@@ -50,12 +46,15 @@ export async function POST(req: Request) {
     // Check if tool data already exists
     if (!forceRegenerate) {
       const existingTool = await prisma.learningTool.findFirst({
-        where: { type, filename, userId },
+        where: { type, filename, userId, provider: selectedProvider },
         orderBy: { createdAt: 'desc' }
       });
 
       if (existingTool) {
-        return NextResponse.json({ data: JSON.parse(existingTool.data) });
+        return NextResponse.json({
+          data: JSON.parse(existingTool.data),
+          provider: selectedProvider,
+        });
       }
     }
 
@@ -135,28 +134,30 @@ ${contextText}
 TASK:
 ${schemaPrompt}`;
 
-    const model = genAI.getGenerativeModel({ 
-      model: GEMINI_MODEL,
-      generationConfig: { responseMimeType: "application/json" }
+    const result = await generateAIText(fullPrompt, {
+      json: true,
+      provider: selectedProvider,
     });
-
-    const result = await withGeminiRetry(() => model.generateContent(fullPrompt));
-    const jsonString = result.response.text();
+    const jsonString = result.text;
     
     // Parse to ensure it's valid JSON
-    const parsedData = JSON.parse(jsonString);
+    const normalizedJSON = jsonString.trim()
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/, '');
+    const parsedData = JSON.parse(normalizedJSON);
 
     // Save to DB
     await prisma.learningTool.create({
       data: {
         type,
+        provider: result.provider,
         data: JSON.stringify(parsedData),
         filename,
         userId
       }
     });
 
-    return NextResponse.json({ data: parsedData });
+    return NextResponse.json({ data: parsedData, provider: result.provider, model: result.model });
 
   } catch (error: unknown) {
     console.error('API error:', error);

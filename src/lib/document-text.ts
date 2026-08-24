@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { readFile, writeFile } from 'fs/promises';
-import path from 'path';
 import pdfParse from 'pdf-parse';
+import { isSafeStoredPdfFilename, resolveStoredDocumentPaths } from '@/lib/security';
 
 export class DocumentTextError extends Error {
   constructor(
@@ -45,6 +45,10 @@ export async function getOwnedDocumentText(
   userId: string,
   filename: string,
 ) {
+  if (!isSafeStoredPdfFilename(filename)) {
+    throw new DocumentTextError('ชื่อไฟล์เอกสารไม่ถูกต้อง', 400);
+  }
+
   const document = await prisma.document.findFirst({
     where: { filename, userId },
   });
@@ -53,9 +57,7 @@ export async function getOwnedDocumentText(
     throw new DocumentTextError('ไม่พบเอกสารหรือคุณไม่มีสิทธิ์เข้าถึงไฟล์นี้', 404);
   }
 
-  const uploadDir = path.join(process.cwd(), 'uploads');
-  const pdfPath = path.join(uploadDir, document.filename);
-  const textPath = path.join(uploadDir, `${document.filename}.txt`);
+  const { pdfPath, textPath } = resolveStoredDocumentPaths(document.filename);
 
   try {
     const text = normalizeExtractedText(await readFile(textPath, 'utf8'));

@@ -3,8 +3,16 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function run() {
-  const email = process.env.ADMIN_EMAIL || 'admin@example.com';
-  const password = process.env.ADMIN_PASSWORD || 'Admin@1234';
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error('ADMIN_EMAIL must be a valid email address');
+  }
+  if (!password || password.length < 12 || password.length > 128) {
+    throw new Error('ADMIN_PASSWORD must be set and contain 12-128 characters');
+  }
+
   const hashedPassword = await bcrypt.hash(password, 12);
 
   await prisma.user.upsert({
@@ -17,7 +25,6 @@ async function run() {
       lockedUntil: null,
     },
     create: {
-      id: 'admin-123',
       email,
       name: 'Administrator',
       password: hashedPassword,

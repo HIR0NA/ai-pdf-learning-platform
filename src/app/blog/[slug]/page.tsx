@@ -58,7 +58,7 @@ export default function BlogPostPage() {
           {!post.imageUrl && <span style={{opacity: 0.5}}>&lt;IMAGE_COVER/&gt;</span>}
         </div>
 
-        <div className={styles.postContent} dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br/>') }} />
+        <div className={styles.postContent} style={{ whiteSpace: 'pre-wrap' }}>{post.content}</div>
         
       </article>
     </div>
