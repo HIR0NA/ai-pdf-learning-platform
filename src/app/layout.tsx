@@ -34,12 +34,6 @@ export default function RootLayout({
   return (
     <html lang="th" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            document.body.classList.remove('light-reading-mode');
-            localStorage.removeItem('reading-mode');
-          `
-        }} />
         <Providers>
           <LanguageProvider>
             <Navbar />
