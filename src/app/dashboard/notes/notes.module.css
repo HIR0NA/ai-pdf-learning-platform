@@ -1,0 +1,109 @@
+.container {
+  padding: 6rem 2rem 2rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: calc(100vh - 100px);
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-color);
+}
+.backBtn {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s;
+}
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.form {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 3rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+.inputGroup {
+  margin-bottom: 1.5rem;
+}
+.inputGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.input, .textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.submitBtn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+.submitBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+.notesList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.noteCard {
+  background: var(--surface-color);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.noteTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+.noteDate {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+.noteContent {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
