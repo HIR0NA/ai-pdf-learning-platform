@@ -640,11 +640,17 @@ export default function Dashboard() {
             {t('dash_pdf_viewer')} {activeFile ? `[ ${activeFile.title} ]` : ''}
           </div>
           {activeFile ? (
-            <iframe
-              src={`/api/files/${activeFile.filename}`}
-              className={styles.pdfViewer}
-              title="PDF Viewer"
-            />
+            activeFile.filename.endsWith('.md') ? (
+              <div className={styles.pdfViewer} style={{ padding: '20px', overflowY: 'auto', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+                <MDViewer filename={activeFile.filename} />
+              </div>
+            ) : (
+              <iframe
+                src={`/api/files/${activeFile.filename}`}
+                className={styles.pdfViewer}
+                title="PDF Viewer"
+              />
+            )
           ) : (
             <div
               className={`${styles.emptyUpload} ${isDragging ? styles.dragging : ''}`}
@@ -815,4 +821,15 @@ export default function Dashboard() {
       </main>
     </div>
   );
+}
+
+function MDViewer({ filename }: { filename: string }) {
+  const [content, setContent] = React.useState('กำลังโหลดข้อมูล...');
+  React.useEffect(() => {
+    fetch('/api/files/' + filename)
+      .then(res => res.text())
+      .then(text => setContent(text))
+      .catch(() => setContent('ไม่สามารถโหลดข้อมูลเอกสารได้'));
+  }, [filename]);
+  return <>{content}</>;
 }

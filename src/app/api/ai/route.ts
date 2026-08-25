@@ -81,8 +81,16 @@ ${contextText}
 
     prompt += `คำถามปัจจุบัน: ${query.trim()}`;
     
-    // Use streaming
-    const resultStream = await createAITextStream(prompt, provider);
+    // Get file path for native Gemini vision support
+    const { resolveStoredDocumentPaths } = await import('@/lib/security');
+    const { pdfPath } = resolveStoredDocumentPaths(filename);
+    
+    // Determine mimeType
+    const isPdf = filename.toLowerCase().endsWith('.pdf');
+    const mimeType = isPdf ? 'application/pdf' : 'text/plain';
+
+    // Use streaming (pass file path for Gemini vision)
+    const resultStream = await createAITextStream(prompt, provider, pdfPath, mimeType);
     
     // Create a custom ReadableStream to send text chunks
     const stream = new ReadableStream({

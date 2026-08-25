@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     }
 
     if (exceedsUploadRequestLimit(req.headers)) {
-      return NextResponse.json({ error: 'File size exceeds 10MB limit.' }, { status: 413 });
+      return NextResponse.json({ error: 'File size exceeds 50MB limit.' }, { status: 413 });
     }
 
     const formData = await req.formData();
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: 'File size exceeds 10MB limit.' }, { status: 413 });
+      return NextResponse.json({ error: 'File size exceeds 50MB limit.' }, { status: 413 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Upload error:', error);
     if (exceedsUploadRequestLimit(req.headers)) {
-      return NextResponse.json({ error: 'File size exceeds 10MB limit.' }, { status: 413 });
+      return NextResponse.json({ error: 'File size exceeds 50MB limit.' }, { status: 413 });
     }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

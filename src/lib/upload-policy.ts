@@ -1,7 +1,7 @@
 export const PDF_MIME_TYPE = 'application/pdf';
 export const MD_MIME_TYPE = 'text/markdown';
-export const MAX_FILE_SIZE = 10 * 1024 * 1024;
-export const MAX_FILE_SIZE_MB = 10;
+export const MAX_FILE_SIZE = 50 * 1024 * 1024;
+export const MAX_FILE_SIZE_MB = 50;
 
 export const uploadPolicy = {
   acceptedExtensions: ['.pdf', '.md', '.markdown'],
