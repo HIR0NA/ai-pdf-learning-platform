@@ -507,7 +507,7 @@ export default function Dashboard() {
         >
           {isSidebarExpanded && <Upload size={24} className={styles.uploadIcon} aria-hidden="true" />}
           {isSidebarExpanded && <strong>{t('dash_drag_pdf' as any)}</strong>}
-          {isSidebarExpanded && <span className={styles.uploadHint}>{t('dash_pdf_only' as any)} · {t('dash_max_size' as any)} {MAX_PDF_FILE_SIZE_MB}MB</span>}
+          {isSidebarExpanded && <span className={styles.uploadHint}>{t('dash_pdf_only' as any)} · {t('dash_max_size' as any)} {MAX_FILE_SIZE_MB}MB</span>}
           <label htmlFor="file-upload" className={styles.uploadLabel} title={!isSidebarExpanded ? String(t('dash_new_upload')) : undefined}>
             {isSidebarExpanded ? t('dash_choose_pdf' as any) : <Upload size={17} />}
           </label>
@@ -656,7 +656,7 @@ export default function Dashboard() {
               <div className={styles.emptyUploadIcon}><Upload size={30} /></div>
               <h2>{t('dash_start_learning' as any)}</h2>
               <p>{t('dash_drag_or_choose' as any)}</p>
-              <span>{t('dash_supported_pdf' as any)} · {t('dash_max_size' as any)} {MAX_PDF_FILE_SIZE_MB}MB</span>
+              <span>{t('dash_supported_pdf' as any)} · {t('dash_max_size' as any)} {MAX_FILE_SIZE_MB}MB</span>
               <label htmlFor="file-upload" className={styles.primaryUploadButton}>{t('dash_choose_pdf' as any)}</label>
               <small><LockKeyhole size={13} /> {t('dash_file_private' as any)} · <Link href="/privacy">{t('dash_privacy_link' as any)}</Link></small>
             </div>
