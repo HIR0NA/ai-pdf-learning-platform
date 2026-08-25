@@ -1,8 +1,8 @@
 import path from 'path';
-import { MAX_PDF_FILE_SIZE } from './upload-policy.ts';
+import { MAX_FILE_SIZE } from './upload-policy.ts';
 
-export { MAX_PDF_FILE_SIZE };
-export const MAX_UPLOAD_REQUEST_SIZE = MAX_PDF_FILE_SIZE + 1024 * 1024;
+export { MAX_FILE_SIZE };
+export const MAX_UPLOAD_REQUEST_SIZE = MAX_FILE_SIZE + 1024 * 1024;
 
 const STORED_DOC_FILENAME =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(pdf|md|markdown)$/i;

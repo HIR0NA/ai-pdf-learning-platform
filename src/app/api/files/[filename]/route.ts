@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs/promises';
-import { isSafeStoredPdfFilename, resolveStoredDocumentPaths } from '@/lib/security';
+import { isSafeStoredDocumentFilename, resolveStoredDocumentPaths } from '@/lib/security';
 
 const prisma = new PrismaClient();
 
@@ -28,7 +28,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ filename
 
     const { filename } = await params;
 
-    if (!isSafeStoredPdfFilename(filename)) {
+    if (!isSafeStoredDocumentFilename(filename)) {
       return new NextResponse('Invalid filename', { status: 400 });
     }
 
@@ -76,7 +76,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ filen
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!isSafeStoredPdfFilename(filename)) {
+    if (!isSafeStoredDocumentFilename(filename)) {
       return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
     }
 
@@ -128,7 +128,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ filena
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!isSafeStoredPdfFilename(filename)) {
+    if (!isSafeStoredDocumentFilename(filename)) {
       return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
     }
 

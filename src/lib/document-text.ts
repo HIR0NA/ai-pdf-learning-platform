@@ -1,7 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-import { readFile, writeFile } from 'fs/promises';
-import pdfParse from 'pdf-parse';
+import { readFile, writeFile, unlink } from 'fs/promises';
 import { isSafeStoredDocumentFilename, resolveStoredDocumentPaths } from '@/lib/security';
+import { exec } from 'child_process';
+import util from 'util';
+import path from 'path';
+import os from 'os';
+import { v4 as uuidv4 } from 'uuid';
+
+const execAsync = util.promisify(exec);
 
 export class DocumentTextError extends Error {
   constructor(
@@ -22,43 +28,33 @@ function normalizeExtractedText(text: string) {
 }
 
 export async function extractPdfText(buffer: Buffer) {
-  // pdf.js bundled by pdf-parse 1.x misreads Node 22 Buffer offsets.
-  // A standalone Uint8Array gives it the exact PDF byte range.
-  const parsePdf = pdfParse as unknown as (
-    data: Uint8Array,
-    options?: { pagerender?: (pageData: any) => Promise<string> },
-  ) => Promise<{ text: string }>;
-  let pageCounter = 0;
-  const parsed = await parsePdf(new Uint8Array(buffer), {
-    pagerender: async (pageData) => {
-      pageCounter += 1;
-      const content = await pageData.getTextContent({
-        normalizeWhitespace: true,
-        disableCombineTextItems: false,
-      });
-      let lastY: number | undefined;
-      let pageText = '';
-
-      for (const item of content.items as Array<{ str?: string; transform?: number[] }>) {
-        if (!item.str) continue;
-        const currentY = item.transform?.[5];
-        pageText += lastY === undefined || currentY === lastY ? item.str : `\n${item.str}`;
-        lastY = currentY;
-      }
-
-      return `[หน้า ${pageCounter}]\n${pageText}`;
-    },
-  });
-  const text = normalizeExtractedText(parsed.text);
-
-  if (!text) {
-    throw new DocumentTextError(
-      'ไม่พบข้อความใน PDF ไฟล์นี้อาจเป็นเอกสารสแกนที่ต้องใช้ OCR',
-      422,
-    );
+  const tempId = uuidv4();
+  const tempPath = path.join(os.tmpdir(), `${tempId}.pdf`);
+  
+  try {
+    await writeFile(tempPath, buffer);
+    // Use MarkItDown for much better PDF to Markdown extraction
+    const { stdout } = await execAsync(`python -m markitdown "${tempPath}"`, { maxBuffer: 1024 * 1024 * 50 }); // 50MB buffer
+    
+    const text = normalizeExtractedText(stdout);
+    if (!text) {
+      throw new DocumentTextError(
+        'ไม่พบข้อความใน PDF ไฟล์นี้อาจเป็นเอกสารสแกนที่ต้องใช้ OCR',
+        422,
+      );
+    }
+    return text;
+  } catch (error) {
+    if (error instanceof DocumentTextError) throw error;
+    console.error('MarkItDown Error:', error);
+    throw new DocumentTextError('ไม่สามารถอ่านข้อความจาก PDF ได้ (MarkItDown Error)', 422);
+  } finally {
+    try {
+      await unlink(tempPath);
+    } catch (e) {
+      // Ignore cleanup errors
+    }
   }
-
-  return text;
 }
 
 export async function getOwnedDocumentText(
