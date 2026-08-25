@@ -34,14 +34,14 @@ export default function AboutPage() {
       </div>
 
       <h2 style={{ textAlign: 'center', fontSize: '2.5rem', marginBottom: '2rem' }}>{t('about_team_title' as any)}</h2>
-      
+
       <div className={styles.teamGrid}>
         {/* Member 1 */}
         <div className={styles.teamCard}>
           <div className={styles.avatar}>
-             <span style={{fontSize: '3rem'}}>K</span>
+            <span style={{ fontSize: '3rem' }}>K</span>
           </div>
-          <h3 className={styles.memberName} style={{ fontSize: '1.2rem' }}>{language === 'th' ? 'นายกาณฑ์ ยอดเกวียน' : 'Karn Yodkwian'}</h3>
+          <h3 className={styles.memberName} style={{ fontSize: '1.2rem' }}>{t('mock_member_1' as any)}</h3>
           <p className={styles.memberRole}>{t('about_team_dev' as any)}</p>
           <div className={styles.socialLinks}>
             <GithubIcon className={styles.socialIcon} />
@@ -53,9 +53,9 @@ export default function AboutPage() {
         {/* Member 2 */}
         <div className={styles.teamCard}>
           <div className={styles.avatar} style={{ background: 'linear-gradient(135deg, #4ade80, #3b82f6)' }}>
-             <span style={{fontSize: '3rem'}}>W</span>
+            <span style={{ fontSize: '3rem' }}>W</span>
           </div>
-          <h3 className={styles.memberName} style={{ fontSize: '1.2rem' }}>{language === 'th' ? 'นางสาววริศรา ชูเรืองสกุล' : 'Warisara Churuangsakul'}</h3>
+          <h3 className={styles.memberName} style={{ fontSize: '1.2rem' }}>{t('mock_member_2' as any)}</h3>
           <p className={styles.memberRole}>{t('about_team_design' as any)}</p>
           <div className={styles.socialLinks}>
             <GithubIcon className={styles.socialIcon} />
@@ -66,9 +66,9 @@ export default function AboutPage() {
         {/* Member 3 */}
         <div className={styles.teamCard}>
           <div className={styles.avatar} style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}>
-             <span style={{fontSize: '3rem'}}>S</span>
+            <span style={{ fontSize: '3rem' }}>S</span>
           </div>
-          <h3 className={styles.memberName} style={{ fontSize: '1.2rem' }}>{language === 'th' ? 'นายสิรภัทร พัวเผ่า' : 'Siraphat Puaphao'}</h3>
+          <h3 className={styles.memberName} style={{ fontSize: '1.2rem' }}>{t('mock_member_3' as any)}</h3>
           <p className={styles.memberRole}>{t('about_team_research' as any)}</p>
           <div className={styles.socialLinks}>
             <LinkedinIcon className={styles.socialIcon} />

@@ -38,7 +38,7 @@ export default function DashboardOverview() {
           </Link>
           <div style={{ marginTop: 'auto' }}>
             <Link href="/" className={styles.menuItem}>
-              <LogOut size={20} /> กลับหน้าแรก
+              <LogOut size={20} /> {t('overview_back_home' as any)}
             </Link>
           </div>
         </nav>
@@ -60,8 +60,8 @@ export default function DashboardOverview() {
               <span>{t('overview_docs' as any)}</span>
               <FileText size={20} color="var(--primary-color)" />
             </div>
-            <div className={styles.kpiValue}>24 ไฟล์</div>
-            <div className={styles.kpiTrend}><ArrowUpRight size={14} style={{ display: 'inline' }} /> +3 ไฟล์สัปดาห์นี้</div>
+            <div className={styles.kpiValue}>24 {t('overview_docs_unit' as any)}</div>
+            <div className={styles.kpiTrend}><ArrowUpRight size={14} style={{ display: 'inline' }} /> {t('overview_trend_docs' as any)}</div>
           </div>
           <div className={styles.kpiCard}>
             <div className={styles.kpiHeader}>
@@ -69,15 +69,15 @@ export default function DashboardOverview() {
               <MessageSquare size={20} color="var(--primary-color)" />
             </div>
             <div className={styles.kpiValue}>1,284</div>
-            <div className={styles.kpiTrend}><ArrowUpRight size={14} style={{ display: 'inline' }} /> +12% จากสัปดาห์ก่อน</div>
+            <div className={styles.kpiTrend}><ArrowUpRight size={14} style={{ display: 'inline' }} /> {t('overview_trend_chats' as any)}</div>
           </div>
           <div className={styles.kpiCard}>
             <div className={styles.kpiHeader}>
               <span>{t('overview_time' as any)}</span>
               <LayoutDashboard size={20} color="var(--primary-color)" />
             </div>
-            <div className={styles.kpiValue}>12 ชม. 30 นาที</div>
-            <div className={styles.kpiTrend}><ArrowUpRight size={14} style={{ display: 'inline' }} /> แนวโน้มดีมาก</div>
+            <div className={styles.kpiValue}>{t('overview_time_unit' as any)}</div>
+            <div className={styles.kpiTrend}><ArrowUpRight size={14} style={{ display: 'inline' }} /> {t('overview_trend_time' as any)}</div>
           </div>
         </div>
 
@@ -91,10 +91,10 @@ export default function DashboardOverview() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                   <XAxis dataKey="name" stroke="var(--text-secondary)" />
                   <YAxis stroke="var(--text-secondary)" />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)' }}
                   />
-                  <Line type="monotone" dataKey="queries" stroke="var(--primary-color)" strokeWidth={2} name="จำนวนข้อความ" />
+                  <Line type="monotone" dataKey="queries" stroke="var(--primary-color)" strokeWidth={2} name={t('overview_chart_queries' as any)} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -107,8 +107,8 @@ export default function DashboardOverview() {
                 <BarChart data={usageData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                   <XAxis dataKey="name" stroke="var(--text-secondary)" />
-                  <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)' }} />
-                  <Bar dataKey="documents" fill="var(--secondary-color)" name="ไฟล์" radius={[4, 4, 0, 0]} />
+                  <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <Bar dataKey="documents" fill="var(--secondary-color)" name={t('overview_chart_files' as any)} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -133,19 +133,19 @@ export default function DashboardOverview() {
                   <td>Machine_Learning_Intro.pdf</td>
                   <td>24 มิ.ย. 2026</td>
                   <td>2.4 MB</td>
-                  <td><span className={styles.statusBadge}>วิเคราะห์เสร็จสิ้น</span></td>
+                  <td><span className={styles.statusBadge}>{t('overview_status_done' as any)}</span></td>
                 </tr>
                 <tr>
                   <td>Database_Systems_Ch5.pdf</td>
                   <td>22 มิ.ย. 2026</td>
                   <td>1.1 MB</td>
-                  <td><span className={styles.statusBadge}>วิเคราะห์เสร็จสิ้น</span></td>
+                  <td><span className={styles.statusBadge}>{t('overview_status_done' as any)}</span></td>
                 </tr>
                 <tr>
                   <td>Project_Requirements_v2.pdf</td>
                   <td>20 มิ.ย. 2026</td>
                   <td>0.8 MB</td>
-                  <td><span className={styles.statusBadge}>วิเคราะห์เสร็จสิ้น</span></td>
+                  <td><span className={styles.statusBadge}>{t('overview_status_done' as any)}</span></td>
                 </tr>
               </tbody>
             </table>

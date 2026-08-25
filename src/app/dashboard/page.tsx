@@ -22,12 +22,12 @@ type ProviderOption = {
 type MobilePane = 'files' | 'pdf' | 'ai';
 type UploadPhase = 'idle' | 'validating' | 'uploading' | 'processing' | 'success' | 'error';
 
-const learningTabs = [
-  { id: 'chat', label: 'Chat', icon: MessageSquare },
-  { id: 'summary', label: 'Summary', icon: FileText },
-  { id: 'quiz', label: 'Quiz', icon: ListChecks },
-  { id: 'flashcard', label: 'Flashcard', icon: Layers },
-  { id: 'schedule', label: 'Schedule', icon: CalendarDays },
+const learningTabDefs = [
+  { id: 'chat', labelKey: 'tab_chat', icon: MessageSquare },
+  { id: 'summary', labelKey: 'tab_summary', icon: FileText },
+  { id: 'quiz', labelKey: 'tab_quiz', icon: ListChecks },
+  { id: 'flashcard', labelKey: 'tab_flashcard', icon: Layers },
+  { id: 'schedule', labelKey: 'tab_schedule', icon: CalendarDays },
 ] as const;
 
 export default function Dashboard() {
@@ -42,10 +42,10 @@ export default function Dashboard() {
   const [isDragging, setIsDragging] = useState(false);
   const uploadRequestRef = useRef<XMLHttpRequest | null>(null);
   const lastUploadRef = useRef<File | null>(null);
-  
+
   // Chat state
   const [query, setQuery] = useState('');
-  const [messages, setMessages] = useState<{role: 'user'|'ai', content: string}[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'ai', content: string }[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [loadingStepIdx, setLoadingStepIdx] = useState(0);
   const chatHistoryRef = useRef<HTMLDivElement>(null);
@@ -240,7 +240,7 @@ export default function Dashboard() {
     setQuery('');
     setIsTyping(true);
     setLoadingStepIdx(0);
-    
+
     // Add empty AI message placeholder
     setMessages(prev => [...prev, { role: 'ai', content: '' }]);
 
@@ -254,10 +254,10 @@ export default function Dashboard() {
           provider: selectedProvider,
         }),
       });
-      
+
       if (!res.ok) {
         let errStr = 'Network error';
-        try { const errData = await res.json(); errStr = errData.error || errStr; } catch(e){}
+        try { const errData = await res.json(); errStr = errData.error || errStr; } catch (e) { }
         throw new Error(errStr);
       }
 
@@ -273,7 +273,7 @@ export default function Dashboard() {
           if (value) {
             const chunkValue = decoder.decode(value, { stream: true });
             aiText += chunkValue;
-            
+
             // Update the last message
             setMessages(prev => {
               const newMessages = [...prev];
@@ -345,7 +345,7 @@ export default function Dashboard() {
     setToolData(null);
     setMobilePane('ai');
     setMessages([{ role: 'ai', content: `SYSTEM_MSG: Loading chat history for "${doc.title}"...` }]);
-    
+
     try {
       const res = await fetch(`/api/messages?documentId=${doc.filename}`);
       if (res.ok) {
@@ -365,8 +365,8 @@ export default function Dashboard() {
   };
 
   const handleDeleteFile = async (filename: string) => {
-    if (!window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบประวัติการแชทและไฟล์นี้ออกจากระบบ?')) return;
-    
+    if (!window.confirm(t('dash_confirm_delete' as any))) return;
+
     try {
       const res = await fetch(`/api/files/${filename}`, { method: 'DELETE' });
       if (res.ok) {
@@ -471,19 +471,19 @@ export default function Dashboard() {
       </nav>
 
       <aside className={`${styles.sidebar} ${isSidebarExpanded ? styles.expanded : styles.collapsed} ${mobilePane !== 'files' ? styles.mobileHidden : ''}`}>
-        <button 
-          className={styles.toggleBtn} 
+        <button
+          className={styles.toggleBtn}
           onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
           aria-label={isSidebarExpanded ? 'ย่อรายการไฟล์' : 'ขยายรายการไฟล์'}
         >
           {isSidebarExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
         </button>
-        <h2 className={styles.sidebarTitle}>เอกสารของฉัน</h2>
-        
+        <h2 className={styles.sidebarTitle}>{t('dash_my_docs' as any)}</h2>
+
         {isSidebarExpanded && (
           <div className={styles.sidebarNav}>
             <Link href="/dashboard/overview" className={styles.dashboardLink}>
-              <LayoutDashboard size={18} /> Dashboard
+              <LayoutDashboard size={18} /> {t('dash_dashboard_link' as any)}
             </Link>
           </div>
         )}
@@ -496,21 +496,21 @@ export default function Dashboard() {
           onDrop={handleDrop}
         >
           {isSidebarExpanded && <Upload size={24} className={styles.uploadIcon} aria-hidden="true" />}
-          {isSidebarExpanded && <strong>ลาก PDF มาวางที่นี่</strong>}
-          {isSidebarExpanded && <span className={styles.uploadHint}>PDF เท่านั้น · สูงสุด {MAX_PDF_FILE_SIZE_MB}MB</span>}
+          {isSidebarExpanded && <strong>{t('dash_drag_pdf' as any)}</strong>}
+          {isSidebarExpanded && <span className={styles.uploadHint}>{t('dash_pdf_only' as any)} · {t('dash_max_size' as any)} {MAX_PDF_FILE_SIZE_MB}MB</span>}
           <label htmlFor="file-upload" className={styles.uploadLabel} title={!isSidebarExpanded ? String(t('dash_new_upload')) : undefined}>
-            {isSidebarExpanded ? 'เลือกไฟล์ PDF' : <Upload size={17} />}
+            {isSidebarExpanded ? t('dash_choose_pdf' as any) : <Upload size={17} />}
           </label>
-          <input 
-            type="file" 
-            accept="application/pdf" 
+          <input
+            type="file"
+            accept="application/pdf"
             onChange={handleFileChange}
             id="file-upload"
             className={styles.fileInput}
             disabled={uploadIsBusy}
           />
           {isSidebarExpanded && (
-            <p className={styles.privacyHint}><LockKeyhole size={13} /> <span>ส่งข้อความไปยังผู้ให้บริการ AI ที่เลือกเมื่อคุณสั่งงานเท่านั้น · <Link href="/privacy">อ่านนโยบาย</Link></span></p>
+            <p className={styles.privacyHint}><LockKeyhole size={13} /> <span>{t('dash_privacy_hint' as any)} · <Link href="/privacy">{t('dash_privacy_link' as any)}</Link></span></p>
           )}
         </div>
 
@@ -535,12 +535,12 @@ export default function Dashboard() {
 
         <div className={styles.fileList} style={{ marginTop: '1rem' }}>
           {documents.map((doc) => (
-            <div 
-              key={doc.id || doc.filename} 
+            <div
+              key={doc.id || doc.filename}
               className={`${styles.fileItem} ${activeFile?.filename === doc.filename ? styles.active : ''}`}
             >
-              <div 
-                style={{ flex: 1, cursor: 'pointer', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }} 
+              <div
+                style={{ flex: 1, cursor: 'pointer', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}
                 onClick={() => selectDocument(doc)}
                 title={!isSidebarExpanded ? doc.title : undefined}
               >
@@ -578,11 +578,11 @@ export default function Dashboard() {
               </div>
               {isSidebarExpanded && (
                 <div style={{ position: 'relative' }}>
-                  <button 
-                    onClick={(e) => { 
-                      e.preventDefault(); 
-                      e.stopPropagation(); 
-                      setOpenDropdownId(openDropdownId === doc.filename ? null : doc.filename); 
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOpenDropdownId(openDropdownId === doc.filename ? null : doc.filename);
                     }}
                     style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 100 }}
                     title="More actions"
@@ -591,27 +591,27 @@ export default function Dashboard() {
                   >
                     <MoreVertical size={18} />
                   </button>
-                  
+
                   {openDropdownId === doc.filename && (
                     <>
-                      <div 
-                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 90 }} 
+                      <div
+                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 90 }}
                         onClick={(e) => { e.stopPropagation(); setOpenDropdownId(null); }}
                       />
                       <div className={styles.dropdownMenu} style={{ zIndex: 100 }}>
-                        <button className={styles.dropdownItem} onClick={(e) => { 
-                          e.stopPropagation(); 
+                        <button className={styles.dropdownItem} onClick={(e) => {
+                          e.stopPropagation();
                           setEditingFileId(doc.filename);
                           setEditTitle(doc.title);
-                          setOpenDropdownId(null); 
+                          setOpenDropdownId(null);
                         }}>
-                          <Edit2 size={14} /> เปลี่ยนชื่อ
+                          <Edit2 size={14} /> {t('dash_rename' as any)}
                         </button>
                         <button className={styles.dropdownItem} onClick={(e) => { e.stopPropagation(); alert('ฟีเจอร์แชร์กำลังพัฒนา'); setOpenDropdownId(null); }}>
-                          <Share2 size={14} /> แชร์
+                          <Share2 size={14} /> {t('dash_share' as any)}
                         </button>
                         <button className={`${styles.dropdownItem} ${styles.delete}`} onClick={(e) => { e.stopPropagation(); handleDeleteFile(doc.filename); setOpenDropdownId(null); }}>
-                          <Trash2 size={14} /> ลบ
+                          <Trash2 size={14} /> {t('dash_delete' as any)}
                         </button>
                       </div>
                     </>
@@ -630,8 +630,8 @@ export default function Dashboard() {
             {t('dash_pdf_viewer')} {activeFile ? `[ ${activeFile.title} ]` : ''}
           </div>
           {activeFile ? (
-            <iframe 
-              src={`/api/files/${activeFile.filename}`} 
+            <iframe
+              src={`/api/files/${activeFile.filename}`}
               className={styles.pdfViewer}
               title="PDF Viewer"
             />
@@ -644,11 +644,11 @@ export default function Dashboard() {
               onDrop={handleDrop}
             >
               <div className={styles.emptyUploadIcon}><Upload size={30} /></div>
-              <h2>เริ่มเรียนรู้จาก PDF ของคุณ</h2>
-              <p>ลากไฟล์มาวาง หรือเลือกไฟล์จากอุปกรณ์</p>
-              <span>รองรับ PDF · สูงสุด {MAX_PDF_FILE_SIZE_MB}MB</span>
-              <label htmlFor="file-upload" className={styles.primaryUploadButton}>เลือกไฟล์ PDF</label>
-              <small><LockKeyhole size={13} /> ไฟล์เก็บแยกตามบัญชี ลบได้ทุกเมื่อ · <Link href="/privacy">นโยบายข้อมูล</Link></small>
+              <h2>{t('dash_start_learning' as any)}</h2>
+              <p>{t('dash_drag_or_choose' as any)}</p>
+              <span>{t('dash_supported_pdf' as any)} · {t('dash_max_size' as any)} {MAX_PDF_FILE_SIZE_MB}MB</span>
+              <label htmlFor="file-upload" className={styles.primaryUploadButton}>{t('dash_choose_pdf' as any)}</label>
+              <small><LockKeyhole size={13} /> {t('dash_file_private' as any)} · <Link href="/privacy">{t('dash_privacy_link' as any)}</Link></small>
             </div>
           )}
         </section>
@@ -656,7 +656,7 @@ export default function Dashboard() {
         <section className={`${styles.chatPane} ${mobilePane !== 'ai' ? styles.mobileHidden : ''}`}>
           <div className={`${styles.paneHeader} ${styles.chatHeader}`}>
             <span>
-              {t('dash_ai_interface')} {activeFile ? `[ ${t('dash_connected')} ${activeFile.filename.substring(0,8)}... ]` : `[ ${t('dash_standby')} ]`}
+              {t('dash_ai_interface')} {activeFile ? `[ ${t('dash_connected')} ${activeFile.filename.substring(0, 8)}... ]` : `[ ${t('dash_standby')} ]`}
             </span>
             <label className={styles.providerLabel}>
               <Cpu size={16} aria-hidden="true" />
@@ -679,10 +679,10 @@ export default function Dashboard() {
               </select>
             </label>
           </div>
-          
+
           {activeFile && (
             <div className={styles.learningTabs} role="tablist" aria-label="เครื่องมือการเรียนรู้">
-              {learningTabs.map((tab) => {
+              {learningTabDefs.map((tab) => {
                 const TabIcon = tab.icon;
                 return (
                   <button
@@ -693,13 +693,13 @@ export default function Dashboard() {
                     aria-selected={activeTab === tab.id}
                   >
                     <TabIcon size={16} aria-hidden="true" />
-                    <span>{tab.label}</span>
+                    <span>{t(tab.labelKey as any)}</span>
                   </button>
                 );
               })}
             </div>
           )}
-          
+
           <div className={styles.chatBody}>
             {activeTab === 'chat' ? (
               <>
@@ -707,46 +707,46 @@ export default function Dashboard() {
                   {messages.length === 0 ? (
                     <div className={styles.emptyChat}>
                       <MessageSquare size={30} />
-                      <h3>{activeFile ? 'ถามอะไรก็ได้จากเอกสารนี้' : 'เลือกหรืออัปโหลด PDF เพื่อเริ่มสนทนา'}</h3>
-                      <p>{activeFile ? 'AI จะตอบโดยยึดข้อมูลในเอกสารเป็นหลัก' : 'เมื่อ PDF พร้อมใช้งาน คุณจะสรุป ถามตอบ และสร้างสื่อทบทวนได้ที่นี่'}</p>
+                      <h3>{activeFile ? t('dash_ask_anything' as any) : t('dash_choose_upload' as any)}</h3>
+                      <p>{activeFile ? t('dash_ai_answer_doc' as any) : t('dash_ai_ready_hint' as any)}</p>
                     </div>
                   ) : (
-            messages.map((msg, index) => (
-              <div key={index} className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.aiMessage}`}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span className={styles.role} style={{ marginBottom: 0 }}>
-                    {msg.role === 'user' ? t('dash_user') : 'AI Assistant'}
-                  </span>
-                </div>
-                {renderMessageContent(msg.content)}
-                {msg.role !== 'user' && (
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-                    <button 
-                      onClick={() => toggleSpeech(msg.content, index)}
-                      style={{ 
-                        background: 'transparent', 
-                        border: 'none', 
-                        color: playingMessageIndex === index ? 'var(--primary-color)' : 'var(--text-secondary)', 
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '6px',
-                        borderRadius: '50%',
-                        transition: 'all 0.2s',
-                        backgroundColor: playingMessageIndex === index ? 'rgba(255, 215, 0, 0.1)' : 'transparent'
-                      }}
-                      title={playingMessageIndex === index ? "หยุดอ่าน" : "ให้ AI อ่านข้อความ"}
-                      onMouseOver={(e) => { if (playingMessageIndex !== index) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'; }}
-                      onMouseOut={(e) => { if (playingMessageIndex !== index) e.currentTarget.style.backgroundColor = 'transparent'; }}
-                    >
-                      {playingMessageIndex === index ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
+                    messages.map((msg, index) => (
+                      <div key={index} className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.aiMessage}`}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <span className={styles.role} style={{ marginBottom: 0 }}>
+                            {msg.role === 'user' ? t('dash_user') : 'AI Assistant'}
+                          </span>
+                        </div>
+                        {renderMessageContent(msg.content)}
+                        {msg.role !== 'user' && (
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                            <button
+                              onClick={() => toggleSpeech(msg.content, index)}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: playingMessageIndex === index ? 'var(--primary-color)' : 'var(--text-secondary)',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '6px',
+                                borderRadius: '50%',
+                                transition: 'all 0.2s',
+                                backgroundColor: playingMessageIndex === index ? 'rgba(255, 215, 0, 0.1)' : 'transparent'
+                              }}
+                              title={playingMessageIndex === index ? "หยุดอ่าน" : "ให้ AI อ่านข้อความ"}
+                              onMouseOver={(e) => { if (playingMessageIndex !== index) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'; }}
+                              onMouseOut={(e) => { if (playingMessageIndex !== index) e.currentTarget.style.backgroundColor = 'transparent'; }}
+                            >
+                              {playingMessageIndex === index ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
                   {isTyping && messages[messages.length - 1]?.content === '' && (
                     <div className={`${styles.message} ${styles.aiMessage}`}>
                       <span className={styles.role}>{t('dash_system')}</span>
@@ -770,9 +770,9 @@ export default function Dashboard() {
 
                 <div className={styles.chatInputArea}>
                   <form onSubmit={handleAskAI} className={styles.chatForm}>
-                    <input 
+                    <input
                       type="text"
-                      className={styles.queryInput} 
+                      className={styles.queryInput}
                       placeholder={activeFile ? t('dash_enter_query') : t('dash_select_first')}
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
@@ -790,13 +790,13 @@ export default function Dashboard() {
                 {isToolLoading ? (
                   <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: '2rem' }}>
                     <div className={styles.loadingSpinner} style={{ margin: '0 auto 1rem auto' }}></div>
-                    <p style={{ marginTop: '1rem' }}>AI is generating your {activeTab}... This might take a few seconds.</p>
+                    <p style={{ marginTop: '1rem' }}>{t('dash_ai_generating' as any)} {t((`tab_${activeTab}`) as any)}... {t('dash_ai_generating_wait' as any)}</p>
                   </div>
                 ) : toolData ? (
                   activeTab === 'summary' ? <DocumentSummary data={toolData} /> :
-                  activeTab === 'quiz' ? <QuizApp data={toolData} /> :
-                  activeTab === 'flashcard' ? <FlashcardApp data={toolData} /> :
-                  activeTab === 'schedule' ? <StudySchedule data={toolData} /> : null
+                    activeTab === 'quiz' ? <QuizApp data={toolData} /> :
+                      activeTab === 'flashcard' ? <FlashcardApp data={toolData} /> :
+                        activeTab === 'schedule' ? <StudySchedule data={toolData} /> : null
                 ) : null}
               </div>
             )}

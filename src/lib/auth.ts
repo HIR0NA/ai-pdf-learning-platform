@@ -7,6 +7,9 @@ import { normalizeRole } from '@/lib/rbac';
 
 const prisma = new PrismaClient();
 
+// Lock duration in seconds — shown as countdown on the login page
+export const LOCK_DURATION_SECONDS = 30;
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -22,26 +25,28 @@ export const authOptions: NextAuthOptions = {
         const ip = getClientAddress(req?.headers || {});
         const userAgent = (req?.headers?.['user-agent'] || 'unknown') as string;
 
-        const recentAttempts = await prisma.loginLog.count({
-          where: {
-            email,
-            createdAt: { gte: new Date(Date.now() - 15 * 60 * 1000) },
-            success: false,
-          },
-        });
-        if (recentAttempts >= 5) {
-          throw new Error('มีความพยายามล็อคอินเกิน 5 ครั้งและได้ lock อีเมลนี้แล้ว');
+        const user = await prisma.user.findUnique({ where: { email } });
+
+        // Check if account is currently locked
+        if (user?.lockedUntil && user.lockedUntil > new Date()) {
+          const remainingSec = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 1000);
+          await prisma.loginLog.create({ data: { email, ipAddress: ip, userAgent, success: false } });
+          throw new Error(`LOCKED:${remainingSec}`);
         }
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        // Auto-unlock if lock period has expired
+        if (user?.lockedUntil && user.lockedUntil <= new Date()) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { failedAttempts: 0, lockedUntil: null },
+          });
+          user.failedAttempts = 0;
+          user.lockedUntil = null;
+        }
+
         if (!user) {
           await prisma.loginLog.create({ data: { email, ipAddress: ip, userAgent, success: false } });
           return null;
-        }
-
-        if (user.lockedUntil && user.lockedUntil > new Date()) {
-          await prisma.loginLog.create({ data: { email, ipAddress: ip, userAgent, success: false } });
-          throw new Error('มีความพยายามล็อคอินเกิน 5 ครั้งและได้ lock อีเมลนี้แล้ว');
         }
 
         if (!user.password) {
@@ -53,8 +58,8 @@ export const authOptions: NextAuthOptions = {
         if (!isPasswordValid) {
           const newFailedAttempts = user.failedAttempts + 1;
           const lockedUntil = newFailedAttempts >= 5
-            ? new Date(Date.now() + 15 * 60 * 1000)
-            : user.lockedUntil;
+            ? new Date(Date.now() + LOCK_DURATION_SECONDS * 1000)
+            : null;
 
           await prisma.user.update({
             where: { id: user.id },
@@ -63,11 +68,12 @@ export const authOptions: NextAuthOptions = {
           await prisma.loginLog.create({ data: { email, ipAddress: ip, userAgent, success: false } });
 
           if (newFailedAttempts >= 5) {
-            throw new Error('มีความพยายามล็อคอินเกิน 5 ครั้งและได้ lock อีเมลนี้แล้ว');
+            throw new Error(`LOCKED:${LOCK_DURATION_SECONDS}`);
           }
           return null;
         }
 
+        // Successful login — reset counters
         if (user.failedAttempts > 0 || user.lockedUntil) {
           await prisma.user.update({
             where: { id: user.id },

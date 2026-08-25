@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     const prompt = `${SYSTEM_INSTRUCTION}\n\nสร้างคำถามปรนัย (Quiz) จำนวน ${amount} ข้อ ในหัวข้อต่อไปนี้:\n${sanitizedTopic}\n\nให้ตอบกลับมาเป็น JSON array โดยแต่ละข้อมีโครงสร้างดังนี้: { "question": "...", "options": ["...", "...", "...", "..."], "answer": "..." }`;
     const result = await generateAIText(prompt, { json: true, provider });
-    
+
     // Parse JSON just to validate format before sending
     const jsonParsed = JSON.parse(result.text);
 
@@ -30,6 +30,17 @@ export async function POST(req: Request) {
 
   } catch (error: unknown) {
     console.error('Quiz API Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error or Invalid JSON' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    const providerStatus = typeof error === 'object' && error && 'status' in error
+      ? Number((error as { status?: number }).status)
+      : 0;
+
+    if (providerStatus >= 400 && providerStatus < 500) {
+      return NextResponse.json({ error: message }, { status: providerStatus });
+    }
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: 'AI ส่งข้อมูลกลับมาไม่ถูกรูปแบบ กรุณาลองใหม่อีกครั้ง' }, { status: 422 });
+    }
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -32,9 +32,9 @@ export default function Home() {
               {t('home_btn_explore')}
             </Link>
           </div>
-          <p className={styles.ctaMicrocopy}>PDF เท่านั้น · สูงสุด 10MB · เริ่มใช้ฟรี</p>
+          <p className={styles.ctaMicrocopy}>{t('home_microcopy' as any)}</p>
         </div>
-        
+
         <div className={styles.heroGraphic}>
           {/* Abstract glowing orb to replace jellyfish */}
           <div className={styles.orb}></div>
@@ -68,29 +68,29 @@ export default function Home() {
 
       {/* Benefits Section */}
       <section className={styles.benefitsSection}>
-        <h2 className={styles.benefitsTitle}>ทำไมต้องเลือก AgentAI?</h2>
+        <h2 className={styles.benefitsTitle}>{t('benefit_why' as any)}</h2>
         <div className={styles.benefitsGrid}>
           <div className={styles.benefitCard}>
             <div className={styles.benefitIcon}><Zap size={24} /></div>
-            <h3>วิเคราะห์รวดเร็ว</h3>
-            <p>ประหยัดเวลาอ่านเอกสารเป็นชั่วโมง ให้ AI ช่วยสรุปใจความสำคัญและดึงข้อมูลที่คุณต้องการได้ในไม่กี่วินาที</p>
+            <h3>{t('benefit_title_1' as any)}</h3>
+            <p>{t('benefit_desc_1' as any)}</p>
           </div>
           <div className={styles.benefitCard}>
             <div className={styles.benefitIcon}><Brain size={24} /></div>
-            <h3>ผู้ช่วยส่วนตัวอัจฉริยะ</h3>
-            <p>ไม่เพียงแค่สรุป แต่สามารถสนทนาและโต้ตอบกับเอกสารของคุณได้เสมือนมีผู้เชี่ยวชาญอยู่เคียงข้าง</p>
+            <h3>{t('benefit_title_2' as any)}</h3>
+            <p>{t('benefit_desc_2' as any)}</p>
           </div>
           <div className={styles.benefitCard}>
             <div className={styles.benefitIcon}><Shield size={24} /></div>
-            <h3>ปลอดภัยและเป็นส่วนตัว</h3>
-            <p>ข้อมูลและเอกสารของคุณจะถูกจัดเก็บอย่างปลอดภัย เราให้ความสำคัญกับความเป็นส่วนตัวสูงสุด</p>
+            <h3>{t('benefit_title_3' as any)}</h3>
+            <p>{t('benefit_desc_3' as any)}</p>
           </div>
         </div>
       </section>
 
       {/* Trust Signals Section */}
       <section className={styles.trustSection}>
-        <h3 className={styles.trustTitle}>ระบบเทคโนโลยีที่ได้รับความไว้วางใจ</h3>
+        <h3 className={styles.trustTitle}>{t('trust_title' as any)}</h3>
         <div className={styles.partnerLogos}>
           <span className={styles.partnerLogo}>Google Cloud</span>
           <span className={styles.partnerLogo}>Prisma</span>
@@ -109,30 +109,30 @@ export default function Home() {
       {/* Lower Bento Grid */}
       <section className={styles.lowerBento} id="features">
         <div className={styles.bentoLarge}>
-          <div className={styles.badge} style={{marginBottom: '1rem'}}>
+          <div className={styles.badge} style={{ marginBottom: '1rem' }}>
             <span className={styles.badgeDot}></span> {t('bento_badge')}
           </div>
           <h3>{t('bento_title_1')}</h3>
-          <p className="text-secondary" style={{marginTop: '0.5rem', marginBottom: '2rem'}}>{t('bento_desc_1')}</p>
+          <p className="text-secondary" style={{ marginTop: '0.5rem', marginBottom: '2rem' }}>{t('bento_desc_1')}</p>
           <div className={styles.bentoImagePlaceholder}>
-             <div className={styles.mockupUI}></div>
+            <div className={styles.mockupUI}></div>
           </div>
         </div>
         <div className={styles.bentoSmallGroup}>
           <div className={styles.bentoSmall}>
-            <p className="text-secondary" style={{fontSize: '0.9rem', marginBottom: '1rem'}}>{t('bento_title_2')}</p>
-            <div className={styles.statValue} style={{fontSize: '3.5rem'}}>Gemini</div>
-            <p style={{marginTop: '0.5rem'}}>{t('bento_desc_2')}</p>
+            <p className="text-secondary" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>{t('bento_title_2')}</p>
+            <div className={styles.statValue} style={{ fontSize: '3.5rem' }}>Gemini</div>
+            <p style={{ marginTop: '0.5rem' }}>{t('bento_desc_2')}</p>
           </div>
           <div className={styles.bentoSmall}>
-             <p className="text-secondary" style={{fontSize: '0.9rem', marginBottom: '1rem'}}>{t('testimonial_text')}</p>
-             <div style={{display: 'flex', alignItems: 'center', gap: '1rem', marginTop: 'auto'}}>
-               <div className={styles.avatar}></div>
-               <div>
-                 <div style={{fontWeight: 'bold', fontSize: '0.9rem'}}>Alex Chen</div>
-                 <div className="text-secondary" style={{fontSize: '0.8rem'}}>{t('testimonial_role')}</div>
-               </div>
-             </div>
+            <p className="text-secondary" style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>{t('testimonial_text')}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: 'auto' }}>
+              <div className={styles.avatar}></div>
+              <div>
+                <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>Alex Chen</div>
+                <div className="text-secondary" style={{ fontSize: '0.8rem' }}>{t('testimonial_role')}</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -140,22 +140,22 @@ export default function Home() {
       {/* FAQ Section */}
       <section className={styles.faqSection}>
         <h2 className={styles.faqTitle}>{t('faq_title' as any)}</h2>
-        
+
         <details className={styles.faqItem}>
           <summary>{t('faq_q1' as any)}</summary>
           <div className={styles.faqAnswer}>{t('faq_a1' as any)}</div>
         </details>
-        
+
         <details className={styles.faqItem}>
           <summary>{t('faq_q2' as any)}</summary>
           <div className={styles.faqAnswer}>{t('faq_a2' as any)}</div>
         </details>
-        
+
         <details className={styles.faqItem}>
           <summary>{t('faq_q3' as any)}</summary>
           <div className={styles.faqAnswer}>{t('faq_a3' as any)}</div>
         </details>
-        
+
         <details className={styles.faqItem}>
           <summary>{t('faq_q4' as any)}</summary>
           <div className={styles.faqAnswer}>{t('faq_a4' as any)}</div>
@@ -163,11 +163,11 @@ export default function Home() {
       </section>
 
       <section className={styles.closingCta} aria-labelledby="closing-cta-title">
-        <h2 id="closing-cta-title">พร้อมเปลี่ยน PDF ให้เป็นบทเรียนของคุณหรือยัง?</h2>
-        <p>สรุป ถามตอบ สร้าง Quiz, Flashcard และตารางเรียนได้จากเอกสารเดียว</p>
+        <h2 id="closing-cta-title">{t('cta_closing_title' as any)}</h2>
+        <p>{t('cta_closing_desc' as any)}</p>
         <div className={styles.ctaGroup}>
-          <Link href="/register" className="btn btn-primary">สมัครและอัปโหลด PDF ฟรี</Link>
-          <Link href="/product" className="btn">ดูแพ็กเกจ</Link>
+          <Link href="/register" className="btn btn-primary">{t('cta_closing_btn_1' as any)}</Link>
+          <Link href="/product" className="btn">{t('cta_closing_btn_2' as any)}</Link>
         </div>
       </section>
 

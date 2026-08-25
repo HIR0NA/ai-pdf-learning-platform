@@ -16,7 +16,7 @@ const translations = {
     nav_about: 'About Us',
     nav_dashboard: 'Dashboard',
     nav_login: 'Sign In',
-    
+
     // Landing Page
     home_badge: 'AI-Driven Platform',
     home_title_1: 'Turn PDFs into',
@@ -25,7 +25,7 @@ const translations = {
     home_subtitle_new: 'Upload a PDF to summarize, ask questions, create quizzes and flashcards, and build a study schedule in minutes.',
     home_btn_start: 'Upload a PDF Free',
     home_btn_explore: 'Explore Features',
-    
+
     stat_1_label: 'Maximum File Size',
     stat_1_val: '10MB',
     stat_1_sub: 'PDF files only',
@@ -38,13 +38,13 @@ const translations = {
     stat_4_val: 'Anytime',
     stat_4_label: 'Delete Your Data',
     stat_4_sub: 'Remove files and chat history',
-    
+
     statement_1: 'We ',
     statement_hl_1: 'extract',
     statement_2: ' and simplify complex documents with AI at the core, ensuring every ',
     statement_hl_2: 'student enhances',
     statement_3: ' their learning experiences.',
-    
+
     bento_badge: 'Core Feature',
     bento_title_1: 'Advanced Vector RAG',
     bento_desc_1: 'Upload massive textbooks and get precise answers instantly.',
@@ -199,13 +199,87 @@ const translations = {
     checkout_success: 'Payment Successful! Redirecting...',
 
     about_subtitle: 'Secure AI-powered platform for modern learners and professionals.',
+
+    // Navbar extras
+    nav_admin_console: 'Admin Console',
+    nav_student_overview: 'Student Overview',
+    nav_logout: 'Logout',
+    nav_register_free: 'Sign Up Free',
+
+    // Dashboard - Learning tabs
+    tab_chat: 'Chat',
+    tab_summary: 'Summary',
+    tab_quiz: 'Quiz',
+    tab_flashcard: 'Flashcard',
+    tab_schedule: 'Schedule',
+
+    // Dashboard extras
+    dash_my_docs: 'My Documents',
+    dash_dashboard_link: 'Dashboard',
+    dash_drag_pdf: 'Drag PDF here',
+    dash_pdf_only: 'PDF only',
+    dash_max_size: 'Max',
+    dash_choose_pdf: 'Choose PDF file',
+    dash_privacy_hint: 'Text is sent to AI provider only when you request it',
+    dash_privacy_link: 'Privacy Policy',
+    dash_start_learning: 'Start learning from your PDF',
+    dash_drag_or_choose: 'Drag and drop, or choose a file',
+    dash_supported_pdf: 'PDF supported',
+    dash_file_private: 'Files are private per account, delete anytime',
+    dash_ask_anything: 'Ask anything about this document',
+    dash_ai_answer_doc: 'AI answers based on document content',
+    dash_choose_upload: 'Choose or upload a PDF to start chatting',
+    dash_ai_ready_hint: 'Once PDF is ready, you can summarize, chat, and create study materials here',
+    dash_ai_generating: 'AI is generating your',
+    dash_ai_generating_wait: 'This might take a few seconds.',
+    dash_rename: 'Rename',
+    dash_share: 'Share',
+    dash_delete: 'Delete',
+    dash_confirm_delete: 'Are you sure you want to delete this file and its chat history?',
+
+    // Landing Page Extra
+    home_microcopy: 'PDF only · Max 10MB · Free to start',
+    benefit_title_1: 'Lightning Fast Analysis',
+    benefit_desc_1: 'Save hours of reading. Let AI summarize and extract key info in seconds.',
+    benefit_title_2: 'Smart Personal Assistant',
+    benefit_desc_2: 'Chat and interact with your docs as if an expert is right beside you.',
+    benefit_title_3: 'Secure and Private',
+    benefit_desc_3: 'Your docs are securely stored with utmost privacy.',
+    benefit_why: 'Why choose AgentAI?',
+    trust_title: 'Trusted Technology Stack',
+    cta_closing_title: 'Ready to turn PDFs into your lessons?',
+    cta_closing_desc: 'Summarize, Q&A, create Quizzes, Flashcards, and study plans all from one doc.',
+    cta_closing_btn_1: 'Sign Up & Upload PDF Free',
+    cta_closing_btn_2: 'View pricing',
+
+    // Overview Extra
+    overview_back_home: 'Back to Home',
+    overview_docs_unit: 'Files',
+    overview_trend_docs: '+3 files this week',
+    overview_trend_chats: '+12% from last week',
+    overview_time_unit: '12 hrs 30 mins',
+    overview_trend_time: 'Excellent trend',
+    overview_chart_queries: 'Number of Queries',
+    overview_chart_files: 'Files',
+    overview_status_done: 'Analysis Completed',
+
+    // Mock Data
+    mock_member_1: 'Karn Yodkwian',
+    mock_member_2: 'Warisara Churuangsakul',
+    mock_member_3: 'Siraphat Puaphao',
+    mock_rev_role_1: 'University Student',
+    mock_rev_desc_1: 'Saved me tons of time reading exam sheets. Summary is easy to understand and tests real knowledge.',
+    mock_rev_role_2: 'Researcher',
+    mock_rev_desc_2: 'Data extraction from PDF is very accurate. Massively reduced my literature review time.',
+    mock_rev_role_3: 'Office Worker',
+    mock_rev_desc_3: 'Summarize long meeting minutes in a few minutes. Totally worth the Pro package.',
   },
   th: {
     nav_home: 'หน้าหลัก',
     nav_about: 'เกี่ยวกับเรา',
     nav_dashboard: 'แดชบอร์ด',
     nav_login: 'เข้าสู่ระบบ',
-    
+
     // Landing Page
     home_badge: 'แพลตฟอร์มขับเคลื่อนด้วย AI',
     home_title_1: 'เปลี่ยน PDF เป็น',
@@ -214,7 +288,7 @@ const translations = {
     home_subtitle_new: 'อัปโหลด PDF แล้วคุยกับเอกสาร สรุปเนื้อหา สร้างข้อสอบ Flashcard และตารางเรียนได้ในไม่กี่นาที',
     home_btn_start: 'อัปโหลด PDF ฟรี',
     home_btn_explore: 'ดูฟีเจอร์เพิ่มเติม',
-    
+
     stat_1_label: 'ขนาดไฟล์สูงสุด',
     stat_1_val: '10MB',
     stat_1_sub: 'รองรับไฟล์ PDF เท่านั้น',
@@ -227,13 +301,13 @@ const translations = {
     stat_4_val: 'ทุกเมื่อ',
     stat_4_label: 'ลบข้อมูลของคุณ',
     stat_4_sub: 'ลบไฟล์และประวัติการสนทนาได้',
-    
+
     statement_1: 'เรา',
     statement_hl_1: 'สกัดเนื้อหา',
     statement_2: ' และย่อเอกสารที่ซับซ้อนด้วยหัวใจหลักที่เป็น AI เพื่อให้มั่นใจว่านักเรียนทุกคน',
     statement_hl_2: 'ได้รับประสบการณ์ที่ดีที่สุด',
     statement_3: ' ในการเรียนรู้',
-    
+
     bento_badge: 'ฟีเจอร์หลัก',
     bento_title_1: 'ระบบ Vector RAG ขั้นสูง',
     bento_desc_1: 'อัปโหลดหนังสือเรียนเล่มหนา และได้คำตอบที่แม่นยำในทันที',
@@ -388,6 +462,80 @@ const translations = {
     checkout_success: 'ชำระเงินสำเร็จ! กำลังพากลับ...',
 
     about_subtitle: 'แพลตฟอร์ม AI ที่ปลอดภัยสำหรับผู้เรียนและคนทำงานยุคใหม่',
+
+    // Navbar extras
+    nav_admin_console: 'แผงควบคุมแอดมิน',
+    nav_student_overview: 'ภาพรวมนักเรียน',
+    nav_logout: 'ออกจากระบบ',
+    nav_register_free: 'สมัครฟรี',
+
+    // Dashboard - Learning tabs
+    tab_chat: 'แชท',
+    tab_summary: 'สรุป',
+    tab_quiz: 'แบบทดสอบ',
+    tab_flashcard: 'บัตรคำศัพท์',
+    tab_schedule: 'กำหนดการ',
+
+    // Dashboard extras
+    dash_my_docs: 'เอกสารของฉัน',
+    dash_dashboard_link: 'แดชบอร์ด',
+    dash_drag_pdf: 'ลาก PDF มาวางที่นี่',
+    dash_pdf_only: 'PDF เท่านั้น',
+    dash_max_size: 'สูงสุด',
+    dash_choose_pdf: 'เลือกไฟล์ PDF',
+    dash_privacy_hint: 'ส่งข้อความไปยังผู้ให้บริการ AI ที่เลือกเมื่อคุณสั่งงานเท่านั้น',
+    dash_privacy_link: 'นโยบายข้อมูล',
+    dash_start_learning: 'เริ่มเรียนรู้จาก PDF ของคุณ',
+    dash_drag_or_choose: 'ลากไฟล์มาวาง หรือเลือกไฟล์จากอุปกรณ์',
+    dash_supported_pdf: 'รองรับ PDF',
+    dash_file_private: 'ไฟล์เก็บแยกตามบัญชี ลบได้ทุกเมื่อ',
+    dash_ask_anything: 'ถามอะไรก็ได้จากเอกสารนี้',
+    dash_ai_answer_doc: 'AI จะตอบโดยยึดข้อมูลในเอกสารเป็นหลัก',
+    dash_choose_upload: 'เลือกหรืออัปโหลด PDF เพื่อเริ่มสนทนา',
+    dash_ai_ready_hint: 'เมื่อ PDF พร้อมใช้งาน คุณจะสรุป ถามตอบ และสร้างสื่อทบทวนได้ที่นี่',
+    dash_ai_generating: 'AI กำลังสร้าง',
+    dash_ai_generating_wait: 'ขั้นตอนนี้อาจใช้เวลาสักครู่',
+    dash_rename: 'เปลี่ยนชื่อ',
+    dash_share: 'แชร์',
+    dash_delete: 'ลบ',
+    dash_confirm_delete: 'คุณแน่ใจหรือไม่ว่าต้องการลบประวัติการแชทและไฟล์นี้ออกจากระบบ?',
+
+    // Landing Page Extra
+    home_microcopy: 'PDF เท่านั้น · สูงสุด 10MB · เริ่มใช้ฟรี',
+    benefit_title_1: 'วิเคราะห์รวดเร็ว',
+    benefit_desc_1: 'ประหยัดเวลาอ่านเอกสารเป็นชั่วโมง ให้ AI ช่วยสรุปใจความสำคัญและดึงข้อมูลที่คุณต้องการได้ในไม่กี่วินาที',
+    benefit_title_2: 'ผู้ช่วยส่วนตัวอัจฉริยะ',
+    benefit_desc_2: 'ไม่เพียงแค่สรุป แต่สามารถสนทนาและโต้ตอบกับเอกสารของคุณได้เสมือนมีผู้เชี่ยวชาญอยู่เคียงข้าง',
+    benefit_title_3: 'ปลอดภัยและเป็นส่วนตัว',
+    benefit_desc_3: 'ข้อมูลและเอกสารของคุณจะถูกจัดเก็บอย่างปลอดภัย เราให้ความสำคัญกับความเป็นส่วนตัวสูงสุด',
+    benefit_why: 'ทำไมต้องเลือก AgentAI?',
+    trust_title: 'ระบบเทคโนโลยีที่ได้รับความไว้วางใจ',
+    cta_closing_title: 'พร้อมเปลี่ยน PDF ให้เป็นบทเรียนของคุณหรือยัง?',
+    cta_closing_desc: 'สรุป ถามตอบ สร้าง Quiz, Flashcard และตารางเรียนได้จากเอกสารเดียว',
+    cta_closing_btn_1: 'สมัครและอัปโหลด PDF ฟรี',
+    cta_closing_btn_2: 'ดูแพ็กเกจ',
+
+    // Overview Extra
+    overview_back_home: 'กลับหน้าแรก',
+    overview_docs_unit: 'ไฟล์',
+    overview_trend_docs: '+3 ไฟล์สัปดาห์นี้',
+    overview_trend_chats: '+12% จากสัปดาห์ก่อน',
+    overview_time_unit: '12 ชม. 30 นาที',
+    overview_trend_time: 'แนวโน้มดีมาก',
+    overview_chart_queries: 'จำนวนข้อความ',
+    overview_chart_files: 'ไฟล์',
+    overview_status_done: 'วิเคราะห์เสร็จสิ้น',
+
+    // Mock Data
+    mock_member_1: 'นายกาณฑ์ ยอดเกวียน',
+    mock_member_2: 'นางสาววริศรา ชูเรืองสกุล',
+    mock_member_3: 'นายสิรภัทร พัวเผ่า',
+    mock_rev_role_1: 'นักศึกษามหาวิทยาลัย',
+    mock_rev_desc_1: 'ช่วยประหยัดเวลาอ่านชีทสอบได้เยอะมาก สรุปเข้าใจง่ายและทดสอบความรู้ได้จริง',
+    mock_rev_role_2: 'นักวิจัย',
+    mock_rev_desc_2: 'การดึงข้อมูลจากเอกสาร PDF ทำได้แม่นยำมาก ลดเวลาการทบทวนวรรณกรรมได้มหาศาล',
+    mock_rev_role_3: 'พนักงานบริษัท',
+    mock_rev_desc_3: 'สรุปรายงานการประชุมยาวๆ ได้ในไม่กี่นาที คุ้มค่ากับแพ็กเกจ Pro มากครับ',
   }
 };
 

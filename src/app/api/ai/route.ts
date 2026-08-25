@@ -123,6 +123,14 @@ ${contextText}
   } catch (error: unknown) {
     console.error('API error:', error);
     const message = error instanceof Error ? error.message : 'Internal server error';
+    const providerStatus = typeof error === 'object' && error && 'status' in error
+      ? Number((error as { status?: number }).status)
+      : 0;
+    if (providerStatus === 413 || /tokens per minute|request too large/i.test(message)) {
+      return NextResponse.json({
+        error: 'เนื้อหาไฟล์หรือประวัติการสนทนายาวเกินโควตาของโมเดล กรุณาลองถามให้เจาะจงขึ้น หรือลดขนาดไฟล์/เปลี่ยนโมเดล',
+      }, { status: 413 });
+    }
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

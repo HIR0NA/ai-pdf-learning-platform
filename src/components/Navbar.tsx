@@ -17,10 +17,10 @@ export default function Navbar() {
         <div className={styles.logoContainer}>
           <div className={styles.logoDot}></div>
           <Link href="/" className={styles.logo}>
-            AgentAI {/* Replaced <AI_PDF_LEARN/> with clean text */}
+            AgentAI
           </Link>
         </div>
-        
+
         <div className={styles.links}>
           <Link href="/" className={styles.link}>{t('nav_home')}</Link>
           <Link href="/about" className={styles.link}>{t('nav_about')}</Link>
@@ -29,25 +29,25 @@ export default function Navbar() {
           <Link href="/contact" className={styles.link}>{t('nav_contact' as any)}</Link>
           {session?.user.role === 'ADMIN' ? (
             <>
-              <Link href="/admin" className={`${styles.link} ${styles.roleLink}`}><ShieldCheck size={15} /> Admin Console</Link>
+              <Link href="/admin" className={`${styles.link} ${styles.roleLink}`}><ShieldCheck size={15} /> {t('nav_admin_console' as any)}</Link>
               <Link href="/dashboard" className={styles.link}>{t('nav_chatai' as any)}</Link>
             </>
           ) : session?.user ? (
             <>
-              <Link href="/dashboard/overview" className={`${styles.link} ${styles.roleLink}`}><GraduationCap size={15} /> Student Overview</Link>
+              <Link href="/dashboard/overview" className={`${styles.link} ${styles.roleLink}`}><GraduationCap size={15} /> {t('nav_student_overview' as any)}</Link>
               <Link href="/dashboard" className={styles.link}>{t('nav_chatai' as any)}</Link>
             </>
           ) : null}
         </div>
 
         <div className={styles.actions}>
-          <button 
-            onClick={toggleLanguage} 
-            className={styles.langBtn} 
+          <button
+            onClick={toggleLanguage}
+            className={styles.langBtn}
           >
             {language === 'th' ? 'EN' : 'TH'}
           </button>
-          
+
           {session && session.user ? (
             <div className={styles.authenticatedActions}>
               <span className={styles.userName}>
@@ -57,13 +57,13 @@ export default function Navbar() {
                 {session.user.role}
               </span>
               <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.menuBtn}>
-                Logout
+                {t('nav_logout' as any)}
               </button>
             </div>
           ) : (
             <div className={styles.guestActions}>
               <Link href="/login" className={styles.loginLink}>{t('nav_login')}</Link>
-              <Link href="/register" className={styles.menuBtn}>สมัครฟรี</Link>
+              <Link href="/register" className={styles.menuBtn}>{t('nav_register_free' as any)}</Link>
             </div>
           )}
         </div>
