@@ -7,16 +7,20 @@ import QuizApp from '@/components/QuizApp';
 import FlashcardApp from '@/components/FlashcardApp';
 import StudySchedule from '@/components/StudySchedule';
 import DocumentSummary from '@/components/DocumentSummary';
-import { CalendarDays, ChevronLeft, ChevronRight, Cpu, FileText, Layers, LayoutDashboard, ListChecks, MessageSquare, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Cpu, FileText, Layers, LayoutDashboard, ListChecks, MessageSquare, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX, FolderOpen, LockKeyhole, RotateCcw, X } from 'lucide-react';
 import Link from 'next/link';
+import { isAcceptedPdf, MAX_PDF_FILE_SIZE, MAX_PDF_FILE_SIZE_MB } from '@/lib/upload-policy';
 
-type ProviderId = 'gemini' | 'openai' | 'grok' | 'groq' | 'bazaarlink';
+type ProviderId = 'gemini' | 'groq' | 'bazaarlink';
 type ProviderOption = {
   id: ProviderId;
   name: string;
   model: string;
   configured: boolean;
 };
+
+type MobilePane = 'files' | 'pdf' | 'ai';
+type UploadPhase = 'idle' | 'validating' | 'uploading' | 'processing' | 'success' | 'error';
 
 const learningTabs = [
   { id: 'chat', label: 'Chat', icon: MessageSquare },
@@ -31,6 +35,13 @@ export default function Dashboard() {
   const [documents, setDocuments] = useState<any[]>([]);
   const [activeFile, setActiveFile] = useState<any>(null);
   const [status, setStatus] = useState<string>('');
+  const [mobilePane, setMobilePane] = useState<MobilePane>('files');
+  const [uploadPhase, setUploadPhase] = useState<UploadPhase>('idle');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const uploadRequestRef = useRef<XMLHttpRequest | null>(null);
+  const lastUploadRef = useRef<File | null>(null);
   
   // Chat state
   const [query, setQuery] = useState('');
@@ -61,6 +72,7 @@ export default function Dashboard() {
       if (typeof window !== 'undefined' && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
+      uploadRequestRef.current?.abort();
     };
   }, []);
 
@@ -129,40 +141,95 @@ export default function Dashboard() {
   };
 
   const uploadFile = async (file: File) => {
-    if (file.type !== 'application/pdf') {
-      setStatus('ERR: INVALID_FORMAT (PDF ONLY)');
+    lastUploadRef.current = file;
+    setUploadPhase('validating');
+    setUploadProgress(5);
+    setUploadError('');
+
+    if (!isAcceptedPdf(file)) {
+      setStatus('รูปแบบไฟล์ไม่ถูกต้อง');
+      setUploadError('รองรับเฉพาะไฟล์ PDF ที่มี MIME type และนามสกุลถูกต้อง');
+      setUploadPhase('error');
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setStatus('ERR: SIZE_LIMIT_EXCEEDED (MAX 10MB)');
+    if (file.size > MAX_PDF_FILE_SIZE) {
+      setStatus('ไฟล์มีขนาดใหญ่เกินกำหนด');
+      setUploadError(`ไฟล์ต้องมีขนาดไม่เกิน ${MAX_PDF_FILE_SIZE_MB}MB`);
+      setUploadPhase('error');
       return;
     }
 
-    setStatus('UPLOADING...');
+    setStatus('กำลังอัปโหลดไฟล์');
+    setUploadPhase('uploading');
+    setUploadProgress(10);
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
+      const data = await new Promise<{ filename: string; error?: string }>((resolve, reject) => {
+        const request = new XMLHttpRequest();
+        uploadRequestRef.current = request;
+        request.open('POST', '/api/upload');
+        request.responseType = 'json';
+        request.upload.onprogress = (event) => {
+          if (!event.lengthComputable) return;
+          const percent = Math.round((event.loaded / event.total) * 65) + 10;
+          setUploadProgress(Math.min(percent, 75));
+          if (event.loaded === event.total) {
+            setUploadPhase('processing');
+            setStatus('กำลังตรวจสอบและอ่านข้อความจาก PDF');
+          }
+        };
+        request.onload = () => {
+          const response = request.response || {};
+          if (request.status >= 200 && request.status < 300) resolve(response);
+          else reject(new Error(response.error || 'อัปโหลดไฟล์ไม่สำเร็จ'));
+        };
+        request.onerror = () => reject(new Error('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้'));
+        request.onabort = () => reject(new DOMException('ยกเลิกการอัปโหลดแล้ว', 'AbortError'));
+        request.send(formData);
       });
-      const data = await res.json();
-      if (res.ok) {
-        setStatus('UPLOAD_SUCCESS');
-        await fetchDocuments();
-        // Set the new file as active
-        const newFile = { filename: data.filename, title: file.name };
-        setActiveFile(newFile);
-        setMessages([{ role: 'ai', content: `อ่าน PDF "${file.name}" เรียบร้อยแล้ว คุณสามารถถามข้อมูลจากเอกสารได้` }]);
-        await loadTool('summary', data.filename);
-        setTimeout(() => setStatus(''), 3000);
-      } else {
-        setStatus(`ERR: ${data.error || 'UPLOAD_FAILED'}`);
-      }
+
+      setUploadProgress(90);
+      setStatus('กำลังเตรียมพื้นที่เรียนรู้');
+      await fetchDocuments();
+      const newFile = { filename: data.filename, title: file.name };
+      setActiveFile(newFile);
+      setMessages([{ role: 'ai', content: `อ่าน PDF "${file.name}" เรียบร้อยแล้ว เลือกคำถามแนะนำหรือพิมพ์คำถามของคุณได้เลย` }]);
+      setActiveTab('chat');
+      setMobilePane('ai');
+      setUploadProgress(100);
+      setUploadPhase('success');
+      setStatus('PDF พร้อมใช้งานแล้ว');
+      setTimeout(() => {
+        setUploadPhase('idle');
+        setStatus('');
+      }, 3500);
     } catch (error) {
-      setStatus('ERR: NETWORK_ERROR');
+      const message = error instanceof Error ? error.message : 'อัปโหลดไฟล์ไม่สำเร็จ';
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        setUploadError('ยกเลิกการอัปโหลดแล้ว คุณสามารถเลือกไฟล์ใหม่ได้');
+      } else {
+        setUploadError(message);
+      }
+      setUploadPhase('error');
+      setStatus('อัปโหลดไม่สำเร็จ');
+    } finally {
+      uploadRequestRef.current = null;
     }
+  };
+
+  const cancelUpload = () => uploadRequestRef.current?.abort();
+
+  const retryUpload = () => {
+    if (lastUploadRef.current) uploadFile(lastUploadRef.current);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+    const file = event.dataTransfer.files?.[0];
+    if (file) uploadFile(file);
   };
 
   const submitQuery = async (queryText: string) => {
@@ -276,6 +343,7 @@ export default function Dashboard() {
     setActiveFile(doc);
     setActiveTab('chat');
     setToolData(null);
+    setMobilePane('ai');
     setMessages([{ role: 'ai', content: `SYSTEM_MSG: Loading chat history for "${doc.title}"...` }]);
     
     try {
@@ -361,31 +429,77 @@ export default function Dashboard() {
   };
 
   const renderMessageContent = (content: string) => {
-    return <span style={{whiteSpace: 'pre-wrap'}}>{content}</span>;
+    return (
+      <span className={styles.messageContent}>
+        {content.split(/(\[หน้า\s+\d+\])/g).map((part, index) =>
+          /^\[หน้า\s+\d+\]$/.test(part)
+            ? <span className={styles.citation} key={`${part}-${index}`}>{part}</span>
+            : part
+        )}
+      </span>
+    );
   };
 
+  const uploadIsBusy = uploadPhase === 'validating' || uploadPhase === 'uploading' || uploadPhase === 'processing';
+  const uploadPhaseLabel = {
+    idle: 'พร้อมรับไฟล์',
+    validating: 'กำลังตรวจสอบไฟล์',
+    uploading: 'กำลังอัปโหลด',
+    processing: 'กำลังตรวจสอบและอ่านข้อความ',
+    success: 'PDF พร้อมใช้งาน',
+    error: 'อัปโหลดไม่สำเร็จ',
+  }[uploadPhase];
+  const promptSuggestions = [
+    'สรุปเอกสารนี้เป็น 5 ข้อ',
+    'อธิบายเนื้อหาเหมือนฉันเป็นผู้เริ่มต้น',
+    'หัวข้อใดน่าจะออกสอบ',
+    'สร้างคำถามทบทวน 10 ข้อ',
+  ];
+
   return (
-    <div className={styles.container}>
-      <aside className={`${styles.sidebar} ${isSidebarExpanded ? styles.expanded : styles.collapsed}`}>
+    <div className={styles.container} data-fullscreen-dashboard>
+      <nav className={styles.mobileTabs} aria-label="เลือกพื้นที่ทำงาน" role="tablist">
+        <button role="tab" aria-selected={mobilePane === 'files'} className={mobilePane === 'files' ? styles.mobileTabActive : ''} onClick={() => setMobilePane('files')}>
+          <FolderOpen size={17} /> ไฟล์
+        </button>
+        <button role="tab" aria-selected={mobilePane === 'pdf'} className={mobilePane === 'pdf' ? styles.mobileTabActive : ''} onClick={() => setMobilePane('pdf')} disabled={!activeFile}>
+          <FileText size={17} /> PDF
+        </button>
+        <button role="tab" aria-selected={mobilePane === 'ai'} className={mobilePane === 'ai' ? styles.mobileTabActive : ''} onClick={() => setMobilePane('ai')}>
+          <MessageSquare size={17} /> AI
+        </button>
+      </nav>
+
+      <aside className={`${styles.sidebar} ${isSidebarExpanded ? styles.expanded : styles.collapsed} ${mobilePane !== 'files' ? styles.mobileHidden : ''}`}>
         <button 
           className={styles.toggleBtn} 
           onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+          aria-label={isSidebarExpanded ? 'ย่อรายการไฟล์' : 'ขยายรายการไฟล์'}
         >
           {isSidebarExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
         </button>
-        <h2 className={styles.sidebarTitle}>[ ประวัติแชท & ไฟล์ ]</h2>
+        <h2 className={styles.sidebarTitle}>เอกสารของฉัน</h2>
         
         {isSidebarExpanded && (
-          <div style={{ padding: '0 1rem 1rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <Link href="/dashboard/overview" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', color: 'white', textDecoration: 'none' }}>
+          <div className={styles.sidebarNav}>
+            <Link href="/dashboard/overview" className={styles.dashboardLink}>
               <LayoutDashboard size={18} /> Dashboard
             </Link>
           </div>
         )}
 
-        <div className={styles.uploadArea}>
+        <div
+          className={`${styles.uploadArea} ${isDragging ? styles.dragging : ''}`}
+          onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }}
+          onDragOver={(event) => event.preventDefault()}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+        >
+          {isSidebarExpanded && <Upload size={24} className={styles.uploadIcon} aria-hidden="true" />}
+          {isSidebarExpanded && <strong>ลาก PDF มาวางที่นี่</strong>}
+          {isSidebarExpanded && <span className={styles.uploadHint}>PDF เท่านั้น · สูงสุด {MAX_PDF_FILE_SIZE_MB}MB</span>}
           <label htmlFor="file-upload" className={styles.uploadLabel} title={!isSidebarExpanded ? String(t('dash_new_upload')) : undefined}>
-            {isSidebarExpanded ? t('dash_new_upload') : <Upload size={16} />}
+            {isSidebarExpanded ? 'เลือกไฟล์ PDF' : <Upload size={17} />}
           </label>
           <input 
             type="file" 
@@ -393,9 +507,31 @@ export default function Dashboard() {
             onChange={handleFileChange}
             id="file-upload"
             className={styles.fileInput}
+            disabled={uploadIsBusy}
           />
-          {isSidebarExpanded && status && <span className={styles.status} style={{ color: status.startsWith('ERR') ? '#ff003c' : 'var(--primary-color)' }}>{status}</span>}
+          {isSidebarExpanded && (
+            <p className={styles.privacyHint}><LockKeyhole size={13} /> <span>ส่งข้อความไปยังผู้ให้บริการ AI ที่เลือกเมื่อคุณสั่งงานเท่านั้น · <Link href="/privacy">อ่านนโยบาย</Link></span></p>
+          )}
         </div>
+
+        {isSidebarExpanded && uploadPhase !== 'idle' && (
+          <div className={`${styles.uploadStatus} ${uploadPhase === 'error' ? styles.uploadStatusError : ''}`} aria-live="polite">
+            <div className={styles.uploadStatusRow}>
+              <span>{status || uploadPhaseLabel}</span>
+              {uploadIsBusy && <span>{uploadProgress}%</span>}
+            </div>
+            {uploadPhase !== 'error' && (
+              <div className={styles.progressTrack} role="progressbar" aria-label={uploadPhaseLabel} aria-valuemin={0} aria-valuemax={100} aria-valuenow={uploadProgress}>
+                <span style={{ width: `${uploadProgress}%` }} />
+              </div>
+            )}
+            {uploadError && <p>{uploadError}</p>}
+            <div className={styles.uploadActions}>
+              {uploadIsBusy && <button type="button" onClick={cancelUpload}><X size={14} /> ยกเลิก</button>}
+              {uploadPhase === 'error' && <button type="button" onClick={retryUpload}><RotateCcw size={14} /> ลองอีกครั้ง</button>}
+            </div>
+          </div>
+        )}
 
         <div className={styles.fileList} style={{ marginTop: '1rem' }}>
           {documents.map((doc) => (
@@ -484,12 +620,12 @@ export default function Dashboard() {
               )}
             </div>
           ))}
-          {documents.length === 0 && isSidebarExpanded && <p style={{color: 'var(--text-secondary)', fontSize: '0.8rem', padding: '1rem'}}>{t('dash_no_files')}</p>}
+          {documents.length === 0 && isSidebarExpanded && <p className={styles.emptyFiles}>{t('dash_no_files')}</p>}
         </div>
       </aside>
 
-      <main className={styles.workspace}>
-        <section className={styles.pdfPane}>
+      <main className={`${styles.workspace} ${mobilePane === 'files' ? styles.mobileHidden : ''}`}>
+        <section className={`${styles.pdfPane} ${mobilePane !== 'pdf' ? styles.mobileHidden : ''}`}>
           <div className={styles.paneHeader}>
             {t('dash_pdf_viewer')} {activeFile ? `[ ${activeFile.title} ]` : ''}
           </div>
@@ -500,18 +636,29 @@ export default function Dashboard() {
               title="PDF Viewer"
             />
           ) : (
-            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-secondary)'}}>
-              {t('dash_select_preview')}
+            <div
+              className={`${styles.emptyUpload} ${isDragging ? styles.dragging : ''}`}
+              onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }}
+              onDragOver={(event) => event.preventDefault()}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+            >
+              <div className={styles.emptyUploadIcon}><Upload size={30} /></div>
+              <h2>เริ่มเรียนรู้จาก PDF ของคุณ</h2>
+              <p>ลากไฟล์มาวาง หรือเลือกไฟล์จากอุปกรณ์</p>
+              <span>รองรับ PDF · สูงสุด {MAX_PDF_FILE_SIZE_MB}MB</span>
+              <label htmlFor="file-upload" className={styles.primaryUploadButton}>เลือกไฟล์ PDF</label>
+              <small><LockKeyhole size={13} /> ไฟล์เก็บแยกตามบัญชี ลบได้ทุกเมื่อ · <Link href="/privacy">นโยบายข้อมูล</Link></small>
             </div>
           )}
         </section>
 
-        <section className={styles.chatPane}>
-          <div className={styles.paneHeader} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <section className={`${styles.chatPane} ${mobilePane !== 'ai' ? styles.mobileHidden : ''}`}>
+          <div className={`${styles.paneHeader} ${styles.chatHeader}`}>
             <span>
               {t('dash_ai_interface')} {activeFile ? `[ ${t('dash_connected')} ${activeFile.filename.substring(0,8)}... ]` : `[ ${t('dash_standby')} ]`}
             </span>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '0.8rem' }}>
+            <label className={styles.providerLabel}>
               <Cpu size={16} aria-hidden="true" />
               <select
                 value={selectedProvider}
@@ -522,14 +669,7 @@ export default function Dashboard() {
                   setActiveTab('chat');
                 }}
                 aria-label="เลือกโมเดล AI"
-                style={{
-                  maxWidth: '210px',
-                  padding: '6px 8px',
-                  color: 'var(--text-color)',
-                  background: 'rgba(0,0,0,0.55)',
-                  border: '1px solid rgba(0,255,255,0.35)',
-                  borderRadius: '6px',
-                }}
+                className={styles.providerSelect}
               >
                 {providerOptions.map((option) => (
                   <option key={option.id} value={option.id} disabled={!option.configured}>
@@ -541,28 +681,16 @@ export default function Dashboard() {
           </div>
           
           {activeFile && (
-            <div style={{ display: 'flex', borderBottom: '1px solid rgba(0, 255, 255, 0.2)', background: 'rgba(0,0,0,0.2)' }}>
+            <div className={styles.learningTabs} role="tablist" aria-label="เครื่องมือการเรียนรู้">
               {learningTabs.map((tab) => {
                 const TabIcon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => tab.id === 'chat' ? setActiveTab('chat') : loadTool(tab.id)}
-                    style={{
-                      flex: 1,
-                      padding: '10px',
-                      background: activeTab === tab.id ? 'rgba(0, 255, 255, 0.1)' : 'transparent',
-                      border: 'none',
-                      borderBottom: activeTab === tab.id ? '2px solid var(--primary-color)' : '2px solid transparent',
-                      color: activeTab === tab.id ? 'var(--primary-color)' : 'var(--text-secondary)',
-                      cursor: 'pointer',
-                      fontWeight: activeTab === tab.id ? 'bold' : 'normal',
-                      transition: 'all 0.2s',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                    }}
+                    className={activeTab === tab.id ? styles.learningTabActive : ''}
+                    role="tab"
+                    aria-selected={activeTab === tab.id}
                   >
                     <TabIcon size={16} aria-hidden="true" />
                     <span>{tab.label}</span>
@@ -572,16 +700,17 @@ export default function Dashboard() {
             </div>
           )}
           
-          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div className={styles.chatBody}>
             {activeTab === 'chat' ? (
               <>
                 <div className={styles.chatHistory} ref={chatHistoryRef}>
                   {messages.length === 0 ? (
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-secondary)'}}>
-              <h3>{t('dash_select_or_upload' as any)}</h3>
-              <p>{t('dash_welcome' as any)}</p>
-            </div>
-          ) : (
+                    <div className={styles.emptyChat}>
+                      <MessageSquare size={30} />
+                      <h3>{activeFile ? 'ถามอะไรก็ได้จากเอกสารนี้' : 'เลือกหรืออัปโหลด PDF เพื่อเริ่มสนทนา'}</h3>
+                      <p>{activeFile ? 'AI จะตอบโดยยึดข้อมูลในเอกสารเป็นหลัก' : 'เมื่อ PDF พร้อมใช้งาน คุณจะสรุป ถามตอบ และสร้างสื่อทบทวนได้ที่นี่'}</p>
+                    </div>
+                  ) : (
             messages.map((msg, index) => (
               <div key={index} className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.aiMessage}`}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -621,7 +750,7 @@ export default function Dashboard() {
                   {isTyping && messages[messages.length - 1]?.content === '' && (
                     <div className={`${styles.message} ${styles.aiMessage}`}>
                       <span className={styles.role}>{t('dash_system')}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div className={styles.loadingRow} role="status" aria-live="polite">
                         <div className={styles.loadingSpinner}></div>
                         <span style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', fontStyle: 'italic' }}>
                           {loadingSteps[loadingStepIdx]}
@@ -631,24 +760,33 @@ export default function Dashboard() {
                   )}
                 </div>
 
+                {activeFile && !isTyping && (
+                  <div className={styles.promptSuggestions} aria-label="คำถามแนะนำ">
+                    {promptSuggestions.map((suggestion) => (
+                      <button type="button" key={suggestion} onClick={() => submitQuery(suggestion)}>{suggestion}</button>
+                    ))}
+                  </div>
+                )}
+
                 <div className={styles.chatInputArea}>
                   <form onSubmit={handleAskAI} className={styles.chatForm}>
                     <input 
-                      type="text" 
+                      type="text"
                       className={styles.queryInput} 
                       placeholder={activeFile ? t('dash_enter_query') : t('dash_select_first')}
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       disabled={!activeFile || isTyping}
+                      aria-label="คำถามสำหรับ AI"
                     />
                     <button type="submit" className={styles.sendBtn} disabled={!activeFile || !query.trim() || isTyping}>
-                      &gt; {t('dash_send')}
+                      {t('dash_send')}
                     </button>
                   </form>
                 </div>
               </>
             ) : (
-              <div style={{ padding: '20px', flex: 1, overflowY: 'auto' }}>
+              <div className={styles.toolPane}>
                 {isToolLoading ? (
                   <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: '2rem' }}>
                     <div className={styles.loadingSpinner} style={{ margin: '0 auto 1rem auto' }}></div>

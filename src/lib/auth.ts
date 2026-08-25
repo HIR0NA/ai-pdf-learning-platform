@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { getClientAddress } from '@/lib/security';
+import { normalizeRole } from '@/lib/rbac';
 
 const prisma = new PrismaClient();
 
@@ -75,11 +76,13 @@ export const authOptions: NextAuthOptions = {
         }
 
         await prisma.loginLog.create({ data: { email, ipAddress: ip, userAgent, success: true } });
+        const role = normalizeRole(user.role);
+        if (!role) return null;
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role,
+          role,
         };
       },
     }),
@@ -105,15 +108,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as { role?: string }).role;
+        token.role = user.role;
         token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as typeof session.user & { role?: unknown; id?: unknown }).role = token.role;
-        (session.user as typeof session.user & { role?: unknown; id?: unknown }).id = token.id;
+        session.user.role = normalizeRole(token.role) ?? 'STUDENT';
+        session.user.id = String(token.id ?? '');
       }
       return session;
     },

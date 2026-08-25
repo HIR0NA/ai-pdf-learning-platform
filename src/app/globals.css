@@ -27,6 +27,10 @@ body {
                     radial-gradient(circle at 90% 100%, rgba(82, 43, 91, 0.3), transparent 40%);
 }
 
+body:has([data-fullscreen-dashboard]) footer {
+  display: none;
+}
+
 a {
   color: inherit;
   text-decoration: none;

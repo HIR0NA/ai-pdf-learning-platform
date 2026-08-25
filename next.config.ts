@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
   experimental: {
     // Allows multipart overhead while the route enforces a strict 10MB file limit.
     proxyClientMaxBodySize: '12mb',
+    authInterrupts: true,
   },
   async headers() {
     return [

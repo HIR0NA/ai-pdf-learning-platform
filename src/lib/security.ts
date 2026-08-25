@@ -1,6 +1,7 @@
 import path from 'path';
+import { MAX_PDF_FILE_SIZE } from './upload-policy.ts';
 
-export const MAX_PDF_FILE_SIZE = 10 * 1024 * 1024;
+export { MAX_PDF_FILE_SIZE };
 export const MAX_UPLOAD_REQUEST_SIZE = MAX_PDF_FILE_SIZE + 1024 * 1024;
 
 const STORED_PDF_FILENAME =

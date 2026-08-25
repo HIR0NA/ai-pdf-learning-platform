@@ -10,7 +10,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "test:security": "node --experimental-strip-types --test tests/security.test.ts",
     "db:push": "prisma db push",
-    "db:seed": "node seed_admin.js",
+    "db:seed": "node --env-file=.env seed_admin.js",
     "db:sync-uploads": "node sync_db.js"
   },
   "dependencies": {

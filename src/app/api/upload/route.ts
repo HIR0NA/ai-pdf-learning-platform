@@ -7,13 +7,11 @@ import { writeFile, mkdir, unlink } from 'fs/promises';
 import { DocumentTextError, extractPdfText } from '@/lib/document-text';
 import {
   exceedsUploadRequestLimit,
-  MAX_PDF_FILE_SIZE,
   resolveStoredDocumentPaths,
 } from '@/lib/security';
+import { MAX_PDF_FILE_SIZE, PDF_MIME_TYPE } from '@/lib/upload-policy';
 
 const prisma = new PrismaClient();
-const ALLOWED_MIME_TYPE = 'application/pdf';
-
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -33,7 +31,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
     
-    if (file.type !== ALLOWED_MIME_TYPE || !file.name.toLowerCase().endsWith('.pdf')) {
+    if (file.type !== PDF_MIME_TYPE || !file.name.toLowerCase().endsWith('.pdf')) {
       return NextResponse.json({ error: 'Invalid file type. Only PDF is allowed.' }, { status: 400 });
     }
 

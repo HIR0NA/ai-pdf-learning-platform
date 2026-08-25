@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { consumeRateLimit } from '@/lib/rate-limit';
 import { getClientAddress } from '@/lib/security';
+import { isAdmin } from '@/lib/rbac';
 
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 10; // 10 requests per minute
@@ -96,7 +97,18 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Phase 2: RBAC (Role-Based Access Control)
+  // Admin APIs must return machine-readable 401/403 responses.
+  if (pathname.startsWith('/api/admin')) {
+    const token = await getRequestToken(request);
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!isAdmin(token.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  }
+
+  // Admin pages return a real 403 before rendering for authenticated non-admin users.
   if (pathname.startsWith('/admin')) {
     const token = await getRequestToken(request);
     if (!token) {
@@ -104,7 +116,7 @@ export async function proxy(request: NextRequest) {
       url.searchParams.set('callbackUrl', encodeURI(pathname));
       return NextResponse.redirect(url);
     }
-    if (token.role !== 'ADMIN') {
+    if (!isAdmin(token.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
   }

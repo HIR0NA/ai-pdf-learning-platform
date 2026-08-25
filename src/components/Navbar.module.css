@@ -64,10 +64,57 @@
   opacity: 1;
 }
 
+.roleLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.roleBadge {
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.adminBadge {
+  color: #fda4af;
+  background: rgba(244, 63, 94, 0.16);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+.studentBadge {
+  color: #67e8f9;
+  background: rgba(6, 182, 212, 0.16);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
 .actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.authenticatedActions, .guestActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.loginLink {
+  padding: 0.45rem 0.65rem;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0.82;
+}
+
+.loginLink:hover { opacity: 1; color: var(--primary-color); }
+
+.userName {
+  color: var(--primary-color);
+  font-size: 0.9rem;
 }
 
 .langBtn {
@@ -106,4 +153,27 @@
   .links {
     display: none;
   }
+
+  .userName {
+    display: none;
+  }
+}
+
+@media (max-width: 440px) {
+  .navbarWrapper {
+    padding: 0 0.5rem;
+  }
+
+  .navbar {
+    padding-inline: 0.65rem;
+  }
+
+  .menuBtn {
+    padding-inline: 13px;
+  }
+
+  .actions { gap: 0.15rem; }
+  .authenticatedActions, .guestActions { gap: 0.25rem; }
+  .roleBadge { display: none; }
+  .loginLink { padding-inline: 0.35rem; font-size: 0.8rem; }
 }

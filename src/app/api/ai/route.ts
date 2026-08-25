@@ -54,7 +54,8 @@ STRICT RULES:
 - Never use outside knowledge, assumptions, or invented facts.
 - If the answer is absent, reply exactly: "ไม่พบข้อมูลนี้ในเอกสาร"
 - Answer clearly in Thai and preserve necessary technical terms.
-- When useful, mention the relevant section or wording from the document without fabricating page numbers.
+- When the document contains markers such as [หน้า 3], cite the supporting page using exactly that format.
+- If the document has no page marker for a fact, mention the relevant section without inventing a page number.
 
 --- DOCUMENT START ---
 ${contextText}

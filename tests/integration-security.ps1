@@ -23,12 +23,16 @@ function Assert-Status([string]$Name, [int]$Actual, [int[]]$Expected) {
 $BaseUrl = 'http://127.0.0.1:3000'
 $AdminEmail = Get-DotEnvValue 'ADMIN_EMAIL'
 $AdminPassword = Get-DotEnvValue 'ADMIN_PASSWORD'
+$DemoStudentEmail = Get-DotEnvValue 'STUDENT_EMAIL'
+$DemoStudentPassword = Get-DotEnvValue 'STUDENT_PASSWORD'
 $env:DATABASE_URL = Get-DotEnvValue 'DATABASE_URL'
 $RunId = [guid]::NewGuid().ToString('N')
 $TempRoot = Join-Path $env:TEMP "ai-study-security-$RunId"
 $AdminCookies = Join-Path $TempRoot 'admin.cookies'
 $StudentCookies = Join-Path $TempRoot 'student.cookies'
+$DemoStudentCookies = Join-Path $TempRoot 'demo-student.cookies'
 $ResponsePath = Join-Path $TempRoot 'response.json'
+$RegistrationPath = Join-Path $TempRoot 'registration.json'
 $OversizedPath = Join-Path $TempRoot 'oversized.pdf'
 $FakePdfPath = Join-Path $TempRoot 'fake.pdf'
 $Results = @()
@@ -37,7 +41,7 @@ $StudentPassword = "Security-Test-$RunId!"
 
 New-Item -ItemType Directory -Path $TempRoot | Out-Null
 
-function Login([string]$Email, [string]$Password, [string]$CookiePath) {
+function Login([string]$Email, [string]$Password, [string]$CookiePath, [string]$ExpectedRole) {
   $csrfJson = & curl.exe -sS -c $CookiePath "$BaseUrl/api/auth/csrf"
   if ($LASTEXITCODE -ne 0) { throw 'Unable to fetch CSRF token' }
   $csrf = ($csrfJson | ConvertFrom-Json).csrfToken
@@ -62,10 +66,46 @@ function Login([string]$Email, [string]$Password, [string]$CookiePath) {
   if (-not $sessionResponse.user -or $sessionResponse.user.email -ne $Email) {
     throw "Session cookie was not established for $Email"
   }
+  if ($sessionResponse.user.role -ne $ExpectedRole) {
+    throw "Session for $Email expected role $ExpectedRole but received $($sessionResponse.user.role)"
+  }
 }
 
 try {
-  Login $AdminEmail $AdminPassword $AdminCookies
+  $status = Invoke-CurlStatus @("$BaseUrl/api/admin/overview") $ResponsePath
+  Assert-Status 'Anonymous admin API request is rejected' $status @(401)
+
+  Login $AdminEmail $AdminPassword $AdminCookies 'ADMIN'
+  Login $DemoStudentEmail $DemoStudentPassword $DemoStudentCookies 'STUDENT'
+
+  $status = Invoke-CurlStatus @('-b', $AdminCookies, "$BaseUrl/admin") $ResponsePath
+  Assert-Status 'Admin can open admin page' $status @(200)
+
+  $status = Invoke-CurlStatus @('-b', $AdminCookies, "$BaseUrl/api/admin/overview") $ResponsePath
+  Assert-Status 'Admin can read admin overview API' $status @(200)
+  $adminOverview = Get-Content -Raw $ResponsePath | ConvertFrom-Json
+  if (-not $adminOverview.counts -or @($adminOverview.users).Count -lt 2) {
+    throw 'Admin overview does not contain the seeded role accounts'
+  }
+
+  $status = Invoke-CurlStatus @('-b', $DemoStudentCookies, "$BaseUrl/admin") $ResponsePath
+  Assert-Status 'Student receives 403 for admin page' $status @(403)
+
+  $status = Invoke-CurlStatus @('-b', $DemoStudentCookies, "$BaseUrl/api/admin/overview") $ResponsePath
+  Assert-Status 'Student receives 403 for admin API' $status @(403)
+
+  # A unique account keeps the rate-limit assertions repeatable across test runs.
+  $registrationBody = @{ email = $StudentEmail; password = $StudentPassword; name = 'Security Test Student' } | ConvertTo-Json -Compress
+  [IO.File]::WriteAllText($RegistrationPath, $registrationBody, [Text.UTF8Encoding]::new($false))
+  $status = Invoke-CurlStatus @(
+    '-X', 'POST', "$BaseUrl/api/auth/register",
+    '-H', 'Content-Type: application/json', '--data-binary', "@$RegistrationPath"
+  ) $ResponsePath
+  Assert-Status 'Register temporary student' $status @(201)
+  Login $StudentEmail $StudentPassword $StudentCookies 'STUDENT'
+
+  $status = Invoke-CurlStatus @('-b', $StudentCookies, "$BaseUrl/admin") $ResponsePath
+  Assert-Status 'Temporary student receives 403 for admin route' $status @(403)
 
   $status = Invoke-CurlStatus @('-b', $AdminCookies, "$BaseUrl/api/ai/providers") $ResponsePath
   Assert-Status 'AI provider options endpoint' $status @(200)
@@ -84,7 +124,7 @@ try {
 
   for ($attempt = 1; $attempt -le 11; $attempt += 1) {
     $status = Invoke-CurlStatus @(
-      '-b', $AdminCookies, '-X', 'POST', "$BaseUrl/api/ai",
+      '-b', $StudentCookies, '-X', 'POST', "$BaseUrl/api/ai",
       '-H', 'Content-Type: application/json',
       '-H', "X-Forwarded-For: 198.51.100.$attempt",
       '--data', '{}'
@@ -94,7 +134,7 @@ try {
   Assert-Status 'Rate limit request 11' $status @(429)
 
   $status = Invoke-CurlStatus @(
-    '-b', $AdminCookies, '-X', 'POST', "$BaseUrl/api/ai",
+    '-b', $StudentCookies, '-X', 'POST', "$BaseUrl/api/ai",
     '-H', 'Content-Type: application/json',
     '-H', 'X-Forwarded-For: 203.0.113.250',
     '--data', '{}'
@@ -138,17 +178,6 @@ try {
   if (Test-Path (Join-Path uploads $UploadedFilename)) { throw 'Physical PDF remains after deletion' }
   if (Test-Path (Join-Path uploads "$UploadedFilename.txt")) { throw 'Extracted text remains after deletion' }
   $Results += [ordered]@{ test = 'Physical artifacts removed'; status = 200; passed = $true }
-
-  $registrationBody = @{ email = $StudentEmail; password = $StudentPassword; name = 'Security Test Student' } | ConvertTo-Json -Compress
-  $status = Invoke-CurlStatus @(
-    '-X', 'POST', "$BaseUrl/api/auth/register",
-    '-H', 'Content-Type: application/json', '--data', $registrationBody
-  ) $ResponsePath
-  Assert-Status 'Register temporary student' $status @(201)
-  Login $StudentEmail $StudentPassword $StudentCookies
-
-  $status = Invoke-CurlStatus @('-b', $StudentCookies, "$BaseUrl/admin") $ResponsePath
-  Assert-Status 'Student receives 403 for admin route' $status @(403)
 
   [ordered]@{
     generatedAt = (Get-Date).ToUniversalTime().ToString('o')

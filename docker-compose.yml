@@ -13,11 +13,6 @@ services:
       TRUST_PROXY: ${TRUST_PROXY:-false}
       TRUSTED_PROXY_HOPS: ${TRUSTED_PROXY_HOPS:-1}
       AI_PROVIDER: ${AI_PROVIDER:-auto}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.6-luna}
-      XAI_API_KEY: ${XAI_API_KEY:-}
-      XAI_BASE_URL: ${XAI_BASE_URL:-https://api.x.ai/v1}
-      GROK_MODEL: ${GROK_MODEL:-grok-4.6}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GROQ_BASE_URL: ${GROQ_BASE_URL:-https://api.groq.com/openai/v1}
       GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
@@ -58,6 +53,8 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/pdf_learning_db?schema=public
       ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL must be set}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set}
+      STUDENT_EMAIL: ${STUDENT_EMAIL:?STUDENT_EMAIL must be set}
+      STUDENT_PASSWORD: ${STUDENT_PASSWORD:?STUDENT_PASSWORD must be set}
     depends_on:
       migrate:
         condition: service_completed_successfully

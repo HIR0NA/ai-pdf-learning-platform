@@ -102,4 +102,32 @@ test('Groq GPT-OSS 120B provider is wired through API, UI, and Docker configurat
   assert.match(dashboardSource, /'groq'/);
   assert.match(composeSource, /GROQ_API_KEY/);
   assert.match(envExample, /GROQ_MODEL="openai\/gpt-oss-120b"/);
+  assert.doesNotMatch(providerSource, /'openai'\s*\|/);
+  assert.doesNotMatch(providerSource, /'grok'\s*\|/);
+  assert.doesNotMatch(providerSource, /process\.env\.OPENAI_API_KEY/);
+  assert.doesNotMatch(providerSource, /process\.env\.XAI_API_KEY/);
+  assert.doesNotMatch(dashboardSource, /'openai'\s*\|/);
+  assert.doesNotMatch(dashboardSource, /'grok'\s*\|/);
+  assert.doesNotMatch(composeSource, /OPENAI_API_KEY|XAI_API_KEY/);
+  assert.doesNotMatch(envExample, /OPENAI_API_KEY|XAI_API_KEY/);
+});
+
+test('RBAC is enforced by proxy, admin API, page, menu, and seeded roles', async () => {
+  const proxySource = await readFile('src/proxy.ts', 'utf8');
+  const adminApiSource = await readFile('src/app/api/admin/overview/route.ts', 'utf8');
+  const adminPageSource = await readFile('src/app/admin/page.tsx', 'utf8');
+  const navbarSource = await readFile('src/components/Navbar.tsx', 'utf8');
+  const seedSource = await readFile('seed_admin.js', 'utf8');
+
+  assert.match(proxySource, /pathname\.startsWith\('\/api\/admin'\)/);
+  assert.match(proxySource, /status: 403/);
+  assert.match(adminApiSource, /isAdmin\(session\.user\.role\)/);
+  assert.match(adminApiSource, /status: 403/);
+  assert.match(adminPageSource, /forbidden\(\)/);
+  assert.match(navbarSource, /session\?\.user\.role === 'ADMIN'/);
+  assert.match(navbarSource, /Admin Console/);
+  assert.match(navbarSource, /Student Overview/);
+  assert.match(seedSource, /prefix: 'ADMIN'/);
+  assert.match(seedSource, /prefix: 'STUDENT'/);
+  assert.doesNotMatch(seedSource, /Student@Study2026/);
 });

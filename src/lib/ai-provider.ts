@@ -2,15 +2,12 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import OpenAI from 'openai';
 import { GEMINI_MODEL, withGeminiRetry } from '@/lib/gemini';
 
-export type AIProvider = 'openai' | 'grok' | 'groq' | 'bazaarlink' | 'gemini';
+export type AIProvider = 'groq' | 'bazaarlink' | 'gemini';
 
-export const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || 'gpt-5.6-luna';
-export const GROK_MODEL = process.env.GROK_MODEL?.trim() || 'grok-4.6';
 export const GROQ_MODEL = process.env.GROQ_MODEL?.trim() || 'openai/gpt-oss-120b';
 export const BAZAARLINK_MODEL = process.env.BAZAARLINK_MODEL?.trim() || 'qwen/qwen3.7-flash';
 export const GROQ_BASE_URL = process.env.GROQ_BASE_URL?.trim() || 'https://api.groq.com/openai/v1';
 export const BAZAARLINK_BASE_URL = process.env.BAZAARLINK_BASE_URL?.trim() || 'https://api.bazaarlink.ai/v1';
-export const XAI_BASE_URL = process.env.XAI_BASE_URL?.trim() || 'https://api.x.ai/v1';
 
 function hasValue(value: string | undefined) {
   return Boolean(value?.trim());
@@ -21,14 +18,6 @@ export function getAIProvider(override?: string): AIProvider {
     || process.env.AI_PROVIDER?.trim().toLowerCase()
     || 'auto';
 
-  if (requested === 'openai') {
-    if (!hasValue(process.env.OPENAI_API_KEY)) throw new Error('ยังไม่ได้ตั้งค่า OPENAI_API_KEY');
-    return 'openai';
-  }
-  if (requested === 'grok') {
-    if (!hasValue(process.env.XAI_API_KEY)) throw new Error('ยังไม่ได้ตั้งค่า XAI_API_KEY');
-    return 'grok';
-  }
   if (requested === 'groq') {
     if (!hasValue(process.env.GROQ_API_KEY)) throw new Error('ยังไม่ได้ตั้งค่า GROQ_API_KEY');
     return 'groq';
@@ -42,11 +31,9 @@ export function getAIProvider(override?: string): AIProvider {
     return 'bazaarlink';
   }
   if (requested !== 'auto') {
-    throw new Error('AI_PROVIDER ต้องเป็น auto, openai, grok, groq, bazaarlink หรือ gemini');
+    throw new Error('AI_PROVIDER ต้องเป็น auto, groq, bazaarlink หรือ gemini');
   }
 
-  if (hasValue(process.env.OPENAI_API_KEY)) return 'openai';
-  if (hasValue(process.env.XAI_API_KEY)) return 'grok';
   if (hasValue(process.env.GROQ_API_KEY)) return 'groq';
   if (hasValue(process.env.BAZAARLINK_API_KEY)) return 'bazaarlink';
   if (hasValue(process.env.GEMINI_API_KEY)) return 'gemini';
@@ -56,19 +43,9 @@ export function getAIProvider(override?: string): AIProvider {
 export function getAIProviderOptions() {
   return [
     { id: 'gemini' as const, name: 'Google Gemini', model: GEMINI_MODEL, configured: hasValue(process.env.GEMINI_API_KEY) },
-    { id: 'openai' as const, name: 'OpenAI GPT', model: OPENAI_MODEL, configured: hasValue(process.env.OPENAI_API_KEY) },
-    { id: 'grok' as const, name: 'xAI Grok', model: GROK_MODEL, configured: hasValue(process.env.XAI_API_KEY) },
     { id: 'groq' as const, name: 'Groq GPT-OSS', model: GROQ_MODEL, configured: hasValue(process.env.GROQ_API_KEY) },
     { id: 'bazaarlink' as const, name: 'Qwen via BazaarLink', model: BAZAARLINK_MODEL, configured: hasValue(process.env.BAZAARLINK_API_KEY) },
   ];
-}
-
-function getOpenAIClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
-
-function getGrokClient() {
-  return new OpenAI({ apiKey: process.env.XAI_API_KEY, baseURL: XAI_BASE_URL });
 }
 
 function getGroqClient() {
@@ -98,19 +75,6 @@ async function withProviderRetry<T>(operation: () => Promise<T>, maxAttempts = 3
 export async function generateAIText(prompt: string, options?: { json?: boolean; provider?: string }) {
   const provider = getAIProvider(options?.provider);
 
-  if (provider === 'openai' || provider === 'grok') {
-    const model = provider === 'grok' ? GROK_MODEL : OPENAI_MODEL;
-    const client = provider === 'grok' ? getGrokClient() : getOpenAIClient();
-    const response = await withProviderRetry(() => client.responses.create({
-      model,
-      input: prompt,
-      store: false,
-      max_output_tokens: 10_000,
-      text: options?.json ? { format: { type: 'json_object' } } : undefined,
-    }));
-    return { text: response.output_text, provider, model };
-  }
-
   if (provider === 'groq' || provider === 'bazaarlink') {
     const isGroq = provider === 'groq';
     const model = isGroq ? GROQ_MODEL : BAZAARLINK_MODEL;
@@ -135,23 +99,6 @@ export async function generateAIText(prompt: string, options?: { json?: boolean;
 
 export async function createAITextStream(prompt: string, providerOverride?: string) {
   const provider = getAIProvider(providerOverride);
-
-  if (provider === 'openai' || provider === 'grok') {
-    const model = provider === 'grok' ? GROK_MODEL : OPENAI_MODEL;
-    const client = provider === 'grok' ? getGrokClient() : getOpenAIClient();
-    const response = await withProviderRetry(() => client.responses.create({
-      model,
-      input: prompt,
-      store: false,
-      stream: true,
-    }));
-    const chunks = (async function* () {
-      for await (const event of response) {
-        if (event.type === 'response.output_text.delta') yield event.delta;
-      }
-    })();
-    return { chunks, provider, model };
-  }
 
   if (provider === 'groq' || provider === 'bazaarlink') {
     const isGroq = provider === 'groq';

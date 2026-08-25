@@ -1,0 +1,11 @@
+.page { max-width: 1040px; min-height: 80vh; margin: 0 auto; padding: 8rem 5% 5rem; }
+.header { max-width: 760px; margin-bottom: 2.5rem; }
+.header span { color: var(--primary-color); font-size: .78rem; font-weight: 800; letter-spacing: .14em; }
+.header h1 { margin: .65rem 0 1rem; font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.08; }
+.header p, .card p { color: var(--text-secondary); line-height: 1.7; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.card { padding: 1.5rem; border: 1px solid rgba(223,182,178,.16); border-radius: 18px; background: rgba(43,18,76,.75); }
+.card svg { color: var(--primary-color); }
+.card h2 { margin: .8rem 0 .45rem; font-size: 1.1rem; }
+.notice { margin: 1rem 0 2rem; padding: 1rem 1.2rem; border-left: 3px solid var(--primary-color); border-radius: 8px; color: var(--text-secondary); background: rgba(223,182,178,.07); line-height: 1.6; }
+@media (max-width: 640px) { .page { padding-top: 7rem; } .grid { grid-template-columns: 1fr; } }

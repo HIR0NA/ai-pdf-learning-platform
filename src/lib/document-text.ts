@@ -26,8 +26,29 @@ export async function extractPdfText(buffer: Buffer) {
   // A standalone Uint8Array gives it the exact PDF byte range.
   const parsePdf = pdfParse as unknown as (
     data: Uint8Array,
+    options?: { pagerender?: (pageData: any) => Promise<string> },
   ) => Promise<{ text: string }>;
-  const parsed = await parsePdf(new Uint8Array(buffer));
+  let pageCounter = 0;
+  const parsed = await parsePdf(new Uint8Array(buffer), {
+    pagerender: async (pageData) => {
+      pageCounter += 1;
+      const content = await pageData.getTextContent({
+        normalizeWhitespace: true,
+        disableCombineTextItems: false,
+      });
+      let lastY: number | undefined;
+      let pageText = '';
+
+      for (const item of content.items as Array<{ str?: string; transform?: number[] }>) {
+        if (!item.str) continue;
+        const currentY = item.transform?.[5];
+        pageText += lastY === undefined || currentY === lastY ? item.str : `\n${item.str}`;
+        lastY = currentY;
+      }
+
+      return `[หน้า ${pageCounter}]\n${pageText}`;
+    },
+  });
   const text = normalizeExtractedText(parsed.text);
 
   if (!text) {

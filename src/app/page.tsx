@@ -25,13 +25,14 @@ export default function Home() {
             {t('home_subtitle_new')}
           </p>
           <div className={styles.ctaGroup}>
-            <Link href="/dashboard" className="btn btn-primary" style={{ padding: '14px 32px' }}>
+            <Link href="/register" className="btn btn-primary" style={{ padding: '14px 32px' }}>
               {t('home_btn_start')}
             </Link>
             <Link href="#features" className="btn" style={{ padding: '14px 32px' }}>
               {t('home_btn_explore')}
             </Link>
           </div>
+          <p className={styles.ctaMicrocopy}>PDF เท่านั้น · สูงสุด 10MB · เริ่มใช้ฟรี</p>
         </div>
         
         <div className={styles.heroGraphic}>
@@ -160,6 +161,30 @@ export default function Home() {
           <div className={styles.faqAnswer}>{t('faq_a4' as any)}</div>
         </details>
       </section>
+
+      <section className={styles.closingCta} aria-labelledby="closing-cta-title">
+        <h2 id="closing-cta-title">พร้อมเปลี่ยน PDF ให้เป็นบทเรียนของคุณหรือยัง?</h2>
+        <p>สรุป ถามตอบ สร้าง Quiz, Flashcard และตารางเรียนได้จากเอกสารเดียว</p>
+        <div className={styles.ctaGroup}>
+          <Link href="/register" className="btn btn-primary">สมัครและอัปโหลด PDF ฟรี</Link>
+          <Link href="/product" className="btn">ดูแพ็กเกจ</Link>
+        </div>
+      </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: 'AgentAI — AI PDF Learn',
+            applicationCategory: 'EducationalApplication',
+            operatingSystem: 'Web',
+            description: 'AI สรุป PDF คุยกับไฟล์ PDF สร้าง Quiz, Flashcard และตารางเรียน',
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'THB' },
+          }),
+        }}
+      />
 
     </div>
   );
