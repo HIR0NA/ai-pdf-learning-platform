@@ -23,10 +23,6 @@ export default function Navbar() {
 
         <div className={styles.links}>
           <Link href="/" className={styles.link}>{t('nav_home')}</Link>
-          <Link href="/about" className={styles.link}>{t('nav_about')}</Link>
-          <Link href="/product" className={styles.link}>{t('nav_product' as any)}</Link>
-          <Link href="/blog" className={styles.link}>{t('nav_blog' as any)}</Link>
-          <Link href="/contact" className={styles.link}>{t('nav_contact' as any)}</Link>
           {session?.user.role === 'ADMIN' ? (
             <>
               <Link href="/admin" className={`${styles.link} ${styles.roleLink}`}><ShieldCheck size={15} /> {t('nav_admin_console' as any)}</Link>
@@ -38,6 +34,10 @@ export default function Navbar() {
               <Link href="/dashboard" className={styles.link}>{t('nav_chatai' as any)}</Link>
             </>
           ) : null}
+          <Link href="/about" className={styles.link}>{t('nav_about')}</Link>
+          <Link href="/product" className={styles.link}>{t('nav_product' as any)}</Link>
+          <Link href="/blog" className={styles.link}>{t('nav_blog' as any)}</Link>
+          <Link href="/contact" className={styles.link}>{t('nav_contact' as any)}</Link>
         </div>
 
         <div className={styles.actions}>
