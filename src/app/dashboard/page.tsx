@@ -18,6 +18,7 @@ type ProviderOption = {
   model: string;
   configured: boolean;
 };
+import { useSession } from 'next-auth/react';
 
 type MobilePane = 'files' | 'pdf' | 'ai';
 type UploadPhase = 'idle' | 'validating' | 'uploading' | 'processing' | 'success' | 'error';
@@ -31,6 +32,7 @@ const learningTabDefs = [
 ] as const;
 
 export default function Dashboard() {
+  const { data: session } = useSession();
   const { t } = useLanguage();
   const [documents, setDocuments] = useState<any[]>([]);
   const [activeFile, setActiveFile] = useState<any>(null);
@@ -485,6 +487,14 @@ export default function Dashboard() {
             <Link href="/dashboard/overview" className={styles.dashboardLink}>
               <LayoutDashboard size={18} /> {t('dash_dashboard_link' as any)}
             </Link>
+            <Link href="/dashboard/notes" className={styles.dashboardLink}>
+              <FileText size={18} /> บันทึกการเรียน
+            </Link>
+            {session?.user?.role === 'ADMIN' && (
+              <Link href="/admin" className={styles.dashboardLink} style={{ color: 'var(--primary-color)' }}>
+                <LockKeyhole size={18} /> Admin Panel
+              </Link>
+            )}
           </div>
         )}
 
