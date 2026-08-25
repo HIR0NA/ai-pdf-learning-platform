@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --primary-color: #DFB6B2; /* Light Peach */
   --secondary-color: #854F6C; /* Mauve/Dusty Rose */
   --bg-dark: #190019; /* Very dark purple */
@@ -99,33 +99,3 @@ a {
   background: var(--secondary-color);
 }
 
-/* Reading Mode Override */
-body.light-reading-mode {
-  --bg-dark: #FDF9F6;
-  --bg-card: #FFFFFF;
-  --bg-card-light: #F4E8E4;
-  --border-color: rgba(133, 79, 108, 0.2);
-  --text-primary: #190019;
-  --text-secondary: #522B5B;
-  background: var(--bg-dark);
-  color: var(--text-primary);
-  background-image: none;
-}
-
-/* Fix contrast in reading mode */
-body.light-reading-mode .text-gradient {
-  background: linear-gradient(135deg, #854F6C 0%, #522B5B 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-body.light-reading-mode .text-accent {
-  color: #854F6C;
-}
-body.light-reading-mode .btn-primary {
-  background: #854F6C;
-  color: #FFFFFF;
-}
-body.light-reading-mode .btn-primary:hover {
-  background: #522B5B;
-  box-shadow: 0 4px 15px rgba(133, 79, 108, 0.3);
-}
