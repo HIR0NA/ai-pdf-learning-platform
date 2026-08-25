@@ -9,7 +9,7 @@ import {
   exceedsUploadRequestLimit,
   resolveStoredDocumentPaths,
 } from '@/lib/security';
-import { MAX_PDF_FILE_SIZE, PDF_MIME_TYPE } from '@/lib/upload-policy';
+import { MAX_FILE_SIZE, PDF_MIME_TYPE, isAcceptedFile } from '@/lib/upload-policy';
 
 const prisma = new PrismaClient();
 export async function POST(req: Request) {
@@ -31,34 +31,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
     
-    if (file.type !== PDF_MIME_TYPE || !file.name.toLowerCase().endsWith('.pdf')) {
-      return NextResponse.json({ error: 'Invalid file type. Only PDF is allowed.' }, { status: 400 });
+    if (!isAcceptedFile({ name: file.name, type: file.type })) {
+      return NextResponse.json({ error: 'Invalid file type. Only PDF and MD are allowed.' }, { status: 400 });
     }
 
-    if (file.size > MAX_PDF_FILE_SIZE) {
+    if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json({ error: 'File size exceeds 10MB limit.' }, { status: 413 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
+    const isMd = file.name.toLowerCase().endsWith('.md') || file.name.toLowerCase().endsWith('.markdown');
     
-    // Security: Check Magic Bytes to ensure it is actually a PDF file (%PDF)
-    // 0x25 = %, 0x50 = P, 0x44 = D, 0x46 = F
-    if (buffer.length < 4 || buffer[0] !== 0x25 || buffer[1] !== 0x50 || buffer[2] !== 0x44 || buffer[3] !== 0x46) {
-      return NextResponse.json({ error: 'Security alert: Invalid file signature. Fake PDF detected.' }, { status: 400 });
-    }
-
     let extractedText: string;
-    try {
-      extractedText = await extractPdfText(buffer);
-    } catch (error) {
-      if (error instanceof DocumentTextError) {
-        return NextResponse.json({ error: error.message }, { status: error.status });
+
+    if (!isMd) {
+      // Security: Check Magic Bytes to ensure it is actually a PDF file (%PDF)
+      if (buffer.length < 4 || buffer[0] !== 0x25 || buffer[1] !== 0x50 || buffer[2] !== 0x44 || buffer[3] !== 0x46) {
+        return NextResponse.json({ error: 'Security alert: Invalid file signature. Fake PDF detected.' }, { status: 400 });
       }
-      console.error('PDF extraction failed:', error);
-      return NextResponse.json({ error: 'ไม่สามารถอ่านข้อความจาก PDF ได้' }, { status: 422 });
+
+      try {
+        extractedText = await extractPdfText(buffer);
+      } catch (error) {
+        if (error instanceof DocumentTextError) {
+          return NextResponse.json({ error: error.message }, { status: error.status });
+        }
+        console.error('PDF extraction failed:', error);
+        return NextResponse.json({ error: 'ไม่สามารถอ่านข้อความจาก PDF ได้' }, { status: 422 });
+      }
+    } else {
+      extractedText = buffer.toString('utf8');
     }
 
-    const fileName = `${uuidv4()}.pdf`;
+    const fileName = `${uuidv4()}${isMd ? '.md' : '.pdf'}`;
     const { root: uploadDir, pdfPath, textPath } = resolveStoredDocumentPaths(fileName);
     await mkdir(uploadDir, { recursive: true });
 

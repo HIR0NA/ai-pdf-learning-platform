@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { readFile, writeFile } from 'fs/promises';
 import pdfParse from 'pdf-parse';
-import { isSafeStoredPdfFilename, resolveStoredDocumentPaths } from '@/lib/security';
+import { isSafeStoredDocumentFilename, resolveStoredDocumentPaths } from '@/lib/security';
 
 export class DocumentTextError extends Error {
   constructor(
@@ -66,7 +66,7 @@ export async function getOwnedDocumentText(
   userId: string,
   filename: string,
 ) {
-  if (!isSafeStoredPdfFilename(filename)) {
+  if (!isSafeStoredDocumentFilename(filename)) {
     throw new DocumentTextError('ชื่อไฟล์เอกสารไม่ถูกต้อง', 400);
   }
 

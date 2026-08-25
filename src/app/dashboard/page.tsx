@@ -9,7 +9,7 @@ import StudySchedule from '@/components/StudySchedule';
 import DocumentSummary from '@/components/DocumentSummary';
 import { CalendarDays, ChevronLeft, ChevronRight, Cpu, FileText, Layers, LayoutDashboard, ListChecks, MessageSquare, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX, FolderOpen, LockKeyhole, RotateCcw, X } from 'lucide-react';
 import Link from 'next/link';
-import { isAcceptedPdf, MAX_PDF_FILE_SIZE, MAX_PDF_FILE_SIZE_MB } from '@/lib/upload-policy';
+import { isAcceptedFile, MAX_FILE_SIZE, MAX_FILE_SIZE_MB } from '@/lib/upload-policy';
 
 type ProviderId = 'gemini' | 'groq' | 'bazaarlink';
 type ProviderOption = {
@@ -148,15 +148,15 @@ export default function Dashboard() {
     setUploadProgress(5);
     setUploadError('');
 
-    if (!isAcceptedPdf(file)) {
+    if (!isAcceptedFile(file)) {
       setStatus('รูปแบบไฟล์ไม่ถูกต้อง');
-      setUploadError('รองรับเฉพาะไฟล์ PDF ที่มี MIME type และนามสกุลถูกต้อง');
+      setUploadError('รองรับเฉพาะไฟล์ PDF และ MD ที่มีนามสกุลถูกต้อง');
       setUploadPhase('error');
       return;
     }
-    if (file.size > MAX_PDF_FILE_SIZE) {
+    if (file.size > MAX_FILE_SIZE) {
       setStatus('ไฟล์มีขนาดใหญ่เกินกำหนด');
-      setUploadError(`ไฟล์ต้องมีขนาดไม่เกิน ${MAX_PDF_FILE_SIZE_MB}MB`);
+      setUploadError(`ไฟล์ต้องมีขนาดไม่เกิน ${MAX_FILE_SIZE_MB}MB`);
       setUploadPhase('error');
       return;
     }
@@ -513,7 +513,7 @@ export default function Dashboard() {
           </label>
           <input
             type="file"
-            accept="application/pdf"
+            accept="application/pdf,.md,.markdown"
             onChange={handleFileChange}
             id="file-upload"
             className={styles.fileInput}

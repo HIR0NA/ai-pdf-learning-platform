@@ -4,8 +4,8 @@ import { MAX_PDF_FILE_SIZE } from './upload-policy.ts';
 export { MAX_PDF_FILE_SIZE };
 export const MAX_UPLOAD_REQUEST_SIZE = MAX_PDF_FILE_SIZE + 1024 * 1024;
 
-const STORED_PDF_FILENAME =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.pdf$/i;
+const STORED_DOC_FILENAME =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(pdf|md|markdown)$/i;
 
 type HeaderSource = Headers | Record<string, string | string[] | undefined>;
 
@@ -16,16 +16,16 @@ function headerValue(headers: HeaderSource, name: string) {
   return Array.isArray(value) ? value.join(',') : value ?? null;
 }
 
-export function isSafeStoredPdfFilename(filename: string) {
-  return STORED_PDF_FILENAME.test(filename);
+export function isSafeStoredDocumentFilename(filename: string) {
+  return STORED_DOC_FILENAME.test(filename);
 }
 
 export function resolveStoredDocumentPaths(
   filename: string,
   uploadRoot = path.resolve(process.cwd(), 'uploads'),
 ) {
-  if (!isSafeStoredPdfFilename(filename)) {
-    throw new Error('Invalid stored PDF filename');
+  if (!isSafeStoredDocumentFilename(filename)) {
+    throw new Error('Invalid stored document filename');
   }
 
   const root = path.resolve(uploadRoot);
