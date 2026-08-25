@@ -6,6 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import styles from './Navbar.module.css';
 import { useLanguage } from '@/context/LanguageContext';
 import { GraduationCap, ShieldCheck } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 export default function Navbar() {
   const { language, toggleLanguage, t } = useLanguage();
@@ -13,6 +14,7 @@ export default function Navbar() {
 
   return (
     <div className={styles.navbarWrapper}>
+      <ThemeToggle />
       <nav className={styles.navbar}>
         <div className={styles.logoContainer}>
           <div className={styles.logoDot}></div>

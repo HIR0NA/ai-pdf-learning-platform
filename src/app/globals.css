@@ -99,3 +99,15 @@ a {
   background: var(--secondary-color);
 }
 
+/* Reading Mode Override */
+body.light-reading-mode {
+  --bg-dark: #FDF9F6;
+  --bg-card: #FFFFFF;
+  --bg-card-light: #F4E8E4;
+  --border-color: rgba(133, 79, 108, 0.2);
+  --text-primary: #190019;
+  --text-secondary: #522B5B;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  background-image: none;
+}
