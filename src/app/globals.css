@@ -111,3 +111,21 @@ body.light-reading-mode {
   color: var(--text-primary);
   background-image: none;
 }
+
+/* Fix contrast in reading mode */
+body.light-reading-mode .text-gradient {
+  background: linear-gradient(135deg, #854F6C 0%, #522B5B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body.light-reading-mode .text-accent {
+  color: #854F6C;
+}
+body.light-reading-mode .btn-primary {
+  background: #854F6C;
+  color: #FFFFFF;
+}
+body.light-reading-mode .btn-primary:hover {
+  background: #522B5B;
+  box-shadow: 0 4px 15px rgba(133, 79, 108, 0.3);
+}
