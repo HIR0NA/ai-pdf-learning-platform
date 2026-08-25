@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import React, { useState, useEffect } from 'react';
 import styles from './ThemeToggle.module.css';
 
@@ -43,7 +43,7 @@ export default function ThemeToggle() {
   return (
     <div className={styles.pullStringContainer}>
       <div 
-        className={${styles.string} }
+        className={`${styles.string} ${isPulling ? styles.pulled : ''}`}
         onClick={handlePull}
       >
         <div className={styles.line}></div>
