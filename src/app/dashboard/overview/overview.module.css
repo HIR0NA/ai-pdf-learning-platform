@@ -79,12 +79,18 @@
 }
 
 .kpiCard {
-  background: var(--bg-card);
+  background: transparent;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(223, 182, 178, 0.3); /* Subtle peach border */
   display: flex;
   flex-direction: column;
+  transition: all 0.2s;
+}
+
+.kpiCard:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--primary-color);
 }
 
 .kpiHeader {
@@ -115,10 +121,16 @@
 }
 
 .chartCard {
-  background: var(--bg-card);
+  background: transparent;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(223, 182, 178, 0.3);
+  transition: all 0.2s;
+}
+
+.chartCard:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--primary-color);
 }
 
 .chartTitle {
@@ -128,10 +140,16 @@
 }
 
 .tableSection {
-  background: var(--bg-card);
+  background: transparent;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(223, 182, 178, 0.3);
+  transition: all 0.2s;
+}
+
+.tableSection:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--primary-color);
 }
 
 .table {
