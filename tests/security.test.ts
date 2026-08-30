@@ -6,7 +6,7 @@ import { consumeRateLimit } from '../src/lib/rate-limit.ts';
 import {
   exceedsUploadRequestLimit,
   getClientAddress,
-  isSafeStoredPdfFilename,
+  isSafeStoredDocumentFilename,
   MAX_UPLOAD_REQUEST_SIZE,
   resolveStoredDocumentPaths,
 } from '../src/lib/security.ts';
@@ -14,7 +14,7 @@ import {
 const validFilename = '5ede3d2e-389a-4ffa-a57b-47dfd86f1858.pdf';
 
 test('stored PDF filename accepts generated UUID names only', () => {
-  assert.equal(isSafeStoredPdfFilename(validFilename), true);
+  assert.equal(isSafeStoredDocumentFilename(validFilename), true);
   for (const value of [
     '../package.json',
     '..%2Fpackage.json',
@@ -22,7 +22,7 @@ test('stored PDF filename accepts generated UUID names only', () => {
     '5ede3d2e-389a-4ffa-a57b-47dfd86f1858.exe',
     'package.json',
   ]) {
-    assert.equal(isSafeStoredPdfFilename(value), false, value);
+    assert.equal(isSafeStoredDocumentFilename(value), false, value);
   }
 });
 

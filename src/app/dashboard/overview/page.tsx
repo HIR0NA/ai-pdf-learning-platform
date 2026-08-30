@@ -27,7 +27,10 @@ export default function DashboardOverview() {
       {/* Sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <Link href="/" className={styles.brand}>&lt;AI_PDF_LEARN/&gt;</Link>
+          <Link href="/" className={styles.brand}>
+            <div style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', backgroundColor: 'var(--primary-color)', marginRight: 8, boxShadow: '0 0 10px var(--primary-color)' }}></div>
+            AgentAI
+          </Link>
         </div>
         <nav className={styles.sidebarMenu}>
           <Link href="/dashboard/overview" className={`${styles.menuItem} ${styles.active}`}>

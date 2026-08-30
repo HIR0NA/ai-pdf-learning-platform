@@ -6,22 +6,24 @@
 
 .sidebar {
   width: 250px;
-  background-color: var(--bg-card);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: transparent;
+  border-right: 1px solid rgba(223, 182, 178, 0.1);
   display: flex;
   flex-direction: column;
 }
 
 .sidebarHeader {
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(223, 182, 178, 0.1);
 }
 
 .brand {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: white;
   text-decoration: none;
+  display: flex;
+  align-items: center;
 }
 
 .sidebarMenu {
@@ -50,7 +52,10 @@
 
 .menuItem.active {
   color: var(--primary-color);
-  background: rgba(223, 182, 178, 0.1);
+  background: rgba(223, 182, 178, 0.05);
+  border-left: 3px solid var(--primary-color);
+  border-radius: 0 8px 8px 0;
+  padding-left: 13px; /* Adjust padding due to border */
 }
 
 .mainContent {
@@ -79,12 +84,18 @@
 }
 
 .kpiCard {
-  background: var(--bg-card);
+  background: transparent;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(223, 182, 178, 0.3); /* Subtle peach border */
   display: flex;
   flex-direction: column;
+  transition: all 0.2s;
+}
+
+.kpiCard:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--primary-color);
 }
 
 .kpiHeader {
@@ -115,10 +126,16 @@
 }
 
 .chartCard {
-  background: var(--bg-card);
+  background: transparent;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(223, 182, 178, 0.3);
+  transition: all 0.2s;
+}
+
+.chartCard:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--primary-color);
 }
 
 .chartTitle {
@@ -128,10 +145,16 @@
 }
 
 .tableSection {
-  background: var(--bg-card);
+  background: transparent;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(223, 182, 178, 0.3);
+  transition: all 0.2s;
+}
+
+.tableSection:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--primary-color);
 }
 
 .table {

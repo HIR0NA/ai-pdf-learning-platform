@@ -136,12 +136,12 @@ export function extractJSON(raw: string): string {
   return raw.trim();
 }
 
-export async function generateAIText(prompt: string, options?: { json?: boolean; provider?: string }) {
+export async function generateAIText(prompt: string, options?: { json?: boolean; provider?: string; filePath?: string; mimeType?: string }) {
   const provider = getAIProvider(options?.provider);
 
   // For JSON mode, append explicit instruction to ensure AI returns pure JSON
   let finalPrompt = options?.json
-    ? `${prompt}\n\nIMPORTANT: ตอบกลับเป็น JSON เท่านั้น ห้ามใส่ข้อความอธิบายหรือ markdown code fence ส่ง raw JSON เท่านั้น`
+    ? `${prompt}\n\nIMPORTANT: คำตอบต้องเป็น JSON เท่านั้น ห้ามมีคำอธิบายอื่น ห้ามครอบด้วย markdown code fence เด็ดขาด`
     : prompt;
   finalPrompt = limitPromptForProvider(finalPrompt, provider);
 
@@ -161,7 +161,7 @@ export async function generateAIText(prompt: string, options?: { json?: boolean;
       response_format: useJsonFormat ? { type: 'json_object' } : undefined,
     }));
     let text = response.choices[0]?.message.content;
-    if (!text) throw new Error(`${isGroq ? 'Groq' : 'BazaarLink'} ไม่ส่งข้อความตอบกลับ`);
+    if (!text) throw new Error(`${isGroq ? 'Groq' : 'BazaarLink'} ไม่ส่งข้อมูลกลับมา`);
 
     // Post-process: extract JSON if json mode was requested
     if (options?.json) {
@@ -174,7 +174,22 @@ export async function generateAIText(prompt: string, options?: { json?: boolean;
     model: GEMINI_MODEL,
     generationConfig: options?.json ? { responseMimeType: 'application/json' } : undefined,
   });
-  const result = await withGeminiRetry(() => model.generateContent(finalPrompt));
+
+  const parts: any[] = [{ text: finalPrompt }];
+  if (options?.filePath && options?.mimeType) {
+    const fs = require('fs');
+    if (fs.existsSync(options.filePath)) {
+      const base64 = fs.readFileSync(options.filePath, 'base64');
+      parts.push({
+        inlineData: {
+          data: base64,
+          mimeType: options.mimeType
+        }
+      });
+    }
+  }
+
+  const result = await withGeminiRetry(() => model.generateContent(parts));
   let text = result.response.text();
   if (options?.json) {
     text = extractJSON(text);
@@ -182,7 +197,7 @@ export async function generateAIText(prompt: string, options?: { json?: boolean;
   return { text, provider, model: GEMINI_MODEL };
 }
 
-export async function createAITextStream(prompt: string, providerOverride?: string) {
+export async function createAITextStream(prompt: string, providerOverride?: string, filePath?: string, mimeType?: string) {
   const provider = getAIProvider(providerOverride);
   const boundedPrompt = limitPromptForProvider(prompt, provider);
 
@@ -206,7 +221,22 @@ export async function createAITextStream(prompt: string, providerOverride?: stri
   }
 
   const model = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '').getGenerativeModel({ model: GEMINI_MODEL });
-  const result = await withGeminiRetry(() => model.generateContentStream(boundedPrompt));
+  
+  const parts: any[] = [{ text: boundedPrompt }];
+  if (filePath && mimeType) {
+    const fs = require('fs');
+    if (fs.existsSync(filePath)) {
+      const base64 = fs.readFileSync(filePath, 'base64');
+      parts.push({
+        inlineData: {
+          data: base64,
+          mimeType: mimeType
+        }
+      });
+    }
+  }
+
+  const result = await withGeminiRetry(() => model.generateContentStream(parts));
   const chunks = (async function* () {
     for await (const chunk of result.stream) yield chunk.text();
   })();

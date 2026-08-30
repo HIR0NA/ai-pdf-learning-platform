@@ -17,8 +17,8 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   serverExternalPackages: ['pdf-parse'],
   experimental: {
-    // Allows multipart overhead while the route enforces a strict 10MB file limit.
-    proxyClientMaxBodySize: '12mb',
+    // Allows multipart overhead while the route enforces a strict 50MB file limit.
+    proxyClientMaxBodySize: '55mb',
     authInterrupts: true,
   },
   async headers() {

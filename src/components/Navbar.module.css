@@ -39,14 +39,14 @@
 .logo {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   text-decoration: none;
   letter-spacing: -0.5px;
 }
 
 .links {
   display: flex;
-  gap: 2rem;
+  gap: 1.2rem;
   align-items: center;
 }
 

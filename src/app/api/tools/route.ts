@@ -134,9 +134,17 @@ ${contextText}
 TASK:
 ${schemaPrompt}`;
 
+    // Get file path for native Gemini vision support
+    const { resolveStoredDocumentPaths } = await import('@/lib/security');
+    const { pdfPath } = resolveStoredDocumentPaths(filename);
+    const isPdf = filename.toLowerCase().endsWith('.pdf');
+    const mimeType = isPdf ? 'application/pdf' : 'text/plain';
+
     const result = await generateAIText(fullPrompt, {
       json: true,
       provider: selectedProvider,
+      filePath: pdfPath,
+      mimeType
     });
     const jsonString = result.text;
     

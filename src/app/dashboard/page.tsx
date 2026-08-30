@@ -9,7 +9,7 @@ import StudySchedule from '@/components/StudySchedule';
 import DocumentSummary from '@/components/DocumentSummary';
 import { CalendarDays, ChevronLeft, ChevronRight, Cpu, FileText, Layers, LayoutDashboard, ListChecks, MessageSquare, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX, FolderOpen, LockKeyhole, RotateCcw, X } from 'lucide-react';
 import Link from 'next/link';
-import { isAcceptedPdf, MAX_PDF_FILE_SIZE, MAX_PDF_FILE_SIZE_MB } from '@/lib/upload-policy';
+import { isAcceptedFile, MAX_FILE_SIZE, MAX_FILE_SIZE_MB } from '@/lib/upload-policy';
 
 type ProviderId = 'gemini' | 'groq' | 'bazaarlink';
 type ProviderOption = {
@@ -148,15 +148,15 @@ export default function Dashboard() {
     setUploadProgress(5);
     setUploadError('');
 
-    if (!isAcceptedPdf(file)) {
+    if (!isAcceptedFile(file)) {
       setStatus('รูปแบบไฟล์ไม่ถูกต้อง');
-      setUploadError('รองรับเฉพาะไฟล์ PDF ที่มี MIME type และนามสกุลถูกต้อง');
+      setUploadError('รองรับเฉพาะไฟล์ PDF และ MD ที่มีนามสกุลถูกต้อง');
       setUploadPhase('error');
       return;
     }
-    if (file.size > MAX_PDF_FILE_SIZE) {
+    if (file.size > MAX_FILE_SIZE) {
       setStatus('ไฟล์มีขนาดใหญ่เกินกำหนด');
-      setUploadError(`ไฟล์ต้องมีขนาดไม่เกิน ${MAX_PDF_FILE_SIZE_MB}MB`);
+      setUploadError(`ไฟล์ต้องมีขนาดไม่เกิน ${MAX_FILE_SIZE_MB}MB`);
       setUploadPhase('error');
       return;
     }
@@ -507,13 +507,13 @@ export default function Dashboard() {
         >
           {isSidebarExpanded && <Upload size={24} className={styles.uploadIcon} aria-hidden="true" />}
           {isSidebarExpanded && <strong>{t('dash_drag_pdf' as any)}</strong>}
-          {isSidebarExpanded && <span className={styles.uploadHint}>{t('dash_pdf_only' as any)} · {t('dash_max_size' as any)} {MAX_PDF_FILE_SIZE_MB}MB</span>}
+          {isSidebarExpanded && <span className={styles.uploadHint}>{t('dash_pdf_only' as any)} · {t('dash_max_size' as any)} {MAX_FILE_SIZE_MB}MB</span>}
           <label htmlFor="file-upload" className={styles.uploadLabel} title={!isSidebarExpanded ? String(t('dash_new_upload')) : undefined}>
             {isSidebarExpanded ? t('dash_choose_pdf' as any) : <Upload size={17} />}
           </label>
           <input
             type="file"
-            accept="application/pdf"
+            accept="application/pdf,.md,.markdown"
             onChange={handleFileChange}
             id="file-upload"
             className={styles.fileInput}
@@ -640,11 +640,17 @@ export default function Dashboard() {
             {t('dash_pdf_viewer')} {activeFile ? `[ ${activeFile.title} ]` : ''}
           </div>
           {activeFile ? (
-            <iframe
-              src={`/api/files/${activeFile.filename}`}
-              className={styles.pdfViewer}
-              title="PDF Viewer"
-            />
+            activeFile.filename.endsWith('.md') ? (
+              <div className={styles.pdfViewer} style={{ padding: '20px', overflowY: 'auto', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+                <MDViewer filename={activeFile.filename} />
+              </div>
+            ) : (
+              <iframe
+                src={`/api/files/${activeFile.filename}`}
+                className={styles.pdfViewer}
+                title="PDF Viewer"
+              />
+            )
           ) : (
             <div
               className={`${styles.emptyUpload} ${isDragging ? styles.dragging : ''}`}
@@ -656,7 +662,7 @@ export default function Dashboard() {
               <div className={styles.emptyUploadIcon}><Upload size={30} /></div>
               <h2>{t('dash_start_learning' as any)}</h2>
               <p>{t('dash_drag_or_choose' as any)}</p>
-              <span>{t('dash_supported_pdf' as any)} · {t('dash_max_size' as any)} {MAX_PDF_FILE_SIZE_MB}MB</span>
+              <span>{t('dash_supported_pdf' as any)} · {t('dash_max_size' as any)} {MAX_FILE_SIZE_MB}MB</span>
               <label htmlFor="file-upload" className={styles.primaryUploadButton}>{t('dash_choose_pdf' as any)}</label>
               <small><LockKeyhole size={13} /> {t('dash_file_private' as any)} · <Link href="/privacy">{t('dash_privacy_link' as any)}</Link></small>
             </div>
@@ -815,4 +821,15 @@ export default function Dashboard() {
       </main>
     </div>
   );
+}
+
+function MDViewer({ filename }: { filename: string }) {
+  const [content, setContent] = React.useState('กำลังโหลดข้อมูล...');
+  React.useEffect(() => {
+    fetch('/api/files/' + filename)
+      .then(res => res.text())
+      .then(text => setContent(text))
+      .catch(() => setContent('ไม่สามารถโหลดข้อมูลเอกสารได้'));
+  }, [filename]);
+  return <>{content}</>;
 }
