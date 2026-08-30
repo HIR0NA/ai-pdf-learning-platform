@@ -6,7 +6,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/pdf_learning_db?schema=public
+      NEW_DATABASE_URL: ${NEW_DATABASE_URL:?NEW_DATABASE_URL must be set}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET must be set}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
       REDIS_URL: redis://redis:6379
@@ -38,7 +38,7 @@ services:
       target: builder
     command: npx prisma db push
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/pdf_learning_db?schema=public
+      NEW_DATABASE_URL: ${NEW_DATABASE_URL:?NEW_DATABASE_URL must be set}
     depends_on:
       db:
         condition: service_healthy
@@ -50,7 +50,7 @@ services:
       target: builder
     command: node seed_admin.js
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/pdf_learning_db?schema=public
+      NEW_DATABASE_URL: ${NEW_DATABASE_URL:?NEW_DATABASE_URL must be set}
       ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL must be set}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set}
       STUDENT_EMAIL: ${STUDENT_EMAIL:?STUDENT_EMAIL must be set}

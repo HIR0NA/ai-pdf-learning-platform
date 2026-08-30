@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/dev-server.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -11,7 +11,8 @@
     "test:security": "node --experimental-strip-types --test tests/security.test.ts",
     "db:push": "prisma db push",
     "db:seed": "node --env-file=.env seed_admin.js",
-    "db:sync-uploads": "node sync_db.js"
+    "db:sync-uploads": "node sync_db.js",
+    "db:migrate-new": "node --env-file=.env scripts/migrate-to-new-database.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

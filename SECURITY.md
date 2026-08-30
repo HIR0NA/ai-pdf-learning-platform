@@ -1,131 +1,118 @@
-﻿# AI Study Companion â€” Architecture and Security
+# Security Policy — AI PDF Learning Platform
 
-Last reviewed: 2026-08-23
+Last reviewed: 2026-08-25
 
-## System architecture and trust boundaries
+## Scope and Trust Boundary
+
+ระบบประกอบด้วย Next.js UI/Route Handlers, NextAuth JWT, Prisma/PostgreSQL, Redis rate limiting, private PDF storage และ external AI providers
 
 ```mermaid
 flowchart LR
-  U[User browser] -->|HTTPS / session cookie| N[Next.js UI and Route Handlers]
-  N -->|Prisma parameterized queries| P[(PostgreSQL)]
-  N -->|UUID filenames only| F[(Private uploads volume)]
-  N -->|rate-limit counters| R[(Redis)]
-  N -->|document excerpts; server-side API keys| A[Selected AI provider]
-
-  subgraph Trusted application boundary
-    N
-    P
-    F
-    R
-  end
+  browser[User browser] -->|HTTPS and session cookie| app[Next.js API]
+  app -->|Prisma queries| db[(PostgreSQL)]
+  app -->|Private UUID files| files[(Uploads volume)]
+  app -->|Rate limits| redis[(Redis)]
+  app -->|Document context and server key| ai[AI provider]
 ```
 
-The browser and AI providers are outside the trusted application boundary. Route Handlers recheck authentication and ownership close to PostgreSQL and the uploads volume. Proxy checks are only an early guard and are not the sole authorization layer.
+Browser และ AI provider อยู่นอก Trusted Application Boundary ทุก Route Handler ต้องตรวจ Authentication และ Ownership ใกล้ข้อมูลจริง ไม่พึ่งการซ่อนเมนูหรือ Proxy เพียงอย่างเดียว
 
-## Main user flow
+## Authentication and RBAC
 
-```mermaid
-flowchart TD
-  L[Register or login] --> D[Dashboard]
-  D --> U[Upload PDF]
-  U --> V{Extension, MIME, size and PDF signature valid?}
-  V -- No --> X[Reject 400 or 413]
-  V -- Yes --> E[Extract text and store private UUID file]
-  E --> C[Chat with document]
-  E --> T[Generate summary, quiz, flashcards or schedule]
-  C --> H[Save user-owned history]
-  T --> H
-  D --> Z[Delete document]
-  Z --> Q[Delete DB records and physical artifacts]
-```
+- Login ใช้ NextAuth Credentials Provider และ `bcryptjs` cost factor 12
+- Login ผิดบันทึก `LoginLog`; ครบ 5 ครั้งจะ lock บัญชี 30 วินาที
+- Session ใช้ JWT อายุ 30 วัน; production cookie ตั้ง `httpOnly`, `sameSite=lax`, `secure`
+- Role ปัจจุบันคือ `STUDENT` และ `ADMIN`
+- `/admin` และ `/api/admin/*` ตรวจ `ADMIN` ฝั่ง Server และตอบ `403 Forbidden`
+- Document, Message และ LearningTool ตรวจ `userId` ownership ทุกครั้ง
 
-## Use cases and access control
+## File Upload Security
 
-| Actor | Use case | Required control |
+- รับเฉพาะ `.pdf` และ MIME `application/pdf`
+- จำกัดขนาด 10 MB และตรวจ magic bytes `%PDF`
+- เปลี่ยนชื่อเป็น UUID และเก็บนอก `public/` ใน private uploads volume
+- ตรวจ UUID allowlist และ resolved path containment เพื่อป้องกัน Path Traversal
+- ลบ Database records และไฟล์ PDF/text/index เมื่อผู้ใช้ลบเอกสาร
+- ไฟล์ที่สกัดข้อความไม่ได้จะถูกปฏิเสธและไม่ถูกบันทึก
+
+## AI and Privacy Controls
+
+- API keys อยู่ใน Environment Variables และไม่ส่งไป Browser
+- ส่งเอกสารให้ AI หลังตรวจว่า User เป็นเจ้าของเท่านั้น
+- Prompt ระบุให้เอกสารเป็น untrusted reference data และไม่ทำตามคำสั่งที่ฝังอยู่ในเอกสาร
+- ใช้ข้อมูลจากเอกสารเท่านั้น พร้อม page markers สำหรับ citation
+- AI และ Upload endpoints มี Redis rate limiting
+- Groq prompt/output ถูกจำกัดเพื่อควบคุม TPM และค่าใช้จ่าย
+
+## Important Controls
+
+| Asset/Threat | Control | Evidence |
 |---|---|---|
-| Visitor | Register and login | Server validation, bcrypt, persistent failed-login lockout |
-| Student | Upload/read/rename/delete own PDF | Authenticated session plus owner check |
-| Student | Chat and create learning tools | Owner check, Redis rate limit, provider cost limit |
-| Admin | Support access to documents | `ADMIN` role from the database; no magic user ID or password |
-| System | Call external AI provider | API keys stay server-side; document is marked as untrusted data |
+| Login brute force | bcrypt, failed attempts, lockout, LoginLog | `src/lib/auth.ts` |
+| Path traversal | UUID allowlist and path containment | `src/lib/security.ts` |
+| IDOR/document disclosure | Server-side owner checks | `src/app/api/files/[filename]/route.ts` |
+| Fake/oversized PDF | MIME, extension, signature, 10 MB limit | `src/app/api/upload/route.ts` |
+| AI cost/DoS | Redis rate limit and prompt limits | `src/proxy.ts`, `src/lib/ai-provider.ts` |
+| Prompt injection | Delimited document and grounding rules | `src/app/api/ai/route.ts`, `src/app/api/tools/route.ts` |
+| Session theft | HttpOnly/SameSite/Secure cookie and expiry | `src/lib/auth.ts` |
 
-## Database overview
+## Important Endpoints
 
-```mermaid
-erDiagram
-  User ||--o{ Account : has
-  User ||--o{ Session : has
-  User ||--o{ Document : owns
-  User ||--o{ Message : owns
-  User ||--o{ LearningTool : owns
-  User {
-    string id PK
-    string email UK
-    string password
-    string role
-  }
-  Document {
-    string id PK
-    string userId FK
-    string filename
-  }
-  Message {
-    string id PK
-    string userId FK
-    string filename
-  }
-  LearningTool {
-    string id PK
-    string userId FK
-    string filename
-  }
+| Endpoint | Required control |
+|---|---|
+| `POST /api/auth/register` | Server validation; new users are `STUDENT` |
+| `POST /api/auth/callback/credentials` | bcrypt verification, lockout and login log |
+| `POST /api/upload` | Session, size/MIME/signature/path checks |
+| `GET /api/files` | Session and `userId` filter |
+| `GET/PATCH/DELETE /api/files/[filename]` | UUID and Owner/Admin authorization |
+| `POST /api/ai` | Session, owner document lookup and rate limit |
+| `POST /api/tools` | Session, owner document lookup and provider selection |
+| `GET /api/admin/overview` | 401 unauthenticated, 403 non-Admin |
+
+## Secure SDLC Evidence
+
+| Stage | Evidence |
+|---|---|
+| Requirement | PDF-only, private ownership, AI privacy and deletion requirements |
+| Design | Trust boundaries, RBAC, ownership checks and Redis rate limit |
+| Development | bcrypt, Prisma queries, UUID storage, `.env` secrets |
+| Testing | `bun run test`, `bun run test:security`, lint and integration tests |
+| Deployment | Docker PostgreSQL/Redis, private uploads volume, required `NEXTAUTH_SECRET` |
+| Maintenance | Login logs, dependency updates, patch review and incident response |
+
+## Verification Checklist
+
+```powershell
+bun run lint
+bun run test
+bun run test:security
+bun run build
+docker compose ps
 ```
 
-`Document.userId`, `Message.userId`, and `LearningTool.userId` reference `User.id` with cascade deletion. Document-related records currently share the protected UUID filename; a future migration should add a direct `documentId` foreign key for stronger referential integrity.
+Manual release checks:
 
-## Important API endpoints
+1. Student reads only their own PDF.
+2. Student receives `403` from `/api/admin/overview` and cannot open `/admin`.
+3. Five invalid passwords trigger temporary lockout.
+4. `.exe`, fake-MIME PDF and files over 10 MB are rejected.
+5. `../package.json` cannot escape uploads storage.
+6. Absent/expired session receives `401` or redirects to `/login`.
 
-| Method | Endpoint | Purpose | Access |
-|---|---|---|---|
-| POST | `/api/auth/register` | Register | Public |
-| POST | `/api/auth/callback/credentials` | Login | Public; lockout enforced |
-| POST | `/api/upload` | Upload PDF | Authenticated |
-| GET | `/api/files` | List own documents | Authenticated |
-| GET/PATCH/DELETE | `/api/files/[filename]` | Read/rename/delete document | Owner or Admin |
-| POST | `/api/ai` | Streaming grounded chat | Document owner |
-| POST | `/api/tools` | Summary/quiz/flashcards/schedule | Document owner |
-| GET | `/api/messages` | Conversation history | Authenticated owner |
-| GET | `/api/ai/providers` | Available configured providers | Authenticated |
+## Secret Management
 
-## Secure SDLC controls
+Never commit `.env`, `NEXTAUTH_SECRET`, Admin/Student passwords, AI API keys, database credentials or `uploads/`. Rotate all affected secrets immediately if exposed. Production should use a dedicated PostgreSQL application user instead of the Docker development `postgres` superuser.
 
-| Stage | Control and evidence |
-|---|---|
-| Requirement | PDF only, 10MB maximum, owner-only access, private storage, deletion and AI privacy requirements |
-| Design | Trust boundaries above; role and ownership checks at Route Handlers; Redis rate limiting |
-| Development | bcrypt, Prisma, UUID allowlist, resolved-path containment, server validation, `.env` secrets |
-| Testing | `npm test`, `npm run lint`, `npm run build`, `npm audit --omit=dev`, manual upload/auth tests |
-| Deployment | non-default required auth/admin secrets, localhost-only DB/Redis ports, non-public uploads volume |
-| Maintenance | access/login logs, dependency audit, quarterly patch review, incident response below |
+## Incident Response
 
-## STRIDE threat model and risk register
+1. Disable the affected endpoint or AI provider.
+2. Preserve logs without secrets or document contents.
+3. Rotate API keys, `NEXTAUTH_SECRET`, database credentials and account passwords.
+4. Identify affected users/documents and remove exposed artifacts where required.
+5. Patch the cause and run the complete security suite.
+6. Notify affected users if private data may have been exposed.
+7. Add a regression test before re-enabling the service.
 
-| Asset | Threat | Control | Verification |
-|---|---|---|---|
-| Login | Spoofing/brute force | bcrypt, per-account lockout, no hardcoded bypass | wrong-password and static regression tests |
-| File API | Tampering/path traversal | UUID allowlist plus resolved path containment | traversal variants in `tests/security.test.ts` |
-| Documents | Information disclosure | owner checks, private volume, uploads ignored by Git | unauthorized request and `git ls-files uploads` |
-| Delete | Repudiation/privacy retention | delete DB children and physical PDF/text/index | deletion integration test/manual check |
-| AI API | DoS/cost exhaustion | Redis per-user/path rate limit | request 11 returns 429 |
-| Document prompt | Elevation/prompt injection | document delimited as untrusted reference; system rules require grounding | adversarial document test |
-| UI rendering | XSS | React text rendering and Mermaid strict security mode | script payload renders as text |
+## Reporting a Vulnerability
 
-## Incident response
-
-1. Disable the affected provider or endpoint and preserve security logs without secrets.
-2. Rotate affected API keys, `NEXTAUTH_SECRET`, and credentials.
-3. Identify impacted user/document IDs and delete exposed private artifacts.
-4. Patch and run the complete security regression suite.
-5. Notify affected users with scope, dates, data categories, and remediation.
-6. Record root cause and add a regression test before re-enabling the service.
-
+Do not open a public issue for a suspected vulnerability. Send a private report to the project maintainer with impact, reproduction steps, affected endpoint/file, environment, suggested mitigation and any exposure details. Do not include real API keys, passwords or private PDF contents.
