@@ -111,3 +111,4 @@ uploads/                 private runtime storage (ห้าม Commit)
 ## License
 
 โปรเจกต์นี้จัดทำเพื่อการศึกษาและการสาธิตระบบ AI PDF Learning
+"# ai-study-companion" 
