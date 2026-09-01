@@ -26,6 +26,8 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const file = formData.get('file');
+    const courseIdValue = formData.get('courseId');
+    const courseId = typeof courseIdValue === 'string' && courseIdValue.trim() ? courseIdValue.trim() : null;
 
     if (!(file instanceof File)) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
@@ -37,6 +39,14 @@ export async function POST(req: Request) {
 
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json({ error: 'File size exceeds 50MB limit.' }, { status: 413 });
+    }
+
+    if (courseId) {
+      const course = await prisma.course.findFirst({
+        where: { id: courseId, userId: (session.user as { id: string }).id },
+        select: { id: true },
+      });
+      if (!course) return NextResponse.json({ error: 'Invalid course selected.' }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -79,6 +89,7 @@ export async function POST(req: Request) {
           size: file.size,
           mimeType: file.type,
           userId: (session.user as { id: string }).id,
+          courseId,
         }
       });
     } catch (error) {

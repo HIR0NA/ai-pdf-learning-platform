@@ -25,6 +25,7 @@ export async function GET() {
         filename: true,
         size: true,
         createdAt: true,
+        course: { select: { id: true, title: true, code: true } },
       }
     });
 

@@ -25,7 +25,13 @@ export const authOptions: NextAuthOptions = {
         const ip = getClientAddress(req?.headers || {});
         const userAgent = (req?.headers?.['user-agent'] || 'unknown') as string;
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        let user;
+        try {
+          user = await prisma.user.findUnique({ where: { email } });
+        } catch (error) {
+          console.error('Authentication database lookup failed:', error);
+          throw new Error('AUTH_SERVICE_UNAVAILABLE');
+        }
 
         // Check if account is currently locked
         if (user?.lockedUntil && user.lockedUntil > new Date()) {

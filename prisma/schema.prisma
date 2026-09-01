@@ -8,38 +8,42 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  password      String?
-  role          String    @default("STUDENT")
-  emailVerified DateTime?
-  image         String?
-  failedAttempts Int      @default(0)
-  lockedUntil   DateTime?
-  accounts      Account[]
-  sessions      Session[]
-  documents     Document[]
-  messages      Message[]
-  tools         LearningTool[]
-  studyNotes    StudyNote[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id             String         @id @default(cuid())
+  name           String?
+  email          String?        @unique
+  password       String?
+  role           String         @default("STUDENT")
+  emailVerified  DateTime?
+  image          String?
+  failedAttempts Int            @default(0)
+  lockedUntil    DateTime?
+  accounts       Account[]
+  sessions       Session[]
+  documents      Document[]
+  messages       Message[]
+  tools          LearningTool[]
+  studyNotes     StudyNote[]
+  courses        Course[]
+  questions      Question[]
+  quizAttempts   QuizAttempt[]
+  studySessions  StudySession[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -71,13 +75,17 @@ model Document {
   size      Int
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String?
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([courseId])
 }
 
 model Message {
   id        String   @id @default(cuid())
-  role      String   // 'user' or 'ai'
+  role      String // 'user' or 'ai'
   content   String
   filename  String
   userId    String
@@ -86,14 +94,14 @@ model Message {
 }
 
 model LearningTool {
-  id         String   @id @default(cuid())
-  type       String   // 'summary', 'quiz', 'flashcard', 'schedule'
-  provider   String   @default("legacy")
-  data       String   // JSON payload stored as string
-  filename   String
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  type      String // 'summary', 'quiz', 'flashcard', 'schedule'
+  provider  String   @default("legacy")
+  data      String // JSON payload stored as string
+  filename  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model Product {
@@ -101,7 +109,7 @@ model Product {
   name        String
   description String
   price       Float
-  features    String   // Stored as JSON string
+  features    String // Stored as JSON string
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -139,12 +147,83 @@ model LoginLog {
   success   Boolean
   createdAt DateTime @default(now())
 }
+
 model StudyNote {
   id        String   @id @default(cuid())
   title     String
   content   String
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String?
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([courseId])
+}
+
+model Course {
+  id           String        @id @default(cuid())
+  title        String
+  code         String?
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents    Document[]
+  notes        StudyNote[]
+  questions    Question[]
+  quizAttempts QuizAttempt[]
+  studySessions StudySession[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([userId, code])
+  @@index([userId, createdAt])
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  prompt      String
+  options     String
+  answerIndex Int
+  explanation String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId    String?
+  course      Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([courseId])
+}
+
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  source    String   @default("AI")
+  filename  String?
+  score     Int
+  total     Int
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String?
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([courseId])
+}
+
+model StudySession {
+  id              String   @id @default(cuid())
+  durationSeconds Int
+  filename        String?
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String?
+  course          Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([courseId])
 }

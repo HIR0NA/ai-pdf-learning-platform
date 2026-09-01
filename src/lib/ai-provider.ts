@@ -136,7 +136,89 @@ export function extractJSON(raw: string): string {
   return raw.trim();
 }
 
-export async function generateAIText(prompt: string, options?: { json?: boolean; provider?: string; filePath?: string; mimeType?: string }) {
+function escapeControlCharactersInJsonStrings(value: string) {
+  let inString = false;
+  let escaped = false;
+  let result = '';
+
+  for (const character of value) {
+    if (escaped) {
+      result += character;
+      escaped = false;
+      continue;
+    }
+    if (character === '\\') {
+      result += character;
+      escaped = true;
+      continue;
+    }
+    if (character === '"') {
+      inString = !inString;
+      result += character;
+      continue;
+    }
+    if (inString && character === '\n') {
+      result += '\\n';
+    } else if (inString && character === '\r') {
+      result += '\\r';
+    } else if (inString && character === '\t') {
+      result += '\\t';
+    } else {
+      result += character;
+    }
+  }
+  return result;
+}
+
+function closeTruncatedJson(value: string) {
+  const stack: Array<'{' | '['> = [];
+  let inString = false;
+  let escaped = false;
+
+  for (const character of value) {
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (character === '\\' && inString) {
+      escaped = true;
+    } else if (character === '"') {
+      inString = !inString;
+    } else if (!inString && (character === '{' || character === '[')) {
+      stack.push(character);
+    } else if (!inString && character === '}') {
+      if (stack[stack.length - 1] === '{') stack.pop();
+    } else if (!inString && character === ']') {
+      if (stack[stack.length - 1] === '[') stack.pop();
+    }
+  }
+
+  let repaired = value.trim();
+  if (inString) repaired += '"';
+  while (stack.length) repaired += stack.pop() === '{' ? '}' : ']';
+  return repaired;
+}
+
+/**
+ * Parses provider JSON defensively. Some OpenAI-compatible models emit literal
+ * newlines in a JSON string or finish at the token limit before the final quote.
+ * Both cases are repaired before the data reaches the learning-tool UI.
+ */
+export function parseAIJson(raw: string): unknown {
+  const candidate = extractJSON(raw);
+  const attempts = [candidate, escapeControlCharactersInJsonStrings(candidate)];
+  attempts.push(closeTruncatedJson(attempts[1]));
+
+  for (const value of attempts) {
+    try {
+      return JSON.parse(value);
+    } catch { /* try the next safe repair */ }
+  }
+
+  throw new Error('AI ส่งข้อมูลในรูปแบบไม่สมบูรณ์ กรุณาลองสร้างใหม่อีกครั้ง');
+}
+
+export async function generateAIText(prompt: string, options?: { json?: boolean; provider?: string; filePath?: string; mimeType?: string; maxOutputTokens?: number }) {
   const provider = getAIProvider(options?.provider);
 
   // For JSON mode, append explicit instruction to ensure AI returns pure JSON
@@ -154,12 +236,14 @@ export async function generateAIText(prompt: string, options?: { json?: boolean;
     // often reject it with a 400 "failed_generation" error.
     const useJsonFormat = options?.json && !isGroq;
 
-    const response = await withProviderRetry(() => client.chat.completions.create({
+    const request: any = {
       model,
       messages: [{ role: 'user', content: finalPrompt }],
-      max_tokens: DEFAULT_MAX_OUTPUT_TOKENS,
+      max_tokens: options?.maxOutputTokens ?? DEFAULT_MAX_OUTPUT_TOKENS,
       response_format: useJsonFormat ? { type: 'json_object' } : undefined,
-    }));
+    };
+    if (isGroq && model.includes('gpt-oss')) request.reasoning_effort = 'low';
+    const response = await withProviderRetry(() => client.chat.completions.create(request));
     let text = response.choices[0]?.message.content;
     if (!text) throw new Error(`${isGroq ? 'Groq' : 'BazaarLink'} ไม่ส่งข้อมูลกลับมา`);
 

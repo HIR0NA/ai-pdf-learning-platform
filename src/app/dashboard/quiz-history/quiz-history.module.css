@@ -1,0 +1,42 @@
+.container { min-height: 100vh; max-width: 1000px; margin: 0 auto; padding: 6.4rem 2rem 4rem; color: var(--text-color); }
+.header { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; }
+.back { display: inline-flex; margin-bottom: 1.4rem; color: var(--text-secondary); font-size: .9rem; text-decoration: none; }
+.back:hover { color: var(--primary-color); }
+.eyebrow { display: flex; align-items: center; gap: .45rem; margin: 0; color: var(--primary-color); font-size: .78rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.header h1 { margin: .4rem 0 .5rem; font-size: clamp(2rem, 5vw, 3.1rem); letter-spacing: -.035em; }
+.header p:not(.eyebrow) { max-width: 610px; margin: 0; color: var(--text-secondary); line-height: 1.65; }
+.average { display: grid; grid-template-columns: auto auto; gap: .2rem .55rem; align-items: center; min-width: 145px; padding: 1rem 1.15rem; border: 1px solid rgba(223,182,178,.28); border-radius: 1rem; background: linear-gradient(135deg, rgba(79,34,107,.8), rgba(25,0,25,.75)); }
+.average svg { grid-row: span 2; color: var(--primary-color); }
+.average strong { color: var(--primary-color); font-size: 1.45rem; line-height: 1; }
+.average span { color: var(--text-secondary); font-size: .77rem; }
+.metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; margin-top: 2rem; }
+.metrics > div, .card, .empty { border: 1px solid rgba(223,182,178,.2); border-radius: 1rem; background: rgba(25,0,25,.68); }
+.metrics > div { display: grid; grid-template-columns: auto 1fr; gap: .15rem .65rem; align-items: center; padding: 1rem; }
+.metrics svg { grid-row: span 2; color: var(--primary-color); }
+.metrics span { color: var(--text-secondary); font-size: .8rem; }
+.metrics strong { font-size: .95rem; }
+.empty { display: grid; justify-items: center; max-width: 620px; gap: .65rem; margin: 2rem auto 0; padding: 3.4rem 1.5rem; text-align: center; }
+.emptyIcon { display: grid; width: 58px; height: 58px; place-items: center; border-radius: 18px; color: #220018; background: var(--primary-color); }
+.empty h2 { margin: .35rem 0 0; font-size: 1.35rem; }
+.empty p { max-width: 440px; margin: 0; color: var(--text-secondary); line-height: 1.6; }
+.primaryLink { display: inline-flex; margin-top: .6rem; padding: .72rem 1rem; border-radius: .7rem; color: #220018; background: var(--primary-color); font-size: .9rem; font-weight: 800; text-decoration: none; }
+.list { margin-top: 2rem; }
+.listHeading { display: flex; align-items: center; justify-content: space-between; margin-bottom: .85rem; }
+.listHeading h2 { margin: 0; font-size: 1.2rem; }
+.listHeading span { padding: .28rem .6rem; border-radius: 999px; color: var(--primary-color); background: rgba(223,182,178,.1); font-size: .78rem; font-weight: 800; }
+.card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: .85rem; align-items: center; padding: 1rem; margin-top: .7rem; }
+.typeIcon { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 12px; color: var(--primary-color); background: rgba(223,182,178,.11); }
+.cardMain { min-width: 0; }
+.cardTitle { display: flex; align-items: center; gap: .55rem; }
+.cardTitle h3 { margin: 0; overflow: hidden; font-size: .96rem; text-overflow: ellipsis; white-space: nowrap; }
+.aiBadge, .manualBadge { padding: .2rem .45rem; border-radius: 999px; font-size: .68rem; font-weight: 800; }
+.aiBadge { color: #c4b5fd; background: rgba(167,139,250,.13); }
+.manualBadge { color: #a7f3d0; background: rgba(74,222,128,.1); }
+.course, .date { margin: .25rem 0 0; color: var(--text-secondary); font-size: .8rem; }
+.course { color: var(--primary-color); }
+.score { display: grid; justify-items: end; gap: .15rem; }
+.score strong { color: var(--primary-color); font-size: 1.12rem; }
+.score span { color: var(--text-secondary); font-size: .76rem; white-space: nowrap; }
+.deleteButton { display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: .55rem; color: var(--text-secondary); background: transparent; cursor: pointer; }
+.deleteButton:hover { color: #fca5a5; background: rgba(248,113,113,.1); }
+@media (max-width: 650px) { .container { padding: 5.4rem 1rem 2.5rem; } .header { align-items: flex-start; flex-direction: column; gap: 1rem; } .metrics { grid-template-columns: 1fr; } .card { grid-template-columns: auto minmax(0, 1fr) auto; } .score { grid-column: 2 / 3; justify-items: start; } .deleteButton { grid-column: 3; grid-row: 1 / span 2; } }

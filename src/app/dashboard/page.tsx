@@ -7,7 +7,7 @@ import QuizApp from '@/components/QuizApp';
 import FlashcardApp from '@/components/FlashcardApp';
 import StudySchedule from '@/components/StudySchedule';
 import DocumentSummary from '@/components/DocumentSummary';
-import { CalendarDays, ChevronLeft, ChevronRight, Cpu, FileText, Layers, LayoutDashboard, ListChecks, MessageSquare, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX, FolderOpen, LockKeyhole, RotateCcw, X } from 'lucide-react';
+import { BookOpen, CalendarDays, ChevronLeft, ChevronRight, Cpu, FileText, Layers, LayoutDashboard, ListChecks, MessageSquare, Upload, MoreVertical, Edit2, Share2, Trash2, Volume2, VolumeX, FolderOpen, LockKeyhole, RotateCcw, X } from 'lucide-react';
 import Link from 'next/link';
 import { isAcceptedFile, MAX_FILE_SIZE, MAX_FILE_SIZE_MB } from '@/lib/upload-policy';
 
@@ -18,6 +18,7 @@ type ProviderOption = {
   model: string;
   configured: boolean;
 };
+type CourseOption = { id: string; title: string; code: string | null };
 import { useSession } from 'next-auth/react';
 
 type MobilePane = 'files' | 'pdf' | 'ai';
@@ -35,6 +36,8 @@ export default function Dashboard() {
   const { data: session } = useSession();
   const { t } = useLanguage();
   const [documents, setDocuments] = useState<any[]>([]);
+  const [courses, setCourses] = useState<CourseOption[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState('');
   const [activeFile, setActiveFile] = useState<any>(null);
   const [status, setStatus] = useState<string>('');
   const [mobilePane, setMobilePane] = useState<MobilePane>('files');
@@ -44,6 +47,7 @@ export default function Dashboard() {
   const [isDragging, setIsDragging] = useState(false);
   const uploadRequestRef = useRef<XMLHttpRequest | null>(null);
   const lastUploadRef = useRef<File | null>(null);
+  const studyStartRef = useRef<{ filename: string; startedAt: number } | null>(null);
 
   // Chat state
   const [query, setQuery] = useState('');
@@ -55,6 +59,7 @@ export default function Dashboard() {
   // Tools state
   const [activeTab, setActiveTab] = useState<'chat' | 'summary' | 'quiz' | 'flashcard' | 'schedule'>('chat');
   const [toolData, setToolData] = useState<any>(null);
+  const [toolError, setToolError] = useState('');
   const [isToolLoading, setIsToolLoading] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<ProviderId>('gemini');
   const [providerOptions, setProviderOptions] = useState<ProviderOption[]>([]);
@@ -75,6 +80,16 @@ export default function Dashboard() {
         window.speechSynthesis.cancel();
       }
       uploadRequestRef.current?.abort();
+      const study = studyStartRef.current;
+      if (study) {
+        const durationSeconds = Math.round((Date.now() - study.startedAt) / 1000);
+        if (durationSeconds >= 5) {
+          void fetch('/api/study-sessions', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+            body: JSON.stringify({ filename: study.filename, durationSeconds }),
+          });
+        }
+      }
     };
   }, []);
 
@@ -100,6 +115,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDocuments();
+    fetchCourses();
     fetchAIProviders();
   }, []);
 
@@ -166,6 +182,7 @@ export default function Dashboard() {
     setUploadProgress(10);
     const formData = new FormData();
     formData.append('file', file);
+    if (selectedCourseId) formData.append('courseId', selectedCourseId);
 
     try {
       const data = await new Promise<{ filename: string; error?: string }>((resolve, reject) => {
@@ -196,6 +213,8 @@ export default function Dashboard() {
       setStatus('กำลังเตรียมพื้นที่เรียนรู้');
       await fetchDocuments();
       const newFile = { filename: data.filename, title: file.name };
+      finishStudySession();
+      studyStartRef.current = { filename: data.filename, startedAt: Date.now() };
       setActiveFile(newFile);
       setMessages([{ role: 'ai', content: `อ่าน PDF "${file.name}" เรียบร้อยแล้ว เลือกคำถามแนะนำหรือพิมพ์คำถามของคุณได้เลย` }]);
       setActiveTab('chat');
@@ -315,33 +334,64 @@ export default function Dashboard() {
   const loadTool = async (
     type: 'summary' | 'quiz' | 'flashcard' | 'schedule',
     targetFilename = activeFile?.filename,
+    forceRegenerate = false,
   ) => {
     if (!targetFilename) return;
     setActiveTab(type);
     setIsToolLoading(true);
     setToolData(null);
+    setToolError('');
     try {
       const res = await fetch('/api/tools', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, filename: targetFilename, provider: selectedProvider })
+        body: JSON.stringify({ type, filename: targetFilename, provider: selectedProvider, forceRegenerate })
       });
-      const json = await res.json();
-      if (res.ok) {
-        setToolData(json.data);
-      } else {
-        alert(json.error || 'Failed to generate tool data');
-        setActiveTab('chat');
-      }
+      const raw = await res.text();
+      let json: { data?: unknown; error?: unknown };
+      try { json = JSON.parse(raw); } catch { throw new Error('ระบบได้รับคำตอบที่ไม่สมบูรณ์ โปรดลองสร้างอีกครั้ง'); }
+      if (!res.ok) throw new Error(typeof json.error === 'string' ? json.error : 'ไม่สามารถสร้างเนื้อหาการเรียนได้');
+      if (!json.data) throw new Error('AI ไม่ได้ส่งข้อมูลการเรียนกลับมา');
+      setToolData(json.data);
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Error fetching tool data');
-      setActiveTab('chat');
+      setToolError(e instanceof Error ? e.message : 'ไม่สามารถเชื่อมต่อ AI ได้');
     } finally {
       setIsToolLoading(false);
     }
   };
 
+  const fetchCourses = async () => {
+    try {
+      const res = await fetch('/api/courses');
+      if (!res.ok) return;
+      const data = await res.json();
+      setCourses(data.courses ?? []);
+    } catch (error) {
+      console.error('Failed to fetch courses', error);
+    }
+  };
+
+  const saveQuizAttempt = async (score: number, total: number) => {
+    try {
+      await fetch('/api/quiz-attempts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ score, total, filename: activeFile?.filename }) });
+    } catch { /* Showing a quiz result must not fail if its history cannot be saved. */ }
+  };
+
+  const finishStudySession = () => {
+    const study = studyStartRef.current;
+    studyStartRef.current = null;
+    if (!study) return;
+    const durationSeconds = Math.round((Date.now() - study.startedAt) / 1000);
+    if (durationSeconds < 5) return;
+    void fetch('/api/study-sessions', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+      body: JSON.stringify({ filename: study.filename, durationSeconds }),
+    });
+  };
+
   const selectDocument = async (doc: any) => {
+    finishStudySession();
+    studyStartRef.current = { filename: doc.filename, startedAt: Date.now() };
     setActiveFile(doc);
     setActiveTab('chat');
     setToolData(null);
@@ -483,19 +533,13 @@ export default function Dashboard() {
         <h2 className={styles.sidebarTitle}>{t('dash_my_docs' as any)}</h2>
 
         {isSidebarExpanded && (
-          <div className={styles.sidebarNav}>
-            <Link href="/dashboard/overview" className={styles.dashboardLink}>
-              <LayoutDashboard size={18} /> {t('dash_dashboard_link' as any)}
-            </Link>
-            <Link href="/dashboard/notes" className={styles.dashboardLink}>
-              <FileText size={18} /> บันทึกการเรียน
-            </Link>
-            {session?.user?.role === 'ADMIN' && (
-              <Link href="/admin" className={styles.dashboardLink} style={{ color: 'var(--primary-color)' }}>
-                <LockKeyhole size={18} /> Admin Panel
-              </Link>
-            )}
-          </div>
+          <label className={styles.coursePicker}>
+            <span>รายวิชาสำหรับไฟล์ใหม่</span>
+            <select value={selectedCourseId} onChange={(event) => setSelectedCourseId(event.target.value)}>
+              <option value="">ยังไม่จัดรายวิชา</option>
+              {courses.map((course) => <option key={course.id} value={course.id}>{course.code ? `${course.code} · ` : ''}{course.title}</option>)}
+            </select>
+          </label>
         )}
 
         <div
@@ -509,7 +553,7 @@ export default function Dashboard() {
           {isSidebarExpanded && <strong>{t('dash_drag_pdf' as any)}</strong>}
           {isSidebarExpanded && <span className={styles.uploadHint}>{t('dash_pdf_only' as any)} · {t('dash_max_size' as any)} {MAX_FILE_SIZE_MB}MB</span>}
           <label htmlFor="file-upload" className={styles.uploadLabel} title={!isSidebarExpanded ? String(t('dash_new_upload')) : undefined}>
-            {isSidebarExpanded ? t('dash_choose_pdf' as any) : <Upload size={17} />}
+            {isSidebarExpanded ? <><Upload size={16} /> {t('dash_new_upload' as any)}</> : <Upload size={17} />}
           </label>
           <input
             type="file"
@@ -585,6 +629,7 @@ export default function Dashboard() {
                   )}
                 </div>
                 {isSidebarExpanded && doc.createdAt && <span className={styles.fileDate} style={{ display: 'block', paddingLeft: '28px' }}>{new Date(doc.createdAt).toLocaleDateString()}</span>}
+                {isSidebarExpanded && doc.course && <span className={styles.fileCourse}>{doc.course.code ? `${doc.course.code} · ` : ''}{doc.course.title}</span>}
               </div>
               {isSidebarExpanded && (
                 <div style={{ position: 'relative' }}>
@@ -635,7 +680,31 @@ export default function Dashboard() {
       </aside>
 
       <main className={`${styles.workspace} ${mobilePane === 'files' ? styles.mobileHidden : ''}`}>
-        <section className={`${styles.pdfPane} ${mobilePane !== 'pdf' ? styles.mobileHidden : ''}`}>
+        <nav className={styles.workspaceNav} aria-label="เมนูการเรียนรู้">
+          <Link href="/dashboard/overview" className={styles.workspaceLink}>
+            <LayoutDashboard size={16} /> {t('dash_dashboard_link' as any)}
+          </Link>
+          <Link href="/dashboard/notes" className={styles.workspaceLink}>
+            <FileText size={16} /> บันทึกการเรียน
+          </Link>
+          <Link href="/dashboard/courses" className={styles.workspaceLink}>
+            <BookOpen size={16} /> รายวิชา
+          </Link>
+          <Link href="/dashboard/questions" className={styles.workspaceLink}>
+            <ListChecks size={16} /> คลังคำถาม
+          </Link>
+          <Link href="/dashboard/quiz-history" className={styles.workspaceLink}>
+            <RotateCcw size={16} /> ประวัติ Quiz
+          </Link>
+          {session?.user?.role === 'ADMIN' && (
+            <Link href="/admin" className={styles.workspaceLink}>
+              <LockKeyhole size={16} /> Admin Panel
+            </Link>
+          )}
+        </nav>
+
+        <div className={`${styles.workspacePanels} ${!activeFile ? styles.workspacePanelsEmpty : ''}`}>
+          <section className={`${styles.pdfPane} ${mobilePane !== 'pdf' ? styles.mobileHidden : ''}`}>
           <div className={styles.paneHeader}>
             {t('dash_pdf_viewer')} {activeFile ? `[ ${activeFile.title} ]` : ''}
           </div>
@@ -667,9 +736,9 @@ export default function Dashboard() {
               <small><LockKeyhole size={13} /> {t('dash_file_private' as any)} · <Link href="/privacy">{t('dash_privacy_link' as any)}</Link></small>
             </div>
           )}
-        </section>
+          </section>
 
-        <section className={`${styles.chatPane} ${mobilePane !== 'ai' ? styles.mobileHidden : ''}`}>
+          <section className={`${styles.chatPane} ${mobilePane !== 'ai' ? styles.mobileHidden : ''}`}>
           <div className={`${styles.paneHeader} ${styles.chatHeader}`}>
             <span>
               {t('dash_ai_interface')} {activeFile ? `[ ${t('dash_connected')} ${activeFile.filename.substring(0, 8)}... ]` : `[ ${t('dash_standby')} ]`}
@@ -723,8 +792,16 @@ export default function Dashboard() {
                   {messages.length === 0 ? (
                     <div className={styles.emptyChat}>
                       <MessageSquare size={30} />
+                      {!activeFile && <span className={styles.emptyChatEyebrow}>ขั้นตอนถัดไป</span>}
                       <h3>{activeFile ? t('dash_ask_anything' as any) : t('dash_choose_upload' as any)}</h3>
                       <p>{activeFile ? t('dash_ai_answer_doc' as any) : t('dash_ai_ready_hint' as any)}</p>
+                      {!activeFile && (
+                        <ol className={styles.emptyChatSteps}>
+                          <li>อัปโหลด PDF หรือ Markdown</li>
+                          <li>รอระบบอ่านและเตรียมเนื้อหา</li>
+                          <li>สรุป ถามตอบ หรือสร้างแบบทบทวน</li>
+                        </ol>
+                      )}
                     </div>
                   ) : (
                     messages.map((msg, index) => (
@@ -810,14 +887,21 @@ export default function Dashboard() {
                   </div>
                 ) : toolData ? (
                   activeTab === 'summary' ? <DocumentSummary data={toolData} /> :
-                    activeTab === 'quiz' ? <QuizApp data={toolData} /> :
+                    activeTab === 'quiz' ? <QuizApp data={toolData} onComplete={saveQuizAttempt} /> :
                       activeTab === 'flashcard' ? <FlashcardApp data={toolData} /> :
                         activeTab === 'schedule' ? <StudySchedule data={toolData} /> : null
+                ) : toolError ? (
+                  <div className={styles.toolError} role="alert">
+                    <h3>ยังสร้างเนื้อหานี้ไม่ได้</h3>
+                    <p>{toolError}</p>
+                    <button type="button" onClick={() => void loadTool(activeTab as Exclude<typeof activeTab, 'chat'>, activeFile?.filename, true)}>ลองสร้างใหม่</button>
+                  </div>
                 ) : null}
               </div>
             )}
           </div>
-        </section>
+          </section>
+        </div>
       </main>
     </div>
   );

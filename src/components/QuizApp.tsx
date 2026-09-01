@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Trophy } from 'lucide-react';
 
 type QuizQuestion = {
@@ -10,11 +10,18 @@ type QuizQuestion = {
   explanation: string;
 };
 
-export default function QuizApp({ data }: { data: QuizQuestion[] }) {
+export default function QuizApp({ data, onComplete, showTimer = false }: { data: QuizQuestion[]; onComplete?: (score: number, total: number) => void; showTimer?: boolean }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!showTimer || showResult) return;
+    const timer = window.setInterval(() => setElapsedSeconds((current) => current + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [showResult, showTimer]);
 
   if (!data || data.length === 0) return <div>No quiz data available.</div>;
 
@@ -36,6 +43,7 @@ export default function QuizApp({ data }: { data: QuizQuestion[] }) {
       setSelectedOption(null);
     } else {
       setShowResult(true);
+      onComplete?.(score, data.length);
     }
   };
 
@@ -44,6 +52,7 @@ export default function QuizApp({ data }: { data: QuizQuestion[] }) {
     setSelectedOption(null);
     setScore(0);
     setShowResult(false);
+    setElapsedSeconds(0);
   };
 
   if (showResult) {
@@ -53,6 +62,7 @@ export default function QuizApp({ data }: { data: QuizQuestion[] }) {
           <Trophy size={24} aria-hidden="true" /> Quiz Completed!
         </h2>
         <p style={{ fontSize: '1.5rem', margin: '1rem 0' }}>You scored {score} out of {data.length}</p>
+        {showTimer && <p style={{ color: 'var(--text-secondary)' }}>Time: {Math.floor(elapsedSeconds / 60)}:{String(elapsedSeconds % 60).padStart(2, '0')}</p>}
         <button 
           onClick={handleRestart}
           style={{ padding: '10px 20px', background: 'var(--primary-color)', color: '#000', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -68,6 +78,7 @@ export default function QuizApp({ data }: { data: QuizQuestion[] }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
         <span>Question {currentIndex + 1} of {data.length}</span>
         <span>Score: {score}</span>
+        {showTimer && <span>Time: {Math.floor(elapsedSeconds / 60)}:{String(elapsedSeconds % 60).padStart(2, '0')}</span>}
       </div>
       
       <h3 style={{ marginBottom: '1.5rem', lineHeight: '1.4' }}>{question.question}</h3>

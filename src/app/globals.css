@@ -7,6 +7,8 @@
   --border-color: rgba(223, 182, 178, 0.2); /* Soft peach border */
   --text-primary: #FBE4D8; /* Cream */
   --text-secondary: #DFB6B2; /* Peach */
+  --accent-color: #67E8F9; /* Cyan: primary actions and interactive states */
+  --accent-strong: #22D3EE;
   --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 

@@ -1,13 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import { readFile, writeFile, unlink } from 'fs/promises';
 import { isSafeStoredDocumentFilename, resolveStoredDocumentPaths } from '@/lib/security';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import util from 'util';
 import path from 'path';
 import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
+import pdfParse from 'pdf-parse';
 
-const execAsync = util.promisify(exec);
+const execFileAsync = util.promisify(execFile);
 
 export class DocumentTextError extends Error {
   constructor(
@@ -33,10 +34,24 @@ export async function extractPdfText(buffer: Buffer) {
   
   try {
     await writeFile(tempPath, buffer);
-    // Use MarkItDown for much better PDF to Markdown extraction
-    const { stdout } = await execAsync(`python -m markitdown "${tempPath}"`, { maxBuffer: 1024 * 1024 * 50 }); // 50MB buffer
-    
-    const text = normalizeExtractedText(stdout);
+    // MarkItDown preserves headings and tables well when Python is installed.
+    try {
+      const { stdout } = await execFileAsync('python', ['-m', 'markitdown', tempPath], {
+        maxBuffer: 1024 * 1024 * 50,
+        windowsHide: true,
+      });
+      const text = normalizeExtractedText(stdout);
+      if (text) return text;
+    } catch (error) {
+      // Python/MarkItDown is optional. Fall back to the bundled Node parser so
+      // uploading ordinary text PDFs works on machines without Python.
+      console.warn('MarkItDown unavailable; falling back to the Node PDF parser.', {
+        code: (error as NodeJS.ErrnoException).code,
+      });
+    }
+
+    const parsed = await pdfParse(buffer);
+    const text = normalizeExtractedText(parsed.text);
     if (!text) {
       throw new DocumentTextError(
         'ไม่พบข้อความใน PDF ไฟล์นี้อาจเป็นเอกสารสแกนที่ต้องใช้ OCR',
@@ -46,8 +61,8 @@ export async function extractPdfText(buffer: Buffer) {
     return text;
   } catch (error) {
     if (error instanceof DocumentTextError) throw error;
-    console.error('MarkItDown Error:', error);
-    throw new DocumentTextError('ไม่สามารถอ่านข้อความจาก PDF ได้ (MarkItDown Error)', 422);
+    console.error('PDF text extraction failed:', error);
+    throw new DocumentTextError('ไม่สามารถอ่านข้อความจาก PDF ได้ โปรดลองไฟล์ PDF อื่น หรือใช้ไฟล์ที่มีข้อความเลือกได้', 422);
   } finally {
     try {
       await unlink(tempPath);

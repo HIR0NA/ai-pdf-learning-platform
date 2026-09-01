@@ -1,26 +1,38 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { LayoutDashboard, MessageSquare, FileText, Settings, LogOut, ArrowUpRight } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, FileText, LogOut, Clock3, Trophy } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import styles from './overview.module.css';
 import { useLanguage } from '@/context/LanguageContext';
 
-const usageData = [
-  { name: 'Mon', queries: 40, documents: 2 },
-  { name: 'Tue', queries: 30, documents: 1 },
-  { name: 'Wed', queries: 20, documents: 0 },
-  { name: 'Thu', queries: 27, documents: 3 },
-  { name: 'Fri', queries: 18, documents: 1 },
-  { name: 'Sat', queries: 23, documents: 2 },
-  { name: 'Sun', queries: 34, documents: 4 },
-];
+type OverviewData = {
+  stats: { documentCount: number; messageCount: number; quizAverage: number | null; quizAttempts: number; studySeconds: number };
+  usage: { name: string; queries: number; documents: number }[];
+  documents: { id: string; title: string; size: number; createdAt: string; course: { title: string; code: string | null } | null }[];
+};
+
+const formatDuration = (seconds: number) => `${Math.floor(seconds / 3600)} ชม. ${Math.floor((seconds % 3600) / 60)} นาที`;
 
 export default function DashboardOverview() {
   const { t } = useLanguage();
   const { data: session } = useSession();
+  const [overview, setOverview] = useState<OverviewData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    void fetch('/api/dashboard/overview')
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => { if (active) setOverview(data); })
+      .finally(() => { if (active) setIsLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  const stats = overview?.stats;
+  const usageData = overview?.usage ?? [];
 
   return (
     <div className={styles.container}>
@@ -63,24 +75,32 @@ export default function DashboardOverview() {
               <span>{t('overview_docs' as any)}</span>
               <FileText size={20} color="var(--primary-color)" />
             </div>
-            <div className={styles.kpiValue}>24 {t('overview_docs_unit' as any)}</div>
-            <div className={styles.kpiTrend}><ArrowUpRight size={14} style={{ display: 'inline' }} /> {t('overview_trend_docs' as any)}</div>
+            <div className={styles.kpiValue}>{isLoading ? '—' : stats?.documentCount ?? 0} {t('overview_docs_unit' as any)}</div>
+            <div className={styles.kpiTrend}>ไฟล์ในบัญชีของคุณ</div>
           </div>
           <div className={styles.kpiCard}>
             <div className={styles.kpiHeader}>
               <span>{t('overview_chats' as any)}</span>
               <MessageSquare size={20} color="var(--primary-color)" />
             </div>
-            <div className={styles.kpiValue}>1,284</div>
-            <div className={styles.kpiTrend}><ArrowUpRight size={14} style={{ display: 'inline' }} /> {t('overview_trend_chats' as any)}</div>
+            <div className={styles.kpiValue}>{isLoading ? '—' : stats?.messageCount ?? 0}</div>
+            <div className={styles.kpiTrend}>ข้อความที่สนทนาจริง</div>
           </div>
           <div className={styles.kpiCard}>
             <div className={styles.kpiHeader}>
               <span>{t('overview_time' as any)}</span>
-              <LayoutDashboard size={20} color="var(--primary-color)" />
+              <Clock3 size={20} color="var(--primary-color)" />
             </div>
-            <div className={styles.kpiValue}>{t('overview_time_unit' as any)}</div>
-            <div className={styles.kpiTrend}><ArrowUpRight size={14} style={{ display: 'inline' }} /> {t('overview_trend_time' as any)}</div>
+            <div className={styles.kpiValue}>{isLoading ? '—' : formatDuration(stats?.studySeconds ?? 0)}</div>
+            <div className={styles.kpiTrend}>บันทึกเมื่อเปิดเรียนจากเอกสาร</div>
+          </div>
+          <div className={styles.kpiCard}>
+            <div className={styles.kpiHeader}>
+              <span>คะแนน Quiz เฉลี่ย</span>
+              <Trophy size={20} color="var(--primary-color)" />
+            </div>
+            <div className={styles.kpiValue}>{isLoading ? '—' : stats?.quizAverage === null || stats?.quizAverage === undefined ? '—' : `${stats.quizAverage}%`}</div>
+            <div className={styles.kpiTrend}>{stats?.quizAttempts ? `จาก ${stats.quizAttempts} ครั้งที่ทำ` : 'ยังไม่มีผลการทำ Quiz'}</div>
           </div>
         </div>
 
@@ -132,24 +152,13 @@ export default function DashboardOverview() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Machine_Learning_Intro.pdf</td>
-                  <td>24 มิ.ย. 2026</td>
-                  <td>2.4 MB</td>
-                  <td><span className={styles.statusBadge}>{t('overview_status_done' as any)}</span></td>
-                </tr>
-                <tr>
-                  <td>Database_Systems_Ch5.pdf</td>
-                  <td>22 มิ.ย. 2026</td>
-                  <td>1.1 MB</td>
-                  <td><span className={styles.statusBadge}>{t('overview_status_done' as any)}</span></td>
-                </tr>
-                <tr>
-                  <td>Project_Requirements_v2.pdf</td>
-                  <td>20 มิ.ย. 2026</td>
-                  <td>0.8 MB</td>
-                  <td><span className={styles.statusBadge}>{t('overview_status_done' as any)}</span></td>
-                </tr>
+                {overview?.documents.map((document) => <tr key={document.id}>
+                  <td>{document.title}</td>
+                  <td>{new Date(document.createdAt).toLocaleDateString('th-TH')}</td>
+                  <td>{(document.size / (1024 * 1024)).toFixed(1)} MB</td>
+                  <td><span className={styles.statusBadge}>{document.course ? `${document.course.code ? `${document.course.code} · ` : ''}${document.course.title}` : t('overview_status_done' as any)}</span></td>
+                </tr>)}
+                {!isLoading && overview?.documents.length === 0 && <tr><td colSpan={4}>ยังไม่มีเอกสารที่อัปโหลด</td></tr>}
               </tbody>
             </table>
           </div>

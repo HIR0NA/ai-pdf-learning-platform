@@ -1,0 +1,71 @@
+.container { min-height: 100vh; max-width: 1080px; margin: 0 auto; padding: 6.4rem 2rem 4rem; color: var(--text-color); }
+.header { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; margin-bottom: 2rem; }
+.header h1 { margin: .4rem 0 .55rem; font-size: clamp(2rem, 5vw, 3.1rem); letter-spacing: -.035em; }
+.header > div > p:last-child { max-width: 620px; margin: 0; color: var(--text-secondary); line-height: 1.65; }
+.back { display: inline-flex; margin-bottom: 1.4rem; color: var(--text-secondary); font-size: .9rem; text-decoration: none; }
+.back:hover { color: var(--primary-color); }
+.eyebrow { display: flex; align-items: center; gap: .45rem; margin: 0; color: var(--primary-color); font-size: .78rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.summary { min-width: 150px; padding: 1.1rem 1.25rem; border: 1px solid rgba(223,182,178,.22); border-radius: 1rem; background: rgba(43,18,76,.52); text-align: right; }
+.summary strong { display: block; color: var(--primary-color); font-size: 1.75rem; line-height: 1; }
+.summary span { color: var(--text-secondary); font-size: .8rem; }
+.actionBar { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.actionBar > span { margin-left: .25rem; color: var(--text-secondary); font-size: .86rem; }
+.quizPanel, .formCard, .questionCard, .empty { border: 1px solid rgba(223,182,178,.2); border-radius: 1.15rem; background: rgba(25,0,25,.68); box-shadow: 0 12px 32px rgba(0,0,0,.15); }
+.quizPanel { padding: 1.35rem; margin-bottom: 1.25rem; border-color: rgba(223,182,178,.38); background: linear-gradient(130deg, rgba(75,30,100,.76), rgba(25,0,25,.78)); }
+.panelHeading { display: flex; align-items: flex-start; gap: .8rem; }
+.panelHeading > div { flex: 1; }
+.iconCircle { display: grid; flex: 0 0 auto; width: 42px; height: 42px; place-items: center; border-radius: 12px; color: #220018; background: var(--primary-color); }
+.panelHeading h2, .sectionHeading h2 { margin: .05rem 0 .3rem; font-size: 1.25rem; }
+.panelHeading p { display: flex; align-items: center; gap: .35rem; margin: 0; color: var(--text-secondary); font-size: .88rem; }
+.quizControls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .8rem; align-items: end; margin-top: 1.15rem; }
+.quizControls label, .form label { display: grid; gap: .45rem; color: var(--text-secondary); font-size: .86rem; font-weight: 650; }
+.form label span { color: rgba(251,228,216,.58); font-weight: 400; }
+.input, .select, .textarea, .textareaSmall { width: 100%; min-width: 0; border: 1px solid rgba(223,182,178,.3); border-radius: .7rem; outline: none; color: var(--text-primary); background: rgba(0,0,0,.26); font: inherit; transition: border-color .2s, box-shadow .2s, background .2s; }
+.input, .select { min-height: 43px; padding: .65rem .8rem; }
+.select { appearance: auto; }
+.textarea, .textareaSmall { display: block; padding: .75rem .8rem; resize: vertical; line-height: 1.5; }
+.textarea { min-height: 110px; }
+.textareaSmall { min-height: 84px; }
+.input::placeholder, .textarea::placeholder, .textareaSmall::placeholder { color: rgba(251,228,216,.42); }
+.input:focus, .select:focus, .textarea:focus, .textareaSmall:focus { border-color: var(--primary-color); background: rgba(0,0,0,.38); box-shadow: 0 0 0 3px rgba(223,182,178,.13); }
+.primaryButton { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 43px; padding: .7rem 1rem; border: 0; border-radius: .7rem; color: #220018; background: var(--primary-color); font: inherit; font-size: .9rem; font-weight: 800; cursor: pointer; transition: transform .2s, box-shadow .2s, opacity .2s; }
+.primaryButton:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(223,182,178,.2); }
+.primaryButton:disabled { cursor: not-allowed; opacity: .45; }
+.secondaryButton { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 43px; padding: .7rem 1rem; border: 1px solid rgba(223,182,178,.32); border-radius: .7rem; color: var(--text-primary); background: rgba(43,18,76,.48); font: inherit; font-size: .9rem; font-weight: 750; cursor: pointer; }
+.secondaryButton:hover:not(:disabled) { border-color: var(--primary-color); color: var(--primary-color); background: rgba(223,182,178,.1); }
+.secondaryButton:disabled { cursor: not-allowed; opacity: .45; }
+.closeButton { padding: .35rem .55rem; border: 0; border-radius: .45rem; color: var(--text-secondary); background: transparent; font: inherit; font-size: .82rem; cursor: pointer; }
+.closeButton:hover { color: var(--primary-color); background: rgba(223,182,178,.08); }
+.status { margin: .85rem 0 0; color: var(--text-secondary); font-size: .88rem; }
+.quizArea { margin-top: 1rem; }
+.formCard { padding: 1.5rem; }
+.sectionHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.textButton, .cardActions button { display: inline-flex; align-items: center; gap: .35rem; border: 0; border-radius: .55rem; color: var(--text-secondary); background: transparent; font: inherit; font-size: .84rem; cursor: pointer; }
+.textButton { padding: .55rem .7rem; border: 1px solid rgba(223,182,178,.22); }
+.textButton:hover, .cardActions button:hover { color: var(--primary-color); background: rgba(223,182,178,.08); }
+.form { display: grid; gap: 1rem; margin-top: 1.15rem; }
+.twoColumns, .optionsGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; }
+.formActions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.error { margin: 0; color: #fca5a5; font-size: .88rem; }
+.library { margin-top: 2.25rem; }
+.count { display: inline-flex; align-items: center; min-height: 30px; padding: .3rem .65rem; border-radius: 999px; color: var(--primary-color); background: rgba(223,182,178,.1); font-size: .8rem; font-weight: 800; }
+.questionList { display: grid; gap: .8rem; margin-top: 1rem; }
+.questionCard { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem; padding: 1.1rem; }
+.questionNumber { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; color: #220018; background: var(--primary-color); font-size: .8rem; font-weight: 850; }
+.questionContent { min-width: 0; }
+.questionTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.questionTop h3 { margin: 0; font-size: 1rem; line-height: 1.5; }
+.courseBadge { flex: 0 0 auto; padding: .25rem .5rem; border-radius: 999px; color: var(--primary-color); background: rgba(223,182,178,.1); font-size: .72rem; font-weight: 800; }
+.answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem .9rem; padding: 0; margin: .85rem 0; list-style: none; }
+.answers li { padding: .5rem .6rem; border: 1px solid rgba(223,182,178,.13); border-radius: .55rem; color: var(--text-secondary); font-size: .87rem; }
+.answers .correct { border-color: rgba(92,255,169,.4); color: #a7f3d0; background: rgba(74,222,128,.08); }
+.answers li span { display: block; margin-top: .15rem; color: #86efac; font-size: .7rem; font-weight: 700; }
+.explanation { margin: 0; color: var(--text-secondary); font-size: .86rem; line-height: 1.55; }
+.cardActions { display: flex; gap: .25rem; margin-top: .7rem; }
+.cardActions button { padding: .45rem .6rem; }
+.cardActions .deleteButton:hover { color: #fca5a5; background: rgba(248,113,113,.1); }
+.empty { display: grid; justify-items: center; gap: .45rem; margin-top: 1rem; padding: 3rem 1rem; color: var(--text-secondary); text-align: center; }
+.empty svg { color: var(--primary-color); }
+.empty h3 { margin: .25rem 0 0; color: var(--text-primary); }
+.empty p { margin: 0; font-size: .9rem; }
+@media (max-width: 720px) { .container { padding: 5.4rem 1rem 2.5rem; } .header { align-items: flex-start; flex-direction: column; gap: 1rem; } .summary { text-align: left; } .actionBar { display: grid; grid-template-columns: 1fr 1fr; } .actionBar > span { grid-column: 1 / -1; margin-left: 0; } .quizControls { grid-template-columns: 1fr; } .quizControls .primaryButton { width: 100%; } .twoColumns, .optionsGrid, .answers { grid-template-columns: 1fr; } .questionTop { flex-direction: column; gap: .55rem; } .courseBadge { align-self: flex-start; } }
