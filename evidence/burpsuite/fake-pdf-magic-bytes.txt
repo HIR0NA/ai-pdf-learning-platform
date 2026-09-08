@@ -1,0 +1,37 @@
+=== BURP SUITE / WEB TESTING EVIDENCE: TEST 03 ===
+Target: http://localhost:3000/api/upload
+Description: Attacker uploads an executable or script disguised as PDF (e.g. `shell.php.pdf` or Windows executable with fake MIME type)
+
+--- [1. REQUEST] ---
+POST /api/upload HTTP/1.1
+Host: localhost:3000
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Cookie: next-auth.session-token=eyJhbGciOi... [Authenticated Student]
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="payload.pdf"
+Content-Type: application/pdf
+
+MZ...................... [Windows Executable binary magic bytes]
+This program cannot be run in DOS mode.
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+--- [2. RESPONSE (BEFORE FIX - VULNERABLE STATE)] ---
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": "doc-123",
+  "filename": "payload.pdf",
+  "status": "uploaded"
+}
+[!] Vulnerability: Arbitrary File Upload (OWASP A04). Server relied solely on user-supplied Content-Type header without inspecting actual file contents.
+
+--- [3. RESPONSE (AFTER FIX - SECURED STATE)] ---
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{
+  "error": "Invalid file format: Document must be a valid PDF (magic bytes mismatch)"
+}
+[*] Verification: `src/app/api/upload/route.ts` reads the first 4 bytes of the buffer and verifies that it begins with `%PDF` (0x25 0x50 0x44 0x46). Any disguised executable or script is rejected immediately.

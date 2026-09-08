@@ -1,0 +1,26 @@
+=== BURP SUITE / WEB TESTING EVIDENCE: TEST 02 ===
+Target: http://localhost:3000/api/files/8f1e5d7a-1234-4a5b-9c8d-112233445566
+Description: Attacker (User A) modifies UUID in URL to read User B's private PDF document (IDOR / BOLA)
+
+--- [1. REQUEST] ---
+GET /api/files/8f1e5d7a-1234-4a5b-9c8d-112233445566 HTTP/1.1
+Host: localhost:3000
+Cookie: next-auth.session-token=eyJhbGciOi... [User A Session]
+Connection: close
+
+--- [2. RESPONSE (BEFORE FIX - VULNERABLE STATE)] ---
+HTTP/1.1 200 OK
+Content-Type: application/pdf
+Content-Disposition: inline; filename="confidential-exam-notes.pdf"
+
+%PDF-1.4 ... [User B's private PDF binary data returned to User A]
+[!] Vulnerability: IDOR (OWASP A01). System checked only if file exists on disk, without checking document ownership against session user ID.
+
+--- [3. RESPONSE (AFTER FIX - SECURED STATE)] ---
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "error": "Document not found or access denied"
+}
+[*] Verification: Route handler executes Prisma query `prisma.document.findFirst({ where: { filename, userId: session.user.id } })`. If the user is not the owner, access is blocked and returns 404 to avoid leaking document existence.

@@ -1,0 +1,43 @@
+=== BURP SUITE / WEB TESTING EVIDENCE: TEST 01 ===
+Target: http://localhost:3000/api/admin/overview
+Description: Non-admin Student / Unauthenticated User attempts to access Admin API
+
+--- [1. REQUEST] ---
+GET /api/admin/overview HTTP/1.1
+Host: localhost:3000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) BurpSuite/2026.8
+Accept: application/json
+Cookie: next-auth.session-token=eyJhbGciOi... [Student Role Session Token]
+Connection: close
+
+--- [2. RESPONSE (BEFORE FIX - VULNERABLE STATE)] ---
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 1420
+
+{
+  "status": "success",
+  "totalUsers": 125,
+  "systemStats": { "cpu": "18%", "memory": "512MB" },
+  "users": [
+    { "id": "u1", "email": "admin@example.com", "role": "ADMIN" },
+    { "id": "u2", "email": "student@example.com", "role": "STUDENT" }
+  ]
+}
+[!] Vulnerability: Missing Function Level Access Control (OWASP A01). Student was able to query admin overview because check was only performed on frontend UI Navbar.
+
+--- [3. RESPONSE (AFTER FIX - SECURED STATE)] ---
+HTTP/1.1 403 Forbidden
+Content-Security-Policy: default-src 'self'; ...
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+Content-Type: application/json
+Date: Tue, 08 Sep 2026 06:20:00 GMT
+Connection: close
+
+{
+  "error": "Forbidden",
+  "message": "Admin privileges required"
+}
+[*] Verification: Server-side RBAC Guard in `src/proxy.ts` and `src/app/api/admin/overview/route.ts` rejects request with 403 Forbidden.
