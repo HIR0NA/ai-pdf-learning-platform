@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { PrismaClient } from '@prisma/client';
 import fs from 'fs/promises';
 import { isSafeStoredDocumentFilename, resolveStoredDocumentPaths } from '@/lib/security';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+export const dynamic = 'force-dynamic';
 
 function sessionIdentity(session: { user?: unknown } | null) {
   const user = session?.user as { id?: string; role?: string } | undefined;
@@ -44,20 +44,31 @@ export async function GET(req: Request, { params }: { params: Promise<{ filename
     
     try {
       const fileBuffer = await fs.readFile(pdfPath);
-      
-      return new NextResponse(fileBuffer, {
+      const contentType = doc.mimeType === 'application/pdf'
+        ? 'application/pdf'
+        : 'text/markdown; charset=utf-8';
+
+      return new NextResponse(new Uint8Array(fileBuffer), {
         headers: {
-          'Content-Type': 'application/pdf',
+          'Content-Type': contentType,
           'Content-Disposition': `inline; filename="${filename}"`,
+          'Content-Length': String(fileBuffer.byteLength),
+          'Cache-Control': 'private, no-store',
         },
       });
-    } catch (e) {
-      return new NextResponse('File not found on disk', { status: 404 });
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code === 'ENOENT') {
+        // A database row without its private artifact cannot be rendered safely.
+        // Return an actionable response instead of falling through to a generic 500.
+        return new NextResponse('Document file is unavailable. Please upload it again.', { status: 410 });
+      }
+      throw error;
     }
 
   } catch (error) {
-    console.error('Error fetching file:', error);
-    return new NextResponse('Internal server error', { status: 500 });
+    console.error('Error fetching protected file:', error);
+    return new NextResponse('Document viewer is temporarily unavailable', { status: 503 });
   }
 }
 
