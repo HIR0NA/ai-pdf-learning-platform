@@ -27,7 +27,9 @@ export default function LoginPage() {
           setError('');
           return 0;
         }
-        return prev - 1;
+        const nextSeconds = prev - 1;
+        setError(`บัญชีถูกล็อกชั่วคราว กรุณารออีก ${nextSeconds} วินาที`);
+        return nextSeconds;
       });
     }, 1000);
     return () => clearInterval(timer);
@@ -61,13 +63,6 @@ export default function LoginPage() {
       router.push('/dashboard');
     }
   }, [lockCountdown, username, password, rememberMe, router, t]);
-
-  // Update error message with countdown
-  useEffect(() => {
-    if (lockCountdown > 0) {
-      setError(`บัญชีถูกล็อกชั่วคราว กรุณารออีก ${lockCountdown} วินาที`);
-    }
-  }, [lockCountdown]);
 
   return (
     <div className={styles.container}>

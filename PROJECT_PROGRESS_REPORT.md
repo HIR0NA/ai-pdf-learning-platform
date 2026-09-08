@@ -13,12 +13,14 @@
 ---
 
 ### รายชื่อคณะผู้จัดทำและหน้าที่รับผิดชอบ (Project Members & Responsibilities)
-1. **Papon** — *Lead Developer / Full-stack Engineer*  
-   *(รับผิดชอบ: ออกแบบและพัฒนาระบบหลัก, สถาปัตยกรรมฐานข้อมูล, ระบบความปลอดภัย RBAC, การเชื่อมต่อ AI Providers, จัดการไฟล์ PDF และ UI/UX)*
-2. **[ระบุชื่อสมาชิกเพิ่มเติม 1]** — *Frontend & UI/UX Design*  
-   *(รับผิดชอบ: ออกแบบ Layout, ปรับปรุง Component ภาษาไทย/อังกฤษ และทดสอบการแสดงผลบน Mobile)*
-3. **[ระบุชื่อสมาชิกเพิ่มเติม 2]** — *Quality Assurance (QA) & Documentation*  
-   *(รับผิดชอบ: จัดทำคู่มือผู้ใช้งาน, ทดสอบความปลอดภัย และเขียน Test Cases)*
+1. **Papon** — *Lead Developer / System Architect*  
+   *(รับผิดชอบ: ออกแบบสถาปัตยกรรมระบบหลัก, ระบบความปลอดภัย RBAC, การเชื่อมต่อ Multi-Provider AI, Pipeline การประมวลผล PDF)*
+2. **นายกาณฑ์ ยอดเกวียน (Karn Yodkwian)** — *Frontend & UI/UX Design*  
+   *(รับผิดชอบ: ออกแบบหน้าจอ Landing Page, Dashboard Workspace, Responsive Design และระบบสลับ 2 ภาษา TH/EN)*
+3. **นางสาววริศรา ชูเรืองสกุล (Warisara Churuangsakul)** — *Quality Assurance (QA) & Data Management*  
+   *(รับผิดชอบ: ออกแบบฐานข้อมูล PostgreSQL/Prisma, การจัดเก็บ Study Notes, Quiz History และการทดสอบระบบ)*
+4. **นายสิรภัทร พัวเผ่า (Siraphat Puaphao)** — *DevSecOps Engineer & Documentation*  
+   *(รับผิดชอบ: ดำเนินการ DAST (Burp Suite), Vulnerability Scanning (OWASP ZAP), Unit Security Tests และจัดทำรายงานความปลอดภัย)*
 
 ---
 
@@ -42,15 +44,15 @@
 | :-: | :--- | :--- | :---: | :---: |
 | **1** | **ระบบแกนหลักและฐานข้อมูล** | Next.js 16 (Turbopack), PostgreSQL 18, Prisma ORM | **100%** | ✅ เสร็จสมบูรณ์ |
 | **2** | **ระบบจัดการสิทธิ์และความปลอดภัย** | NextAuth (JWT/Bcrypt), Account Lockout, RBAC (Student/Admin) | **100%** | ✅ เสร็จสมบูรณ์ |
-| **3** | **ระบบอัปโหลดและจัดการเอกสาร** | ตรวจสอบ MIME/Magic Bytes, ขนาดไม่เกิน 50MB, จัดเก็บแบบ Private UUID | **95%** | ✅ เสร็จสมบูรณ์ |
-| **4** | **ระบบ Multi-Provider AI** | เชื่อมต่อ Google Gemini, Groq (GPT-OSS 120B) และ Qwen (BazaarLink) | **90%** | ✅ เสร็จสมบูรณ์ |
-| **5** | **ชุดเครื่องมือการเรียนรู้ AI (AI Tools)** | Chat Streaming, สรุปเนื้อหา, สร้างข้อสอบ, บัตรคำศัพท์ และตารางอ่านหนังสือ | **90%** | ✅ เสร็จสมบูรณ์ |
-| **6** | **หน้าผู้ดูแลระบบ (Admin Console)** | ระบบตรวจสอบสถานะ, จัดการผู้ใช้, รายงาน Audit Logs และ Login Attempt | **90%** | ✅ เสร็จสมบูรณ์ |
-| **7** | **การออกแบบ UI/UX & Responsive** | 3-Pane Desktop Workspace, Single-Pane Mobile Tab, รองรับ 2 ภาษา (TH/EN) | **90%** | ✅ เสร็จสมบูรณ์ |
-| **8** | **การทดสอบระบบและความปลอดภัย** | Automated Security Tests, In-memory/Redis Rate Limiter, Path Traversal Tests | **100%** | ✅ ผ่านการทดสอบครบถ้วน |
-| **9** | **การเตรียมการสำหรับ Production** | Docker Compose Setup, Environment Configuration, Production Build | **80%** | 🔄 กำลังดำเนินการ |
+| **3** | **ระบบอัปโหลดและจัดการเอกสาร** | ตรวจสอบ MIME/Magic Bytes, ขนาดไม่เกิน 50MB, จัดเก็บแบบ Private UUID | **100%** | ✅ เสร็จสมบูรณ์ |
+| **4** | **ระบบ Multi-Provider AI** | เชื่อมต่อ Google Gemini, Groq (GPT-OSS 120B) และ Qwen (BazaarLink) | **100%** | ✅ เสร็จสมบูรณ์ |
+| **5** | **ชุดเครื่องมือการเรียนรู้ AI (AI Tools)** | Chat Streaming, สรุปเนื้อหา, สร้างข้อสอบ, บัตรคำศัพท์ และตารางอ่านหนังสือ | **100%** | ✅ เสร็จสมบูรณ์ |
+| **6** | **หน้าผู้ดูแลระบบ (Admin Console)** | ระบบตรวจสอบสถานะ, จัดการผู้ใช้, รายงาน Audit Logs และ Login Attempt | **100%** | ✅ เสร็จสมบูรณ์ |
+| **7** | **การออกแบบ UI/UX & Responsive** | 3-Pane Desktop Workspace, Single-Pane Mobile Tab, รองรับ 2 ภาษา (TH/EN) | **100%** | ✅ เสร็จสมบูรณ์ |
+| **8** | **การทดสอบระบบและความปลอดภัย** | Automated Security Tests, In-memory/Redis Rate Limiter, Path Traversal Tests | **100%** | ✅ ผ่านการทดสอบครบถ้วน (10/10) |
+| **9** | **การเตรียมการสำหรับ Production** | Multi-stage Dockerfile, Docker Compose, Production Build, 0 ESLint Errors | **100%** | ✅ เสร็จสมบูรณ์พร้อมส่งมอบ |
 
-**ความคืบหน้ารวมของโครงการ (Overall Progress): 88% - 90%**
+**ความคืบหน้ารวมของโครงการ (Overall Progress): 100% (เสร็จสมบูรณ์พร้อมส่งมอบ)**
 
 ---
 

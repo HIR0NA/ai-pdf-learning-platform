@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { LayoutDashboard, MessageSquare, FileText, LogOut, Clock3, Trophy } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, FileText, LogOut, Clock3, Trophy, BookOpen, BrainCircuit, History } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import styles from './overview.module.css';
 import { useLanguage } from '@/context/LanguageContext';
@@ -46,10 +46,22 @@ export default function DashboardOverview() {
         </div>
         <nav className={styles.sidebarMenu}>
           <Link href="/dashboard/overview" className={`${styles.menuItem} ${styles.active}`}>
-            <LayoutDashboard size={20} /> Dashboard
+            <LayoutDashboard size={20} /> ภาพรวม (Overview)
           </Link>
           <Link href="/dashboard" className={styles.menuItem}>
-            <MessageSquare size={20} /> ChatAI
+            <MessageSquare size={20} /> ห้องเรียนรู้ (ChatAI)
+          </Link>
+          <Link href="/dashboard/courses" className={styles.menuItem}>
+            <BookOpen size={20} /> รายวิชา (Courses)
+          </Link>
+          <Link href="/dashboard/notes" className={styles.menuItem}>
+            <FileText size={20} /> สมุดโน้ต (Notes)
+          </Link>
+          <Link href="/dashboard/questions" className={styles.menuItem}>
+            <BrainCircuit size={20} /> คลังคำถาม (Quiz)
+          </Link>
+          <Link href="/dashboard/quiz-history" className={styles.menuItem}>
+            <History size={20} /> ประวัติ (History)
           </Link>
           <div style={{ marginTop: 'auto' }}>
             <Link href="/" className={styles.menuItem}>
@@ -102,6 +114,42 @@ export default function DashboardOverview() {
             <div className={styles.kpiValue}>{isLoading ? '—' : stats?.quizAverage === null || stats?.quizAverage === undefined ? '—' : `${stats.quizAverage}%`}</div>
             <div className={styles.kpiTrend}>{stats?.quizAttempts ? `จาก ${stats.quizAttempts} ครั้งที่ทำ` : 'ยังไม่มีผลการทำ Quiz'}</div>
           </div>
+        </div>
+
+        {/* Quick Hub Actions */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem', margin: '1.25rem 0' }}>
+          <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+            <div className={styles.kpiCard} style={{ cursor: 'pointer', padding: '0.85rem 1rem', border: '1px solid rgba(255, 215, 0, 0.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary-color)', fontWeight: 600, fontSize: '0.95rem' }}>
+                <MessageSquare size={17} /> ห้องเรียนรู้ & AI Chat
+              </div>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>อ่าน PDF สรุป ถาม-ตอบ สร้างแบบทดสอบ</p>
+            </div>
+          </Link>
+          <Link href="/dashboard/courses" style={{ textDecoration: 'none' }}>
+            <div className={styles.kpiCard} style={{ cursor: 'pointer', padding: '0.85rem 1rem', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontWeight: 600, fontSize: '0.95rem' }}>
+                <BookOpen size={17} /> รายวิชาที่กำลังเรียน
+              </div>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>จัดกลุ่มเอกสารและสื่อตามรายวิชา</p>
+            </div>
+          </Link>
+          <Link href="/dashboard/notes" style={{ textDecoration: 'none' }}>
+            <div className={styles.kpiCard} style={{ cursor: 'pointer', padding: '0.85rem 1rem', border: '1px solid rgba(167, 139, 250, 0.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#a78bfa', fontWeight: 600, fontSize: '0.95rem' }}>
+                <FileText size={17} /> สมุดโน้ตส่วนตัว
+              </div>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>บันทึกเนื้อหาสำคัญและสรุปจาก AI</p>
+            </div>
+          </Link>
+          <Link href="/dashboard/questions" style={{ textDecoration: 'none' }}>
+            <div className={styles.kpiCard} style={{ cursor: 'pointer', padding: '0.85rem 1rem', border: '1px solid rgba(244, 63, 94, 0.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fb7185', fontWeight: 600, fontSize: '0.95rem' }}>
+                <BrainCircuit size={17} /> คลังคำถาม & ข้อสอบ
+              </div>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>สะสมคำถามและฝึกทำแบบทดสอบ</p>
+            </div>
+          </Link>
         </div>
 
         {/* Charts */}

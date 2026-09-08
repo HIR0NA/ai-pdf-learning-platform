@@ -9,7 +9,7 @@
 <style>
   @page {
     size: A4;
-    margin: 14mm 13mm 14mm 13mm;
+    margin: 12mm 12mm 12mm 12mm;
   }
 
   * {
@@ -18,8 +18,8 @@
 
   body {
     font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
-    font-size: 10pt;
-    line-height: 1.55;
+    font-size: 9pt;
+    line-height: 1.5;
     color: #1e293b;
     background-color: #ffffff;
     margin: 0;
@@ -29,77 +29,77 @@
   h1, h2, h3, h4 {
     font-family: 'Prompt', 'Sarabun', sans-serif;
     color: #0f172a;
-    margin-top: 1.1em;
-    margin-bottom: 0.4em;
+    margin-top: 0.9em;
+    margin-bottom: 0.3em;
     font-weight: 600;
   }
 
   h1 {
-    font-size: 17pt;
+    font-size: 16pt;
     color: #1e3a8a;
     margin-top: 0;
   }
 
   h2 {
-    font-size: 12.5pt;
+    font-size: 11.5pt;
     color: #1e40af;
     border-left: 4px solid #3b82f6;
-    padding-left: 9px;
-    margin-top: 1.2em;
+    padding-left: 8px;
+    margin-top: 0.9em;
     background: #f8fafc;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
     page-break-after: avoid;
   }
 
   h3 {
-    font-size: 10.5pt;
+    font-size: 9.8pt;
     color: #334155;
-    margin-top: 0.9em;
-    margin-bottom: 0.3em;
+    margin-top: 0.7em;
+    margin-bottom: 0.25em;
     page-break-after: avoid;
   }
 
   p, li {
-    font-size: 9.5pt;
+    font-size: 9pt;
     color: #334155;
-    margin-top: 0.3em;
-    margin-bottom: 0.4em;
+    margin-top: 0.25em;
+    margin-bottom: 0.35em;
   }
 
-  ul {
-    margin-top: 0.3em;
-    margin-bottom: 0.5em;
-    padding-left: 20px;
+  ul, ol {
+    margin-top: 0.2em;
+    margin-bottom: 0.4em;
+    padding-left: 18px;
   }
 
   li {
-    margin-bottom: 3px;
+    margin-bottom: 2px;
   }
 
   .header-card {
     background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
     color: #ffffff;
-    padding: 14px 18px;
-    border-radius: 7px;
-    margin-bottom: 14px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 10px;
   }
 
   .header-card h1 {
     color: #ffffff;
     border-bottom: none;
-    margin: 0 0 4px 0;
-    font-size: 16pt;
+    margin: 0 0 3px 0;
+    font-size: 15pt;
   }
 
   .header-meta {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-    font-size: 9pt;
-    margin-top: 8px;
+    gap: 4px;
+    font-size: 8.5pt;
+    margin-top: 6px;
     border-top: 1px solid rgba(255, 255, 255, 0.25);
-    padding-top: 8px;
+    padding-top: 6px;
   }
 
   .header-meta div {
@@ -112,9 +112,9 @@
 
   .badge {
     display: inline-block;
-    padding: 1px 7px;
+    padding: 1px 6px;
     border-radius: 4px;
-    font-size: 8pt;
+    font-size: 7.5pt;
     font-weight: 600;
     text-transform: uppercase;
   }
@@ -124,13 +124,12 @@
   .badge-medium { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
   .badge-low { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
   .badge-fixed { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-  .badge-progress { background: #e0e7ff; color: #3730a3; border: 1px solid #a5b4fc; }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 10px 0;
-    font-size: 8.5pt;
+    margin: 6px 0;
+    font-size: 8.2pt;
   }
 
   tr {
@@ -138,7 +137,7 @@
   }
 
   th, td {
-    padding: 5px 8px;
+    padding: 4px 6px;
     text-align: left;
     border: 1px solid #cbd5e1;
     vertical-align: middle;
@@ -159,21 +158,21 @@
     background: #0f172a;
     color: #f8fafc;
     font-family: 'Fira Code', Consolas, monospace;
-    font-size: 8pt;
-    padding: 8px 10px;
-    border-radius: 5px;
+    font-size: 7.5pt;
+    padding: 6px 8px;
+    border-radius: 4px;
     overflow-x: hidden;
     white-space: pre-wrap;
     word-break: break-word;
-    margin: 6px 0;
+    margin: 4px 0;
     border-left: 3px solid #3b82f6;
   }
 
   .compare-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin: 6px 0;
+    gap: 6px;
+    margin: 5px 0;
     page-break-inside: avoid;
   }
 
@@ -181,47 +180,60 @@
     background: #fff5f5;
     border: 1px solid #fecaca;
     border-left: 3.5px solid #dc2626;
-    padding: 7px 9px;
+    padding: 6px 8px;
     border-radius: 4px;
-    font-size: 8pt;
+    font-size: 7.8pt;
   }
 
   .box-secured {
     background: #f0fdf4;
     border: 1px solid #bbf7d0;
     border-left: 3.5px solid #16a34a;
-    padding: 7px 9px;
+    padding: 6px 8px;
     border-radius: 4px;
-    font-size: 8pt;
+    font-size: 7.8pt;
   }
 
   .cycle-step {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 5px;
-    padding: 8px 11px;
-    margin-bottom: 7px;
+    border-radius: 4px;
+    padding: 6px 9px;
+    margin-bottom: 5px;
     page-break-inside: avoid;
   }
 
   .cycle-header {
     font-weight: 600;
     color: #1e40af;
-    font-size: 9.5pt;
-    margin-bottom: 4px;
+    font-size: 8.8pt;
+    margin-bottom: 3px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
   .step-pill {
     display: inline-block;
-    padding: 1px 7px;
+    padding: 1px 6px;
     background: #dbeafe;
     color: #1e40af;
-    border-radius: 10px;
-    font-size: 7.5pt;
+    border-radius: 8px;
+    font-size: 7pt;
     font-weight: 600;
+  }
+
+  .vuln-box {
+    background: #f8fafc;
+    border-left: 3.5px solid #0284c7;
+    border-top: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 6px 9px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-size: 8.2pt;
+    page-break-inside: avoid;
   }
 
   .page-break {
@@ -229,10 +241,10 @@
   }
 
   .footer-note {
-    margin-top: 15px;
-    padding-top: 8px;
+    margin-top: 12px;
+    padding-top: 6px;
     border-top: 1px solid #e2e8f0;
-    font-size: 8pt;
+    font-size: 7.5pt;
     color: #64748b;
     text-align: center;
     page-break-inside: avoid;
@@ -243,93 +255,105 @@
 
   <!-- ==================== PAGE 1 ==================== -->
   <div class="header-card">
-    <div style="font-size: 9pt; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.9; margin-bottom: 2px;">
-      รายวิชา DevSecOps
+    <div style="font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.9; margin-bottom: 2px;">
+      รายวิชา DevSecOps &bull; การประเมินความเสี่ยงและการวิเคราะห์จุดอ่อนของเว็บแอปพลิเคชัน
     </div>
     <h1>รายงานความมั่นคงปลอดภัยและความคืบหน้าโครงการ</h1>
-    <div style="font-size: 11pt; font-weight: 500;">
-      DevSecOps Security Progress Report & Sprint Review (AI PDF Learning Platform)
+    <div style="font-size: 10pt; font-weight: 500;">
+      DevSecOps Security Progress Report (ข้อ 1 - 8 ตามเกณฑ์การประเมิน)
     </div>
     <div class="header-meta">
       <div><strong>กลุ่ม:</strong> Group 2 (AI Study Companion / AgentAI)</div>
-      <div><strong>GitHub Repo:</strong> github.com/HIR0NA/ai-pdf-learning-platform</div>
+      <div><strong>GitHub:</strong> github.com/HIR0NA/ai-pdf-learning-platform</div>
     </div>
   </div>
 
-  <h2>1. ข้อมูลโครงการและวัตถุประสงค์ (Project Overview)</h2>
-  <p>
-    ระบบ <strong>AI PDF Learning Platform (AgentAI)</strong> เป็นแพลตฟอร์มการเรียนรู้ที่เปิดโอกาสให้นักศึกษาอัปโหลดเอกสารประกอบการเรียน (PDF) ขนาดใหญ่สูงสุด 50MB เพื่อวิเคราะห์ สรุปเนื้อหา ถาม-ตอบอัจฉริยะแบบเรียลไทม์ (Contextual Chat Streaming) และสร้างเครื่องมือช่วยจำ เช่น แบบทดสอบ (Quiz), บัตรคำ (Flashcard) และตารางอ่านหนังสือ (Study Schedule) โดยเชื่อมต่อกับโมเดลปัญญาประดิษฐ์ชั้นนำ (Google Gemini, Groq GPT-OSS 120B และ Qwen) พร้อมการแยกจัดเก็บข้อมูลส่วนบุคคลอย่างปลอดภัย
+  <p style="font-size: 8.5pt; color: #475569; margin-bottom: 8px;">
+    <strong>ภาพรวมระบบ:</strong> ระบบ AI PDF Learning Platform พัฒนาด้วย Next.js 16, PostgreSQL และเชื่อมต่อ AI (Google Gemini, Groq, Qwen) รองรับการอัปโหลดไฟล์เอกสารสูงสุด 50MB เพื่ออ่าน สรุป ถาม-ตอบเรียลไทม์ และสร้างข้อสอบอัตโนมัติ จึงต้องมีมาตรการรักษาความมั่นคงปลอดภัยอย่างรัดกุม
   </p>
 
-  <h2>2. การระบุ Asset สำคัญและการวิเคราะห์ Attack Surface</h2>
-  
-  <h3>2.1 การระบุ Asset สำคัญของระบบ (Critical Assets)</h3>
+  <h2>ข้อ 1. การระบุ Asset สำคัญ (Critical Assets)</h2>
   <table>
     <thead>
       <tr>
-        <th style="width: 25%;">Asset</th>
-        <th style="width: 45%;">รายละเอียดและข้อมูลที่เก็บรักษา</th>
-        <th style="width: 15%;">ระดับความสำคัญ</th>
-        <th style="width: 15%;">ผลกระทบหากรั่วไหล</th>
+        <th style="width: 24%;">Asset</th>
+        <th style="width: 44%;">รายละเอียดและข้อมูลที่จัดเก็บ</th>
+        <th style="width: 14%; text-align: center;">ความสำคัญ</th>
+        <th style="width: 18%;">ผลกระทบหากถูกโจมตี</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td><strong>User Identity & Credentials</strong></td>
-        <td>ข้อมูลบัญชีผู้ใช้, รหัสผ่านที่เข้ารหัสด้วย Bcrypt (Cost 12), Session JWT Token</td>
-        <td><span class="badge badge-critical">Critical</span></td>
+        <td>ข้อมูลบัญชี, อีเมล, รหัสผ่านเข้ารหัส Bcrypt (Cost 12), Session JWT</td>
+        <td style="text-align: center;"><span class="badge badge-critical">Critical</span></td>
         <td>การสวมรอยบัญชี / Account Takeover</td>
       </tr>
       <tr>
         <td><strong>Private Stored PDFs</strong></td>
-        <td>ไฟล์เอกสาร PDF ต้นฉบับที่ผู้ใช้อัปโหลด จัดเก็บในไดเรกทอรีเฉพาะ <code>uploads/</code></td>
-        <td><span class="badge badge-critical">Critical</span></td>
-        <td>ข้อมูลข้อสอบ/เอกสารลับรั่วไหล (Data Breach)</td>
+        <td>ไฟล์เอกสาร PDF ต้นฉบับของผู้ใช้ในไดเรกทอรี <code>uploads/</code></td>
+        <td style="text-align: center;"><span class="badge badge-critical">Critical</span></td>
+        <td>ข้อสอบและเอกสารลับรั่วไหล (Data Breach)</td>
       </tr>
       <tr>
         <td><strong>Database (PostgreSQL)</strong></td>
         <td>ตารางข้อมูล <code>User</code>, <code>Document</code>, <code>Message</code>, <code>LearningTool</code>, <code>LoginLog</code></td>
-        <td><span class="badge badge-critical">Critical</span></td>
-        <td>ข้อมูลทั้งระบบถูกดึงหรือแก้ไขผ่าน SQL Injection</td>
+        <td style="text-align: center;"><span class="badge badge-critical">Critical</span></td>
+        <td>ข้อมูลระบบถูกแก้ไขหรือขโมยผ่าน SQL Injection</td>
       </tr>
       <tr>
-        <td><strong>AI API Keys</strong></td>
+        <td><strong>AI Secret API Keys</strong></td>
         <td>คีย์ลับ <code>GEMINI_API_KEY</code>, <code>GROQ_API_KEY</code>, <code>BAZAARLINK_API_KEY</code></td>
-        <td><span class="badge badge-high">High</span></td>
-        <td>การถูกขโมยโควตาใช้งานจนเกิดค่าใช้จ่ายสูง (Denial of Wallet)</td>
+        <td style="text-align: center;"><span class="badge badge-high">High</span></td>
+        <td>ถูกขโมยโควตาจนเกิดค่าใช้จ่ายสูง (Denial of Wallet)</td>
       </tr>
       <tr>
         <td><strong>Web Application Server</strong></td>
-        <td>Next.js 16 Framework, Turbopack Engine และ Route Handlers</td>
-        <td><span class="badge badge-high">High</span></td>
-        <td>บริการล่มจากการโจมตี DoS หรือการรันโค้ดอันตราย (RCE)</td>
+        <td>Next.js 16 Framework, Turbopack, Edge Proxy และ API Routes</td>
+        <td style="text-align: center;"><span class="badge badge-high">High</span></td>
+        <td>บริการล่มจากการถูกยิง DoS หรือถูกสั่งรันโค้ด (RCE)</td>
       </tr>
     </tbody>
   </table>
 
-  <h3>2.2 การวิเคราะห์พื้นผิวการโจมตี (Attack Surface Analysis)</h3>
+  <h2>ข้อ 2. การวิเคราะห์ Attack Surface (Attack Surface Analysis)</h2>
   <ul>
-    <li><strong>Authentication Endpoints (<code>/login</code>, <code>/register</code>):</strong> สุ่มเสี่ยงต่อ Password Brute-force, Credential Stuffing และ SQL Injection ผ่านฟอร์มกรอกข้อมูล</li>
-    <li><strong>Document Upload API (<code>/api/upload</code>):</strong> รับไฟล์ Multipart Form Data ขนาดสูงสุด 50MB เสี่ยงต่อ Arbitrary File Upload, Path Traversal (<code>../../</code>) และ Fake MIME Type</li>
-    <li><strong>Files Access API (<code>/api/files/[filename]</code>):</strong> เสี่ยงต่อ Broken Object Level Authorization (BOLA/IDOR) ที่ผู้ใช้หนึ่งอาจพยายามดาวน์โหลดไฟล์ของผู้อื่น</li>
-    <li><strong>AI Chat & Tool Endpoints (<code>/api/ai</code>, <code>/api/tools</code>):</strong> รับ Input ข้อความ เสี่ยงต่อ Prompt Injection, Resource Exhaustion (DoS) และ Rate Limiter Bypass</li>
-    <li><strong>Admin Console & API (<code>/admin</code>, <code>/api/admin/*</code>):</strong> เสี่ยงต่อ Privilege Escalation และ Missing Function Level Access Control จากผู้ใช้ทั่วไป</li>
+    <li><strong>1. Authentication Form (<code>/login</code>, <code>/register</code>):</strong> ช่องทางรับ User Credentials มีความเสี่ยงต่อ Password Brute-force, Credential Stuffing และ SQL Injection</li>
+    <li><strong>2. Document Upload API (<code>/api/upload</code>):</strong> รับไฟล์ Multipart Form Data ขนาดสูงสุด 50MB มีความเสี่ยงต่อ Arbitrary File Upload, Path Traversal (<code>../../</code>) และ Fake MIME Type</li>
+    <li><strong>3. Document Access API (<code>/api/files/[filename]</code>):</strong> จุดเรียกดู/ดาวน์โหลดไฟล์ มีความเสี่ยงต่อ Insecure Direct Object References (IDOR/BOLA) ดึงเอกสารข้ามบัญชี</li>
+    <li><strong>4. AI Processing Endpoints (<code>/api/ai</code>, <code>/api/tools</code>):</strong> รับ Input สุ่มเสี่ยงต่อ Prompt Injection, DoS และ Rate Limiter Bypass ผ่าน IP Spoofing</li>
+    <li><strong>5. Admin Management (<code>/admin</code>, <code>/api/admin/*</code>):</strong> สุ่มเสี่ยงต่อ Broken Access Control และ Privilege Escalation จากผู้ใช้ทั่วไป</li>
   </ul>
 
   <!-- ==================== PAGE 2 ==================== -->
   <div class="page-break"></div>
-  <h2>3. ทะเบียนความเสี่ยงและการวิเคราะห์ช่องโหว่ (Risk Register - OWASP Top 10)</h2>
-  <p>
-    ตารางประเมินความเสี่ยงคำนวณตามสูตร: <strong>Risk Score = Likelihood (1–5) &times; Impact (1–5)</strong><br>
-    <em>เกณฑ์ระดับความเสี่ยง:</em> Low (1–6), Medium (8–12), High (14–19), Critical (20–25)
+  <h2>ข้อ 3. การวิเคราะห์ Threat (Threat Analysis - อ้างอิง OWASP Top 10)</h2>
+  <p style="font-size: 8.2pt; color: #475569;">
+    วิเคราะห์ภัยคุกคามครอบคลุม 8 Threats อ้างอิงมาตรฐาน OWASP Top 10 (เกินเกณฑ์ขั้นต่ำ 5 Threats):
+  </p>
+  <ul>
+    <li><strong>Threat 1 (OWASP A01 & A04): Arbitrary File Upload & Path Traversal</strong> — ผู้โจมตีส่งชื่อไฟล์ <code>../../package.json</code> หรือสคริปต์อันตรายเพื่อเขียนทับไฟล์ระบบ ก่อให้เกิด Remote Code Execution (RCE)</li>
+    <li><strong>Threat 2 (OWASP A01): Broken Object Level Authorization (IDOR)</strong> — ผู้โจมตีเปลี่ยนพารามิเตอร์ชื่อไฟล์ใน URL เพื่อลักลอบดาวน์โหลดเอกสาร PDF ของผู้ใช้อื่น</li>
+    <li><strong>Threat 3 (OWASP A01): Privilege Escalation on Admin Endpoints</strong> — นักศึกษา (Role: Student) ยิง HTTP Request เข้า <code>/api/admin/overview</code> เพื่อดึงข้อมูลสถิติของระบบทั้งหมด</li>
+    <li><strong>Threat 4 (OWASP A07): Password Brute-Force & Credential Stuffing</strong> — ผู้โจมตียิงสุ่มรหัสผ่านซ้ำๆ โดยไม่มีการหน่วงเวลาหรือจำกัดจำนวนครั้งจนสามารถขโมยบัญชีได้</li>
+    <li><strong>Threat 5 (OWASP A04): Rate Limiter Bypass via IP Spoofing</strong> — ผู้โจมตีสลับ IP ใน Header <code>X-Forwarded-For</code> เพื่อหลบเลี่ยง Rate Limiter ยิง DoS ใส่ AI API</li>
+    <li><strong>Threat 6 (OWASP A07): Session Hijacking & Missing Cookie Flags</strong> — Session Cookie ไม่ได้กำหนด <code>HttpOnly</code>/<code>Secure</code> เสี่ยงถูกดักจับข้อมูลหรือขโมยผ่าน XSS</li>
+    <li><strong>Threat 7 (OWASP A03): SQL Injection via Parameterized Inputs</strong> — การแทรก SQL เพื่อข้ามการตรวจสอบสิทธิ์หรือดึงข้อมูลทั้งฐานข้อมูล</li>
+    <li><strong>Threat 8 (OWASP A06): Vulnerable Dependency (browserslist)</strong> — แพ็กเกจภายนอกมีช่องโหว่หน่วยความจำที่อาจถูกโจมตีแบบ Denial of Service ระหว่างการ Build</li>
+  </ul>
+
+  <h2>ข้อ 4. การประเมิน Risk (Risk Assessment Matrix)</h2>
+  <p style="font-size: 8.2pt; color: #475569;">
+    สูตรคำนวณ: <strong>Risk Score = Likelihood (1–5) &times; Impact (1–5)</strong> &bull; 
+    <em>เกณฑ์:</em> Low (1–6), Medium (8–12), High (14–19), Critical (20–25)
   </p>
 
   <table>
     <thead>
       <tr>
         <th style="width: 7%;">ID</th>
-        <th style="width: 13%;">Asset</th>
-        <th style="width: 26%;">Threat / Vulnerability</th>
+        <th style="width: 14%;">Asset</th>
+        <th style="width: 25%;">Threat / Vulnerability</th>
         <th style="width: 6%; text-align: center;">L</th>
         <th style="width: 6%; text-align: center;">I</th>
         <th style="width: 13%; text-align: center;">Risk Level</th>
@@ -345,7 +369,7 @@
         <td style="text-align: center;">4</td>
         <td style="text-align: center;">5</td>
         <td style="text-align: center;"><span class="badge badge-critical">Critical (20)</span></td>
-        <td>ตรวจ Magic Bytes <code>%PDF-</code>, สุ่มชื่อไฟล์ UUID v4, กักบริเวณ Path</td>
+        <td>ตรวจ Magic Bytes <code>%PDF-</code>, สุ่มชื่อ UUID v4, กักบริเวณ Path</td>
         <td style="text-align: center;"><span class="badge badge-fixed">Fixed</span></td>
       </tr>
       <tr>
@@ -421,68 +445,95 @@
     </tbody>
   </table>
 
-  <h2>4. การประยุกต์ใช้เทคโนโลยี/เครื่องมือในวงรอบ DevSecOps (Tool &rarr; Detect &rarr; Analyze &rarr; Fix)</h2>
+  <!-- ==================== PAGE 3 ==================== -->
+  <div class="page-break"></div>
+  <h2>ข้อ 5. ผลจากการตรวจสอบระบบจริง (Vulnerability Assessment)</h2>
   
   <div class="cycle-step">
     <div class="cycle-header">
-      <span>1. Dependency Scanner: npm audit</span>
-      <span class="step-pill">Detection & Remediation</span>
+      <span>1. Dependency Scanner (SAST): npm audit</span>
+      <span class="step-pill">Tool &rarr; Detect &rarr; Fix</span>
     </div>
-    <div style="font-size: 8.5pt;">
-      <strong>[Detect]:</strong> สแกนพบช่องโหว่ High Severity ใน <code>browserslist &le;4.28.6</code> (GHSA-c83g-rgw3-j3cx: Unbounded memory growth / Prototype write)<br>
-      <strong>[Analyze]:</strong> มีความเสี่ยงต่อการเกิด Denial of Service (Out of Memory) ระหว่างการประมวลผล Build / Compilation<br>
-      <strong>[Fix]:</strong> ดำเนินการแก้ไขด้วยคำสั่ง <code>npm audit fix</code> เพื่ออัปเดต dependency graph และ package-lock.json<br>
-      <strong>[Retest]:</strong> สแกนซ้ำยืนยันผล <strong>found 0 vulnerabilities</strong> (ดูหลักฐานใน <code>evidence/sast/npm-audit-report.md</code>)
+    <div style="font-size: 8.2pt;">
+      <strong>[Detect]:</strong> สแกนพบช่องโหว่ High Severity ใน <code>browserslist &le;4.28.6</code> (Unbounded memory growth)<br>
+      <strong>[Fix & Retest]:</strong> รันคำสั่ง <code>npm audit fix</code> อัปเกรดแพ็กเกจ ผลการสแกนซ้ำยืนยัน <strong>found 0 vulnerabilities</strong>
     </div>
   </div>
 
   <div class="cycle-step">
     <div class="cycle-header">
-      <span>2. Web Application Security Testing: Burp Suite</span>
-      <span class="step-pill">Dynamic Testing (DAST)</span>
+      <span>2. Web Application Security Testing (DAST): Burp Suite</span>
+      <span class="step-pill">Dynamic Penetration</span>
     </div>
-    <div style="font-size: 8.5pt;">
-      <strong>[Detect]:</strong> ดักจับ Request ไปยัง <code>GET /api/admin/overview</code> ด้วยสิทธิ์บัญชี <code>STUDENT</code><br>
-      <strong>[Analyze]:</strong> พบช่องโหว่ Broken Access Control โดยระบบเดิมตอบกลับ HTTP 200 OK พร้อมข้อมูลสถิติของแอดมิน เนื่องจากตรวจสิทธิ์เฉพาะที่ UI<br>
-      <strong>[Fix]:</strong> ติดตั้ง RBAC Guard ที่ Edge Proxy (<code>src/proxy.ts</code>) และ Route Handler ตรวจสอบบทบาท <code>ADMIN</code> จาก Session Token จริง<br>
-      <strong>[Retest]:</strong> ยิง Request ซ้ำ ระบบตอบกลับ <strong>HTTP 403 Forbidden</strong> ทันที (ดูหลักฐานใน <code>evidence/burpsuite/admin-rbac-403.txt</code>)
+    <div style="font-size: 8.2pt;">
+      <strong>[Detect]:</strong> ดักจับคำขอ <code>GET /api/admin/overview</code> ด้วยสิทธิ์ <code>STUDENT</code> พบว่าเดิมระบบตอบ HTTP 200 OK ข้อมูลแอดมินรั่วไหล<br>
+      <strong>[Fix & Retest]:</strong> ติดตั้ง Edge Proxy & Server Route Guard เมื่อยิงซ้ำระบบตอบกลับ <strong>HTTP 403 Forbidden</strong> ถูกต้อง
     </div>
   </div>
 
   <div class="cycle-step">
     <div class="cycle-header">
-      <span>3. Vulnerability Scanner: OWASP ZAP</span>
-      <span class="step-pill">Automated Baseline Scan</span>
+      <span>3. Vulnerability Scanner: OWASP ZAP Baseline Scan</span>
+      <span class="step-pill">Automated Scanner</span>
     </div>
-    <div style="font-size: 8.5pt;">
-      <strong>[Detect]:</strong> ZAP แจ้งเตือน Missing Security Headers (CSP, nosniff, frame-ancestors) และ Cookie Flags<br>
-      <strong>[Analyze]:</strong> ทำให้แอปพลิเคชันมีความเสี่ยงต่อ Clickjacking, MIME Confusion Attacks และ Cookie Sniffing<br>
-      <strong>[Fix]:</strong> เพิ่ม Security Headers ครบถ้วนใน <code>next.config.ts</code> และตั้งค่า NextAuth Cookie Flag (<code>httpOnly</code>, <code>sameSite: "lax"</code>, <code>secure</code>)<br>
-      <strong>[Retest]:</strong> สแกนซ้ำพบว่า Security Headers ถูกต้องครบถ้วนและ Alert ลดลงเหลือศูนย์ (ดูหลักฐานใน <code>evidence/zap/zap-scan-report.md</code>)
+    <div style="font-size: 8.2pt;">
+      <strong>[Detect]:</strong> แจ้งเตือน Missing Security Headers (CSP, nosniff, frame-ancestors) และ Cookie Flags<br>
+      <strong>[Fix & Retest]:</strong> เพิ่ม Security Headers ครบถ้วนใน <code>next.config.ts</code> และปรับ Cookie Flags ใน NextAuth ผลสแกนซ้ำ Alert ลดลงเหลือศูนย์
     </div>
   </div>
 
   <div class="cycle-step">
     <div class="cycle-header">
       <span>4. Automated Security Unit Testing: Node Native Test Runner</span>
-      <span class="step-pill">Regression & SAST Testing</span>
+      <span class="step-pill">Regression Testing</span>
     </div>
-    <div style="font-size: 8.5pt;">
-      <strong>[Detect & Verify]:</strong> รันชุดทดสอบความปลอดภัยอัตโนมัติ (<code>tests/security.test.ts</code> และ <code>tests/rbac.test.ts</code>)<br>
-      <strong>[Coverage]:</strong> ตรวจสอบ Path Traversal, IP Spoofing, In-memory Rate Limiting, HTTP 413 Oversized Payload และ Regression Auth Bypass<br>
-      <strong>[Result]:</strong> ผ่านการทดสอบทั้งหมด <strong>10/10 Test Suites (100% Pass)</strong> รับประกันความปลอดภัยในทุก Release
+    <div style="font-size: 8.2pt;">
+      <strong>[Coverage]:</strong> รันชุดทดสอบความปลอดภัย <code>tests/security.test.ts</code> ตรวจสอบ Path Traversal, IP Spoofing, Rate Limiting และ RBAC<br>
+      <strong>[Result]:</strong> ผลการทดสอบผ่านครบทั้งหมด <strong>10/10 Test Cases (100% Pass Rate)</strong>
     </div>
   </div>
 
-  <!-- ==================== PAGE 3 ==================== -->
+  <h2>ข้อ 6. การวิเคราะห์ช่องโหว่เชิงลึก (Vulnerability Analysis)</h2>
+  
+  <div class="vuln-box">
+    <strong>1. ช่องโหว่ Arbitrary File Upload & Path Traversal:</strong><br>
+    &bull; <em>ช่องโหว่คืออะไร:</em> ระบบเดิมเชื่อถือชื่อไฟล์จาก Client นำไปประกอบ Path ตรงๆ<br>
+    &bull; <em>เกิดที่ส่วนใด:</em> <code>src/app/api/upload/route.ts</code><br>
+    &bull; <em>ผลกระทบ:</em> ผู้โจมตีส่งชื่อ <code>../../package.json</code> เพื่อเขียนทับไฟล์ระบบจนเกิด RCE และระบบพังเสียหาย
+  </div>
+
+  <div class="vuln-box">
+    <strong>2. ช่องโหว่ Broken Access Control & Privilege Escalation:</strong><br>
+    &bull; <em>ช่องโหว่คืออะไร:</em> ระบบซ่อนปุ่มบนหน้าเว็บแต่ไม่มี Server-Side Guard ตรวจสอบ Role ของ Session<br>
+    &bull; <em>เกิดที่ส่วนใด:</em> <code>src/components/Navbar.tsx</code> และ <code>src/app/api/admin/overview/route.ts</code><br>
+    &bull; <em>ผลกระทบ:</em> นักศึกษาทั่วไปยิง API ตรงเพื่อดึงข้อมูลสถิติของระบบและรายชื่อผู้ใช้งานทั้งหมดได้
+  </div>
+
+  <div class="vuln-box">
+    <strong>3. ช่องโหว่ Lack of Account Lockout (Brute-Force Vulnerability):</strong><br>
+    &bull; <em>ช่องโหว่คืออะไร:</em> ไม่มีตัวนับจำนวนครั้งที่กรอกรหัสผ่านผิด<br>
+    &bull; <em>เกิดที่ส่วนใด:</em> <code>src/app/api/auth/[...nextauth]/route.ts</code><br>
+    &bull; <em>ผลกระทบ:</em> เปิดโอกาสให้ผู้ไม่หวังดีใช้บอตยิงสุ่มรหัสผ่านได้เป็นหมื่นครั้งจนยึดบัญชีสำเร็จ
+  </div>
+
+  <h2>ข้อ 7. แนวทางแก้ไขและลดความเสี่ยง (Mitigation & Remediation)</h2>
+  <ul>
+    <li><strong>File Security:</strong> ตรวจสอบ Magic Bytes 4 ไบต์แรก (<code>%PDF-</code>), สุ่มชื่อไฟล์ใหม่เป็น UUID v4 และใช้ฟังก์ชัน <code>resolveStoredDocumentPaths</code> กักบริเวณ Path</li>
+    <li><strong>RBAC Two-Tier Defense:</strong> วาง Guard 2 ชั้นทั้งที่ Edge Proxy (<code>src/proxy.ts</code>) และ Server Route Handler ปฏิเสธด้วย <code>403 Forbidden</code></li>
+    <li><strong>Anti-Brute Force:</strong> นับ <code>failedAttempts</code> เมื่อผิดครบ 5 ครั้งสั่งล็อกบัญชี 30 วินาที พร้อมเก็บบันทึกประวัติในตาราง <code>LoginLog</code></li>
+    <li><strong>Rate Limiting:</strong> ตรวจสอบ Trusted Proxy Policy ก่อนอ่าน IP และใช้ Token-Bucket Rate Limiter ป้องกันการยิงสแปม</li>
+    <li><strong>Security Headers & Cookies:</strong> ตั้งค่า CSP, nosniff, frame-ancestors และกำหนด Cookie Flags <code>httpOnly</code>, <code>sameSite: "lax"</code>, <code>secure</code></li>
+  </ul>
+
+  <!-- ==================== PAGE 4 ==================== -->
   <div class="page-break"></div>
-  <h2>5. หลักฐานการเปรียบเทียบก่อนแก้และหลังแก้ (Before / After Evidence)</h2>
+  <h2>ข้อ 8. หลักฐานการเปรียบเทียบก่อนแก้และหลังแก้ (Before / After Evidence)</h2>
   
   <h3>จุดที่ 1: การอัปโหลดไฟล์, ตรวจสอบ Magic Bytes และป้องกัน Path Traversal</h3>
   <div class="compare-grid">
     <div class="box-vulnerable">
       <strong>❌ ก่อนแก้ไข (Vulnerable - เชื่อถือชื่อไฟล์ Client)</strong>
-      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.5pt; color: #991b1b;">
+      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.2pt; color: #991b1b;">
 // เชื่อถือ MIME จาก Browser โดยตรง
 if (file.type !== 'application/pdf') return error;
 
@@ -494,7 +545,7 @@ await fs.writeFile(filePath, buffer);
     </div>
     <div class="box-secured">
       <strong>✅ หลังแก้ไข (Secured - ตรวจ Magic Bytes + UUID v4)</strong>
-      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.5pt; color: #166534;">
+      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.2pt; color: #166534;">
 // ตรวจ Magic Bytes 4 ไบต์แรก (%PDF- / 0x25 0x50 0x44 0x46)
 const isRealPdf = buffer[0]===0x25 && buffer[1]===0x50;
 if (!isRealPdf) return error('Magic bytes mismatch');
@@ -511,7 +562,7 @@ await fs.writeFile(pdfPath, buffer);
   <div class="compare-grid">
     <div class="box-vulnerable">
       <strong>❌ ก่อนแก้ไข (Vulnerable - ซ่อนปุ่มเฉพาะหน้า UI)</strong>
-      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.5pt; color: #991b1b;">
+      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.2pt; color: #991b1b;">
 // src/components/Navbar.tsx
 // ซ่อนปุ่มเมนูเท่านั้น แต่นักเรียนยิง API ตรงได้
 {session?.user.role === 'ADMIN' && (
@@ -524,7 +575,7 @@ export async function GET() { return NextResponse.json(stats); }
     </div>
     <div class="box-secured">
       <strong>✅ หลังแก้ไข (Secured - ตรวจสิทธิ์ระดับ Edge Proxy & Route)</strong>
-      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.5pt; color: #166534;">
+      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.2pt; color: #166534;">
 // src/proxy.ts (Edge Proxy Guard)
 if (pathname.startsWith('/api/admin')) {
   if (token?.role !== 'ADMIN') {
@@ -541,7 +592,7 @@ if (!isAdmin(session.user.role)) return forbidden();
   <div class="compare-grid">
     <div class="box-vulnerable">
       <strong>❌ ก่อนแก้ไข (Vulnerable - เดารหัสผ่านได้ไม่จำกัด)</strong>
-      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.5pt; color: #991b1b;">
+      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.2pt; color: #991b1b;">
 // ตรวจรหัสผ่านผ่าน Bcrypt ปกติ
 const isValid = await bcrypt.compare(pass, user.password);
 if (!isValid) {
@@ -552,7 +603,7 @@ if (!isValid) {
     </div>
     <div class="box-secured">
       <strong>✅ หลังแก้ไข (Secured - ล็อกบัญชี 30s เมื่อผิด 5 ครั้ง)</strong>
-      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.5pt; color: #166534;">
+      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.2pt; color: #166534;">
 // ตรวจสอบสถานะล็อกบัญชี
 if (user.lockedUntil && user.lockedUntil > new Date()) {
   throw new Error(`LOCKED:${remainingSeconds}`);
@@ -565,13 +616,34 @@ await prisma.loginLog.create({ data: { email, ip, success: false } });
     </div>
   </div>
 
-  <!-- ==================== PAGE 4 ==================== -->
+  <h3>จุดที่ 4: การจำกัดคำขอและป้องกันการปลอมแปลง IP (Rate Limiting & Anti-Spoof)</h3>
+  <div class="compare-grid">
+    <div class="box-vulnerable">
+      <strong>❌ ก่อนแก้ไข (Vulnerable - เชื่อถือ Header Client)</strong>
+      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.2pt; color: #991b1b;">
+// อ่าน X-Forwarded-For โดยตรง
+const clientIp = req.headers.get('x-forwarded-for') || '127.0.0.1';
+// ผู้โจมตีสลับ IP ปลอมมาหลบ Rate Limit ได้ง่ายดาย
+      </pre>
+    </div>
+    <div class="box-secured">
+      <strong>✅ หลังแก้ไข (Secured - ตรวจสอบ Trusted Proxy Policy)</strong>
+      <pre style="margin: 3px 0; font-family: 'Fira Code', monospace; font-size: 7.2pt; color: #166534;">
+// ตรวจสอบว่าคำขอส่งผ่าน Trusted Proxy ที่ตั้งค่าไว้หรือไม่
+const clientIp = resolveClientIp(req, TRUSTED_PROXIES);
+// จำกัดด้วย Token-Bucket In-Memory Rate Limiter
+if (!limiter.check(clientIp)) return tooManyRequests();
+      </pre>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 5 ==================== -->
   <div class="page-break"></div>
-  <h2>6. โครงสร้างโฟลเดอร์หลักฐาน (Evidence Folder Structure)</h2>
+  <h2>ภาคผนวก 1: โครงสร้างโฟลเดอร์หลักฐาน (Evidence Folder Structure)</h2>
   <div class="code-block" style="background: #1e293b; color: #cbd5e1; font-size: 7.5pt;">
 ai-pdf-learning-platform/
-├── SECURITY_PROGRESS.md                  # รายงานสรุปฉบับทางการบน GitHub
-├── DevSecOps_Security_Progress_Report.pdf # รายงานฉบับเอกสาร PDF สำหรับส่งงาน
+├── SECURITY_PROGRESS.md                  # รายงานสรุปฉบับทางการบน GitHub (จัดเรียง 8 ข้อตามเกณฑ์)
+├── DevSecOps_Security_Progress_Report.html # เอกสารฉบับพิมพ์ส่ง PDF (จัดหน้า A4 สวยงาม)
 ├── evidence/
 │   ├── zap/
 │   │   └── zap-scan-report.md           # รายงาน Alert และ Headers จาก OWASP ZAP
@@ -591,13 +663,13 @@ ai-pdf-learning-platform/
 └── src/
   </div>
 
-  <h2>7. โครงร่างบทพูดสำหรับ Demo Video (5–8 นาที)</h2>
+  <h2>ภาคผนวก 2: โครงร่างบทพูดสำหรับ Demo Video (5–8 นาที)</h2>
   <table>
     <thead>
       <tr>
-        <th style="width: 17%;">ช่วงเวลา</th>
-        <th style="width: 25%;">หัวข้อการนำเสนอ</th>
-        <th style="width: 58%;">สิ่งที่ต้องแสดงบนหน้าจอและประเด็นพูด</th>
+        <th style="width: 16%;">ช่วงเวลา</th>
+        <th style="width: 24%;">หัวข้อการนำเสนอ</th>
+        <th style="width: 60%;">สิ่งที่ต้องแสดงบนหน้าจอและประเด็นพูด</th>
       </tr>
     </thead>
     <tbody>
@@ -630,7 +702,7 @@ ai-pdf-learning-platform/
   </table>
 
   <div class="footer-note">
-    จัดทำโดย กลุ่ม 2 (Group 2) &bull; รายวิชา DevSecOps &bull; เอกสารสำหรับการส่งงาน Sprint Security Review
+    จัดทำโดย กลุ่ม 2 (Group 2) &bull; รายวิชา DevSecOps &bull; เอกสารสรุปความคืบหน้าโครงการและการประเมินความเสี่ยง
   </div>
 
 </body>

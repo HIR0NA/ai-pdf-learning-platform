@@ -533,6 +533,83 @@ export default function Dashboard() {
         <h2 className={styles.sidebarTitle}>{t('dash_my_docs' as any)}</h2>
 
         {isSidebarExpanded && (
+          <div style={{ display: 'flex', gap: '4px', marginBottom: '0.75rem', paddingBottom: '0.65rem', borderBottom: '1px solid rgba(223, 182, 178, 0.15)', overflowX: 'auto' }}>
+            <Link
+              href="/dashboard/overview"
+              title="ภาพรวมสถิติการเรียน"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 7px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                fontSize: '0.72rem',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <LayoutDashboard size={12} /> สถิติ
+            </Link>
+            <Link
+              href="/dashboard/courses"
+              title="จัดการรายวิชา"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 7px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                fontSize: '0.72rem',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <BookOpen size={12} /> วิชา
+            </Link>
+            <Link
+              href="/dashboard/notes"
+              title="สมุดบันทึก"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 7px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                fontSize: '0.72rem',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <FileText size={12} /> โน้ต
+            </Link>
+            <Link
+              href="/dashboard/quiz-history"
+              title="ประวัติการทำ Quiz"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 7px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                fontSize: '0.72rem',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <ListChecks size={12} /> ผลสอบ
+            </Link>
+          </div>
+        )}
+
+        {isSidebarExpanded && (
           <label className={styles.coursePicker}>
             <span>รายวิชาสำหรับไฟล์ใหม่</span>
             <select value={selectedCourseId} onChange={(event) => setSelectedCourseId(event.target.value)}>

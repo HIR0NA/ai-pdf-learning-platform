@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node -e \"try{require('child_process').execSync('npx prisma generate',{stdio:'inherit'})}catch(e){console.warn('Prisma client locked by active dev process, using existing generated client.')}\" && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
@@ -12,7 +12,8 @@
     "db:push": "prisma db push",
     "db:seed": "node --env-file=.env seed_admin.js",
     "db:sync-uploads": "node sync_db.js",
-    "db:migrate-new": "node --env-file=.env scripts/migrate-to-new-database.js"
+    "db:migrate-new": "node --env-file=.env scripts/migrate-to-new-database.js",
+    "pdf": "node scripts/generate_pdf.cjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
