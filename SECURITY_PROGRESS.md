@@ -2,18 +2,13 @@
 **รายวิชา:** DevSecOps  
 **โครงการ:** AI PDF Learning Platform (AI Study Companion / AgentAI)  
 **กลุ่ม:** Group 2  
-**สถาบัน:** มหาวิทยาลัยสวนดุสิต (Suan Dusit University)  
 **วันที่:** กันยายน 2026
 
 ---
 
-## 1. ข้อมูลโครงการและคณะผู้จัดทำ
+## 1. ข้อมูลโครงการ (Project Overview)
 - **ชื่อระบบ:** AI PDF Learning Platform (AgentAI)
 - **วัตถุประสงค์:** แพลตฟอร์มช่วยอ่าน สรุป ถาม-ตอบ สร้างแบบทดสอบ และบัตรคำศัพท์จากเอกสาร PDF ด้วย AI โดยมีระบบแยกสิทธิ์และรักษาความลับของเอกสาร
-- **รายชื่อสมาชิกกลุ่ม 2:**
-  1. **Papon** — *Lead Developer / Full-stack Developer & DevSecOps Lead* (พัฒนาระบบหลัก, สถาปัตยกรรมความปลอดภัย, RBAC, Data Sanitization และ Pipeline)
-  2. **[ชื่อ-นามสกุล สมาชิก 2]** — *Security Testing & QA Engineer* (ทดสอบช่องโหว่ Web Testing / Burp Suite และรวบรวม Evidence)
-  3. **[ชื่อ-นามสกุล สมาชิก 3]** — *DevOps & Documentation* (ดูแล Docker Environment, จัดการ Dependency Scan และจัดทำรายงาน)
 
 ---
 
@@ -155,7 +150,7 @@ ai-pdf-learning-platform/
 
 ```text
 [นาทีที่ 0:00 - 1:00] แนะนำตัวและภาพรวมระบบ
-- แนะนำชื่อกลุ่ม สมาชิก และภาพรวมของระบบ AI PDF Learning Platform
+- แนะนำชื่อกลุ่ม (Group 2) และภาพรวมของระบบ AI PDF Learning Platform
 - เปิดหน้าเว็บจริง (Landing Page และ Dashboard) แสดงการทำงานพื้นฐาน
 
 [นาทีที่ 1:00 - 2:30] แสดงเครื่องมือและจุดอ่อนที่พบ (Tools & Detection)
