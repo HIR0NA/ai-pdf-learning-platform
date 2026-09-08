@@ -25,12 +25,12 @@ export default function Navbar() {
           <Link href="/" className={styles.link}>{t('nav_home')}</Link>
           {session?.user.role === 'ADMIN' ? (
             <>
-              <Link href="/admin" className={`${styles.link} ${styles.roleLink}`}><ShieldCheck size={15} /> {t('nav_admin_console' as any)}</Link>
+              <Link href="/admin" className={`${styles.link} ${styles.roleLink}`} title="Admin Console"><ShieldCheck size={15} /> {t('nav_admin_console' as any)}</Link>
               <Link href="/dashboard" className={styles.link}>{t('nav_chatai' as any)}</Link>
             </>
           ) : session?.user ? (
             <>
-              <Link href="/dashboard/overview" className={`${styles.link} ${styles.roleLink}`}><GraduationCap size={15} /> {t('nav_student_overview' as any)}</Link>
+              <Link href="/dashboard/overview" className={`${styles.link} ${styles.roleLink}`} title="Student Overview"><GraduationCap size={15} /> {t('nav_student_overview' as any)}</Link>
               <Link href="/dashboard" className={styles.link}>{t('nav_chatai' as any)}</Link>
             </>
           ) : null}
